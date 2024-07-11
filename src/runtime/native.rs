@@ -1081,10 +1081,9 @@ impl HistoryTrait for NativeRuntime {
 
 #[cfg(test)]
 mod test {
-    use crate::{
-        schemas::MQLAccountCredentials,
-        traits::{ConnectionTrait, TerminalInfoTrait},
-    };
+    use chrono::Local;
+
+    use crate::{enums, schemas::MQLAccountCredentials, traits::*};
 
     use super::NativeRuntime;
 
@@ -1093,7 +1092,6 @@ mod test {
         let terminal_path = std::env::var("TERMINAL_PATH").unwrap();
         let runtime = NativeRuntime::new().initialize(terminal_path.as_str());
         assert_eq!(runtime.is_ok(), true, "Unable to connect to terminal");
-        let _ = runtime.unwrap().shutdown().unwrap();
     }
 
     #[test]
@@ -1117,7 +1115,6 @@ mod test {
             None,
         );
         assert_eq!(runtime.is_ok(), true, "Unable to connect to terminal");
-        let _ = runtime.unwrap().shutdown().unwrap();
     }
 
     #[test]
@@ -1128,5 +1125,108 @@ mod test {
             .expect("Unable to connect to terminal");
         let version = runtime.version();
         assert_eq!(version.is_ok(), true, "Unable to get terminal version");
+    }
+
+    #[test]
+    fn test_terminal_info() {
+        let terminal_path = std::env::var("TERMINAL_PATH").unwrap();
+        let runtime = NativeRuntime::new()
+            .initialize(terminal_path.as_str())
+            .expect("Unable to connect to terminal");
+        let terminal_info = runtime.terminal_info();
+        assert_eq!(terminal_info.is_ok(), true, "Unable to get terminal info");
+    }
+
+    #[test]
+    fn test_account_info() {
+        let terminal_path = std::env::var("TERMINAL_PATH").unwrap();
+        let runtime = NativeRuntime::new()
+            .initialize(terminal_path.as_str())
+            .expect("Unable to connect to terminal");
+        let account_info = runtime.account_info();
+        assert_eq!(account_info.is_ok(), true, "Unable to get account info");
+    }
+
+    #[test]
+    fn test_symbols_total() {
+        let terminal_path = std::env::var("TERMINAL_PATH").unwrap();
+        let runtime = NativeRuntime::new()
+            .initialize(terminal_path.as_str())
+            .expect("Unable to connect to terminal");
+        let symbols_total = runtime.symbols_total();
+        assert_eq!(symbols_total.is_ok(), true, "Unable to get symbols total");
+    }
+
+    #[test]
+    fn test_symbols_get() {
+        let terminal_path = std::env::var("TERMINAL_PATH").unwrap();
+        let runtime = NativeRuntime::new()
+            .initialize(terminal_path.as_str())
+            .expect("Unable to connect to terminal");
+        let symbols_get_all = runtime.symbols_get(None);
+        assert_eq!(
+            symbols_get_all.is_ok(),
+            true,
+            "Unable to get all symbols info"
+        );
+        let symbols_get_specific_group = runtime.symbols_get(Some("*EUR*"));
+        assert_eq!(
+            symbols_get_specific_group.is_ok(),
+            true,
+            "Unable to get specific group symbols info"
+        );
+    }
+
+    #[test]
+    fn test_symbol_info() {
+        let terminal_path = std::env::var("TERMINAL_PATH").unwrap();
+        let runtime = NativeRuntime::new()
+            .initialize(terminal_path.as_str())
+            .expect("Unable to connect to terminal");
+        let symbol_info = runtime.symbol_info("EURUSD");
+        assert_eq!(symbol_info.is_ok(), true, "Unable to get symbol info");
+    }
+
+    #[test]
+    fn test_symbol_info_tick() {
+        let terminal_path = std::env::var("TERMINAL_PATH").unwrap();
+        let runtime = NativeRuntime::new()
+            .initialize(terminal_path.as_str())
+            .expect("Unable to connect to terminal");
+        let symbol_info_tick = runtime.symbol_info_tick("EURUSD");
+        assert_eq!(
+            symbol_info_tick.is_ok(),
+            true,
+            "Unable to get symbol info tick"
+        );
+    }
+
+    #[test]
+    fn test_symbol_select() {
+        let terminal_path = std::env::var("TERMINAL_PATH").unwrap();
+        let runtime = NativeRuntime::new()
+            .initialize(terminal_path.as_str())
+            .expect("Unable to connect to terminal");
+        let symbol_select = runtime.symbol_select("EURUSD", None);
+        assert_eq!(
+            symbol_select.is_ok(),
+            true,
+            "Unable to get symbol info tick"
+        );
+    }
+
+    #[test]
+    fn test_copy_rates_from() {
+        let terminal_path = std::env::var("TERMINAL_PATH").unwrap();
+        let runtime = NativeRuntime::new()
+            .initialize(terminal_path.as_str())
+            .expect("Unable to connect to terminal");
+        let copy_rates_from =
+            runtime.copy_rates_from("EURUSD", enums::MQLTimeframe::H1, Local::now(), 20);
+        assert_eq!(
+            copy_rates_from.is_ok(),
+            true,
+            "Unable to get symbol info tick"
+        );
     }
 }
