@@ -1,36 +1,58 @@
-use core::panic;
-
-pub enum MQLTimeframe {
+/// Represents the timeframe for a trading operation.
+pub enum Timeframe {
+    /// 1 minute
     M1 = 1,
+    /// 2 minutes
     M2 = 2,
+    /// 3 minutes
     M3 = 3,
+    /// 4 minutes
     M4 = 4,
+    /// 5 minutes
     M5 = 5,
+    /// 6 minutes
     M6 = 6,
+    /// 10 minutes
     M10 = 10,
+    /// 12 minutes
     M12 = 12,
+    /// 15 minutes
     M15 = 15,
+    /// 20 minutes
     M20 = 20,
+    /// 30 minutes
     M30 = 30,
+    /// 1 hour
     H1 = 1 | 0x4000,
+    /// 2 hours
     H2 = 2 | 0x4000,
-    H4 = 4 | 0x4000,
+    /// 3 hours
     H3 = 3 | 0x4000,
+    /// 4 hours
+    H4 = 4 | 0x4000,
+    /// 6 hours
     H6 = 6 | 0x4000,
+    /// 8 hours
     H8 = 8 | 0x4000,
+    /// 12 hours
     H12 = 12 | 0x4000,
+    /// 1 day
     D1 = 24 | 0x4000,
+    /// 1 week
     W1 = 1 | 0x8000,
+    /// 1 month
     MN1 = 1 | 0xC000,
 }
 
-pub enum MQLCopyTicksFlags {
+/// Represents the flags for copying ticks.
+pub enum CopyTicksFlags {
     ALL = -1,
     INFO = 1,
     TRADE = 2,
 }
 
-pub enum MQLTicksFlag {
+/// Represents the flags for ticks.
+pub enum TicksFlag {
     BID = 0x02,
     ASK = 0x04,
     LAST = 0x08,
@@ -39,6 +61,7 @@ pub enum MQLTicksFlag {
     SELL = 0x40,
 }
 
+/// Represents the type of an order.
 pub enum OrderType {
     BUY = 0,
     SELL = 1,
@@ -52,6 +75,7 @@ pub enum OrderType {
 }
 
 impl From<i64> for OrderType {
+    /// Converts an `i64` value to an `OrderType`.
     fn from(value: i64) -> Self {
         match value {
             0 => OrderType::BUY,
@@ -68,6 +92,7 @@ impl From<i64> for OrderType {
     }
 }
 
+/// Represents a trade action request.
 pub enum TradeActionRequest {
     DEAL = 1,
     PENDING = 5,
@@ -78,6 +103,7 @@ pub enum TradeActionRequest {
 }
 
 impl From<i64> for TradeActionRequest {
+    /// Converts an `i64` value to a `TradeActionRequest`.
     fn from(value: i64) -> Self {
         match value {
             1 => TradeActionRequest::DEAL,
@@ -91,19 +117,22 @@ impl From<i64> for TradeActionRequest {
     }
 }
 
-pub enum MQLTradeOrderTypeFilling {
+/// Represents the filling type for a trade order.
+pub enum TradeOrderTypeFilling {
     FOK = 0,
     IOC = 1,
     RETURN = 2,
 }
 
-pub enum MQLTradeOrderTypeTime {
+/// Represents the time type for a trade order.
+pub enum TradeOrderTypeTime {
     GTC = 0,
     DAY = 1,
     SPECIFIED = 2,
     SpecifiedDay = 3,
 }
 
+/// Represents the filling type for an order.
 pub enum OrderTypeFilling {
     FOK = 0,
     IOC = 1,
@@ -111,6 +140,7 @@ pub enum OrderTypeFilling {
 }
 
 impl From<i64> for OrderTypeFilling {
+    /// Converts an `i64` value to an `OrderTypeFilling`.
     fn from(value: i64) -> Self {
         match value {
             0 => OrderTypeFilling::FOK,
@@ -121,6 +151,7 @@ impl From<i64> for OrderTypeFilling {
     }
 }
 
+/// Represents the time type for an order.
 pub enum OrderTypeTime {
     GTC = 0,
     DAY = 1,
@@ -129,6 +160,7 @@ pub enum OrderTypeTime {
 }
 
 impl From<i64> for OrderTypeTime {
+    /// Converts an `i64` value to an `OrderTypeTime`.
     fn from(value: i64) -> Self {
         match value {
             0 => OrderTypeTime::GTC,

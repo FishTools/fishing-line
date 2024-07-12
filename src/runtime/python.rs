@@ -7,9 +7,13 @@ use crate::traits::{
     AccountInfoTrait, ConnectionTrait, ErrorTrait, HistoryTrait, OrderTrait, PositionTrait,
     SymbolInfoTrait, SymbolRatesTrait, SymbolTicksTrait, TerminalInfoTrait,
 };
+use chrono::{DateTime, Local};
 use chrono::{Datelike, Timelike};
+use pyo3;
 use pyo3::prelude::*;
 use pyo3::types::{PyDateTime, PyDict};
+use pyo3::PyObject;
+use pyo3::Python;
 
 pub struct PythonRuntime {
     runtime: Option<PyObject>,
@@ -323,8 +327,8 @@ impl SymbolRatesTrait for PythonRuntime {
     fn copy_rates_from(
         &self,
         symbol: &str,
-        timeframe: crate::enums::MQLTimeframe,
-        date_from: chrono::DateTime<chrono::Local>,
+        timeframe: crate::enums::Timeframe,
+        date_from: DateTime<Local>,
         count: i32,
     ) -> MQLResult<Vec<crate::schemas::SymbolRates>> {
         let result: PyResult<Vec<SymbolRates>> = Python::with_gil(|py| {
@@ -381,7 +385,7 @@ impl SymbolRatesTrait for PythonRuntime {
     fn copy_rates_from_pos(
         &self,
         symbol: &str,
-        timeframe: crate::enums::MQLTimeframe,
+        timeframe: crate::enums::Timeframe,
         start_pos: i32,
         count: i32,
     ) -> MQLResult<Vec<crate::schemas::SymbolRates>> {
@@ -420,9 +424,9 @@ impl SymbolRatesTrait for PythonRuntime {
     fn copy_rates_range(
         &self,
         symbol: &str,
-        timeframe: crate::enums::MQLTimeframe,
-        date_from: chrono::DateTime<chrono::Local>,
-        date_to: chrono::DateTime<chrono::Local>,
+        timeframe: crate::enums::Timeframe,
+        date_from: DateTime<Local>,
+        date_to: DateTime<Local>,
     ) -> MQLResult<Vec<crate::schemas::SymbolRates>> {
         let result: PyResult<Vec<SymbolRates>> = Python::with_gil(|py| {
             let rates = self
@@ -491,9 +495,9 @@ impl SymbolTicksTrait for PythonRuntime {
     fn copy_ticks_from(
         &self,
         symbol: &str,
-        date_from: chrono::DateTime<chrono::Local>,
+        date_from: DateTime<Local>,
         count: i32,
-        flags: crate::enums::MQLCopyTicksFlags,
+        flags: crate::enums::CopyTicksFlags,
     ) -> MQLResult<Vec<crate::schemas::SymbolTick>> {
         let result: PyResult<Vec<SymbolTick>> = Python::with_gil(|py| {
             let rates = self
@@ -548,9 +552,9 @@ impl SymbolTicksTrait for PythonRuntime {
     fn copy_ticks_range(
         &self,
         symbol: &str,
-        date_from: chrono::DateTime<chrono::Local>,
-        date_to: chrono::DateTime<chrono::Local>,
-        flags: crate::enums::MQLCopyTicksFlags,
+        date_from: DateTime<Local>,
+        date_to: DateTime<Local>,
+        flags: crate::enums::CopyTicksFlags,
     ) -> MQLResult<Vec<crate::schemas::SymbolTick>> {
         let result: PyResult<Vec<SymbolTick>> = Python::with_gil(|py| {
             let rates = self
@@ -864,8 +868,8 @@ impl PositionTrait for PythonRuntime {
 impl HistoryTrait for PythonRuntime {
     fn history_orders_total(
         &self,
-        date_from: chrono::DateTime<chrono::Local>,
-        date_to: chrono::DateTime<chrono::Local>,
+        date_from: DateTime<Local>,
+        date_to: DateTime<Local>,
     ) -> MQLResult<i64> {
         let result: PyResult<i64> = Python::with_gil(|py| {
             let total_history_orders = self
@@ -916,8 +920,8 @@ impl HistoryTrait for PythonRuntime {
     }
     fn history_orders_get(
         &self,
-        date_from: chrono::DateTime<chrono::Local>,
-        date_to: chrono::DateTime<chrono::Local>,
+        date_from: DateTime<Local>,
+        date_to: DateTime<Local>,
     ) -> MQLResult<Vec<Order>> {
         let result: PyResult<Vec<Order>> = Python::with_gil(|py| {
             let orders = self.runtime.as_ref().unwrap().call_method1(
@@ -971,8 +975,8 @@ impl HistoryTrait for PythonRuntime {
     }
     fn history_deals_total(
         &self,
-        date_from: chrono::DateTime<chrono::Local>,
-        date_to: chrono::DateTime<chrono::Local>,
+        date_from: DateTime<Local>,
+        date_to: DateTime<Local>,
     ) -> MQLResult<i64> {
         let result: PyResult<i64> = Python::with_gil(|py| {
             let total_history_deals = self
@@ -1023,8 +1027,8 @@ impl HistoryTrait for PythonRuntime {
     }
     fn history_deals_get(
         &self,
-        date_from: chrono::DateTime<chrono::Local>,
-        date_to: chrono::DateTime<chrono::Local>,
+        date_from: DateTime<Local>,
+        date_to: DateTime<Local>,
     ) -> MQLResult<Vec<crate::schemas::HistoryDeals>> {
         let result: PyResult<Vec<HistoryDeals>> = Python::with_gil(|py| {
             let deals = self.runtime.as_ref().unwrap().call_method1(
@@ -1081,7 +1085,7 @@ impl HistoryTrait for PythonRuntime {
 
 #[cfg(test)]
 mod test {
-    use chrono::{DateTime, Local, TimeZone};
+    use chrono::{Local, TimeZone};
 
     use crate::{
         enums::{self, OrderTypeFilling},
@@ -1222,7 +1226,7 @@ mod test {
             .initialize(terminal_path.as_str())
             .expect("Unable to connect to terminal");
         let copy_rates_from =
-            runtime.copy_rates_from("EURUSD", enums::MQLTimeframe::H1, Local::now(), 20);
+            runtime.copy_rates_from("EURUSD", enums::Timeframe::H1, Local::now(), 20);
         assert_eq!(copy_rates_from.is_ok(), true, "Unable to get symbol rates");
     }
 
@@ -1233,7 +1237,7 @@ mod test {
             .initialize(terminal_path.as_str())
             .expect("Unable to connect to terminal");
         let copy_rates_from_pos =
-            runtime.copy_rates_from_pos("EURUSD", enums::MQLTimeframe::H1, 0, 20);
+            runtime.copy_rates_from_pos("EURUSD", enums::Timeframe::H1, 0, 20);
         assert_eq!(
             copy_rates_from_pos.is_ok(),
             true,
@@ -1249,7 +1253,7 @@ mod test {
             .expect("Unable to connect to terminal");
         let copy_rates_range = runtime.copy_rates_range(
             "EURUSD",
-            enums::MQLTimeframe::H1,
+            enums::Timeframe::H1,
             Local.with_ymd_and_hms(2024, 7, 7, 0, 0, 0).unwrap(),
             Local::now(),
         );
@@ -1266,7 +1270,7 @@ mod test {
             "EURUSD",
             Local.with_ymd_and_hms(2024, 7, 7, 0, 0, 0).unwrap(),
             20,
-            enums::MQLCopyTicksFlags::ALL,
+            enums::CopyTicksFlags::ALL,
         );
         assert_eq!(copy_ticks_from.is_ok(), true, "Unable to get symbol rates");
     }
@@ -1281,7 +1285,7 @@ mod test {
             "EURUSD",
             Local.with_ymd_and_hms(2024, 7, 10, 0, 0, 0).unwrap(),
             Local::now(),
-            enums::MQLCopyTicksFlags::ALL,
+            enums::CopyTicksFlags::ALL,
         );
         assert_eq!(copy_ticks_range.is_ok(), true, "Unable to get symbol rates");
     }

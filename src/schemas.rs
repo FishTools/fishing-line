@@ -1,10 +1,9 @@
-use pyo3::{
-    types::{PyAnyMethods, PyDict},
-    FromPyObject, IntoPy, PyObject,
-};
+use pyo3;
+use pyo3::Python;
+use pyo3::{prelude::*, types::PyDict, FromPyObject, IntoPy, PyObject};
 use serde::{Deserialize, Serialize};
 
-use crate::enums::{self, TradeActionRequest};
+use crate::enums::{self};
 
 #[derive(Deserialize, FromPyObject, Debug)]
 pub struct TerminalVersion {
@@ -411,7 +410,7 @@ pub struct TradeRequestBuilder {
 }
 
 impl IntoPy<PyObject> for TradeRequestBuilder {
-    fn into_py(self, py: pyo3::Python<'_>) -> PyObject {
+    fn into_py(self, py: Python<'_>) -> PyObject {
         let dict = PyDict::new_bound(py);
         if self.action.is_some() {
             dict.set_item("action", self.action.unwrap() as i64)

@@ -2,6 +2,7 @@ use crate::prelude::{MQLError, MQLResult};
 use crate::schemas::{
     AccountCredentials, AccountInfo, HistoryDeals, Order, Position, TerminalInfo, TerminalVersion,
 };
+use chrono::{DateTime, Local};
 
 pub trait AccountInfoTrait {
     fn account_info(&self) -> MQLResult<AccountInfo>;
@@ -40,23 +41,23 @@ pub trait SymbolRatesTrait {
     fn copy_rates_from(
         &self,
         symbol: &str,
-        timeframe: crate::enums::MQLTimeframe,
-        date_from: chrono::DateTime<chrono::Local>,
+        timeframe: crate::enums::Timeframe,
+        date_from: DateTime<Local>,
         count: i32,
     ) -> MQLResult<Vec<crate::schemas::SymbolRates>>;
     fn copy_rates_from_pos(
         &self,
         symbol: &str,
-        timeframe: crate::enums::MQLTimeframe,
+        timeframe: crate::enums::Timeframe,
         start_pos: i32,
         count: i32,
     ) -> MQLResult<Vec<crate::schemas::SymbolRates>>;
     fn copy_rates_range(
         &self,
         symbol: &str,
-        timeframe: crate::enums::MQLTimeframe,
-        date_from: chrono::DateTime<chrono::Local>,
-        date_to: chrono::DateTime<chrono::Local>,
+        timeframe: crate::enums::Timeframe,
+        date_from: DateTime<Local>,
+        date_to: DateTime<Local>,
     ) -> MQLResult<Vec<crate::schemas::SymbolRates>>;
 }
 
@@ -64,16 +65,16 @@ pub trait SymbolTicksTrait {
     fn copy_ticks_from(
         &self,
         symbol: &str,
-        date_from: chrono::DateTime<chrono::Local>,
+        date_from: DateTime<Local>,
         count: i32,
-        flags: crate::enums::MQLCopyTicksFlags,
+        flags: crate::enums::CopyTicksFlags,
     ) -> MQLResult<Vec<crate::schemas::SymbolTick>>;
     fn copy_ticks_range(
         &self,
         symbol: &str,
-        date_from: chrono::DateTime<chrono::Local>,
-        date_to: chrono::DateTime<chrono::Local>,
-        flags: crate::enums::MQLCopyTicksFlags,
+        date_from: DateTime<Local>,
+        date_to: DateTime<Local>,
+        flags: crate::enums::CopyTicksFlags,
     ) -> MQLResult<Vec<crate::schemas::SymbolTick>>;
 }
 
@@ -113,22 +114,22 @@ pub trait PositionTrait {
 pub trait HistoryTrait {
     fn history_orders_total(
         &self,
-        date_from: chrono::DateTime<chrono::Local>,
-        date_to: chrono::DateTime<chrono::Local>,
+        date_from: DateTime<Local>,
+        date_to: DateTime<Local>,
     ) -> MQLResult<i64>;
     fn history_orders_get(
         &self,
-        date_from: chrono::DateTime<chrono::Local>,
-        date_to: chrono::DateTime<chrono::Local>,
+        date_from: DateTime<Local>,
+        date_to: DateTime<Local>,
     ) -> MQLResult<Vec<Order>>;
     fn history_deals_total(
         &self,
-        date_from: chrono::DateTime<chrono::Local>,
-        date_to: chrono::DateTime<chrono::Local>,
+        date_from: DateTime<Local>,
+        date_to: DateTime<Local>,
     ) -> MQLResult<i64>;
     fn history_deals_get(
         &self,
-        date_from: chrono::DateTime<chrono::Local>,
-        date_to: chrono::DateTime<chrono::Local>,
+        date_from: DateTime<Local>,
+        date_to: DateTime<Local>,
     ) -> MQLResult<Vec<HistoryDeals>>;
 }
