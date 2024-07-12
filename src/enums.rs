@@ -1,3 +1,5 @@
+use core::panic;
+
 pub enum MQLTimeframe {
     M1 = 1,
     M2 = 2,
@@ -37,7 +39,7 @@ pub enum MQLTicksFlag {
     SELL = 0x40,
 }
 
-pub enum MQLOrderType {
+pub enum OrderType {
     BUY = 0,
     SELL = 1,
     BuyLimit = 2,
@@ -49,13 +51,44 @@ pub enum MQLOrderType {
     CloseBy = 8,
 }
 
-pub enum MQLTradeActionRequest {
+impl From<i64> for OrderType {
+    fn from(value: i64) -> Self {
+        match value {
+            0 => OrderType::BUY,
+            1 => OrderType::SELL,
+            2 => OrderType::BuyLimit,
+            3 => OrderType::SellLimit,
+            4 => OrderType::BuyStop,
+            5 => OrderType::SellStop,
+            6 => OrderType::BuyStopLimit,
+            7 => OrderType::SellStopLimit,
+            8 => OrderType::CloseBy,
+            _ => panic!("Invalid OrderType value: {}", value),
+        }
+    }
+}
+
+pub enum TradeActionRequest {
     DEAL = 1,
     PENDING = 5,
     SLTP = 6,
     MODIFY = 7,
     REMOVE = 8,
     CloseBy = 10,
+}
+
+impl From<i64> for TradeActionRequest {
+    fn from(value: i64) -> Self {
+        match value {
+            1 => TradeActionRequest::DEAL,
+            5 => TradeActionRequest::PENDING,
+            6 => TradeActionRequest::SLTP,
+            7 => TradeActionRequest::MODIFY,
+            8 => TradeActionRequest::REMOVE,
+            10 => TradeActionRequest::CloseBy,
+            _ => panic!("Invalid TradeActionRequest value: {}", value),
+        }
+    }
 }
 
 pub enum MQLTradeOrderTypeFilling {
@@ -69,4 +102,40 @@ pub enum MQLTradeOrderTypeTime {
     DAY = 1,
     SPECIFIED = 2,
     SpecifiedDay = 3,
+}
+
+pub enum OrderTypeFilling {
+    FOK = 0,
+    IOC = 1,
+    RETURN = 2,
+}
+
+impl From<i64> for OrderTypeFilling {
+    fn from(value: i64) -> Self {
+        match value {
+            0 => OrderTypeFilling::FOK,
+            1 => OrderTypeFilling::IOC,
+            2 => OrderTypeFilling::RETURN,
+            _ => panic!("Invalid OrderTypeFilling value: {}", value),
+        }
+    }
+}
+
+pub enum OrderTypeTime {
+    GTC = 0,
+    DAY = 1,
+    SPECIFIED = 2,
+    SpecifiedDay = 3,
+}
+
+impl From<i64> for OrderTypeTime {
+    fn from(value: i64) -> Self {
+        match value {
+            0 => OrderTypeTime::GTC,
+            1 => OrderTypeTime::DAY,
+            2 => OrderTypeTime::SPECIFIED,
+            3 => OrderTypeTime::SpecifiedDay,
+            _ => panic!("Invalid OrderTypeTime value: {}", value),
+        }
+    }
 }

@@ -1,12 +1,13 @@
 use pyo3::{
-    pyclass,
     types::{PyAnyMethods, PyDict},
-    FromPyObject, IntoPy, PyObject, ToPyObject,
+    FromPyObject, IntoPy, PyObject,
 };
 use serde::{Deserialize, Serialize};
 
+use crate::enums::{self, TradeActionRequest};
+
 #[derive(Deserialize, FromPyObject, Debug)]
-pub struct MQLTerminalVersion {
+pub struct TerminalVersion {
     pub terminal_version: i64,
     pub build: i64,
     pub build_date: String,
@@ -14,7 +15,7 @@ pub struct MQLTerminalVersion {
 
 #[derive(Deserialize, FromPyObject, Debug)]
 #[pyo3(from_item_all)]
-pub struct MQLTerminalInfo {
+pub struct TerminalInfo {
     pub community_account: bool,
     pub community_connection: bool,
     pub connected: bool,
@@ -66,7 +67,7 @@ pub enum TerminalInfoProperty {
 
 #[derive(Deserialize, FromPyObject, Debug)]
 #[pyo3(from_item_all)]
-pub struct MQLAccountInfo {
+pub struct AccountInfo {
     pub login: i64,
     pub trade_mode: i64,
     pub leverage: i64,
@@ -98,7 +99,7 @@ pub struct MQLAccountInfo {
 }
 
 #[derive(Serialize, FromPyObject)]
-pub struct MQLAccountCredentials {
+pub struct AccountCredentials {
     pub login: i64,
     pub password: String,
     pub server: String,
@@ -137,7 +138,7 @@ pub enum AccountInfoProperty {
 
 #[derive(Deserialize, FromPyObject, Debug)]
 #[pyo3(from_item_all)]
-pub struct MQLSymbolInfo {
+pub struct SymbolInfo {
     pub custom: bool,
     pub chart_mode: i64,
     pub select: bool,
@@ -238,7 +239,7 @@ pub struct MQLSymbolInfo {
 
 #[derive(Deserialize, FromPyObject, Debug)]
 #[pyo3(from_item_all)]
-pub struct MQLSymbolTick {
+pub struct SymbolTick {
     pub time: i64,
     pub bid: f64,
     pub ask: f64,
@@ -251,7 +252,7 @@ pub struct MQLSymbolTick {
 
 #[derive(Deserialize, FromPyObject, Debug)]
 #[pyo3(from_item_all)]
-pub struct MQLSymbolRates {
+pub struct SymbolRates {
     pub time: i64,
     pub open: f64,
     pub high: f64,
@@ -264,37 +265,61 @@ pub struct MQLSymbolRates {
 
 #[derive(Deserialize, FromPyObject, Debug)]
 #[pyo3(from_item_all)]
-pub struct MQLOrder {
+pub struct Order {
+    /// Order ticket. Unique number assigned to each order
     pub ticket: i64,
+    /// Order setup time
     pub time_setup: i64,
+    /// The time of placing an order for execution in milliseconds since 01.01.1970
     pub time_setup_msc: i64,
+    /// Order expiration time
     pub time_expiration: i64,
+    /// Order type
     #[pyo3(item("type"))]
-    pub order_type: i64,
+    pub r#type: i64,
+    /// Order lifetime
     pub type_time: i64,
+    /// Order filling type
     pub type_filling: i64,
+    /// Order state
     pub state: i64,
+    /// ID of an Expert Advisor that has placed the order (designed to ensure that each Expert Advisor places its own unique number)
     pub magic: i64,
+    /// Order execution or cancellation time
     pub time_done: i64,
+    /// Order execution/cancellation time in milliseconds since 01.01.1970
     pub time_done_msc: i64,
+    /// Position identifier that is set to an order as soon as it is executed. Each executed order results in a deal that opens or modifies an already existing position. The identifier of exactly this position is set to the executed order at this moment.
     pub position_id: i64,
+    /// Identifier of an opposite position used for closing by order  ORDER_TYPE_CLOSE_BY
     pub position_by_id: i64,
+    /// The reason or source for placing an order
     pub reason: i64,
+    /// Order initial volume
     pub volume_initial: f64,
+    /// The Limit order price for the StopLimit order
     pub price_stoplimit: f64,
+    /// Order current volume
     pub volume_current: f64,
+    /// Price specified in the order
     pub price_open: f64,
+    /// Stop Loss value
     pub sl: f64,
+    /// Take Profit value
     pub tp: f64,
+    /// The current price of the order symbol
     pub price_current: f64,
+    /// Symbol of the order
     pub symbol: String,
+    /// Order comment
     pub comment: String,
+    /// Order identifier in an external trading system (on the Exchange)
     pub external_id: String,
 }
 
 #[derive(Deserialize, FromPyObject, Debug, Clone)]
 #[pyo3(from_item_all)]
-pub struct MQLPosition {
+pub struct Position {
     pub ticket: i64,
     pub time: i64,
     pub time_msc: i64,
@@ -319,7 +344,7 @@ pub struct MQLPosition {
 
 #[derive(Deserialize, FromPyObject, Debug, Clone)]
 #[pyo3(from_item_all)]
-pub struct MQLHistoryPosition {
+pub struct HistoryDeals {
     pub ticket: i64,
     pub order: Option<i64>,
     pub time: i64,
@@ -343,68 +368,222 @@ pub struct MQLHistoryPosition {
 
 #[derive(Deserialize, FromPyObject, Debug, Clone)]
 #[pyo3(from_item_all)]
-pub struct MQLTradeRequest {
+pub struct TradeRequest {
     pub action: i64,
     pub magic: i64,
-    pub order: Option<i64>,
+    pub order: i64,
     pub symbol: String,
     pub volume: f64,
     pub price: f64,
-    pub stoplimit: Option<f64>,
+    pub stoplimit: f64,
     pub sl: f64,
     pub tp: f64,
-    pub deviation: Option<i64>,
+    pub deviation: i64,
     #[pyo3(item("type"))]
     pub r#type: i64,
     pub type_filling: i64,
     pub type_time: i64,
-    pub expiration: Option<i64>,
+    pub expiration: i64,
     pub comment: String,
-    pub position: Option<i64>,
-    pub position_by: Option<i64>,
+    pub position: i64,
+    pub position_by: i64,
 }
 
-impl IntoPy<PyObject> for MQLTradeRequest {
+#[derive(Default)]
+pub struct TradeRequestBuilder {
+    action: Option<enums::TradeActionRequest>,
+    magic: Option<i64>,
+    order: Option<enums::OrderType>,
+    symbol: Option<String>,
+    volume: Option<f64>,
+    price: Option<f64>,
+    stoplimit: Option<f64>,
+    sl: Option<f64>,
+    tp: Option<f64>,
+    deviation: Option<i64>,
+    r#type: Option<i64>,
+    type_filling: Option<enums::OrderTypeFilling>,
+    type_time: Option<enums::OrderTypeTime>,
+    expiration: Option<i64>,
+    comment: Option<String>,
+    position: Option<i64>,
+    position_by: Option<i64>,
+}
+
+impl IntoPy<PyObject> for TradeRequestBuilder {
     fn into_py(self, py: pyo3::Python<'_>) -> PyObject {
         let dict = PyDict::new_bound(py);
-        dict.set_item("action", self.action).unwrap();
-        dict.set_item("magic", self.magic).unwrap();
-        if self.order.is_some() {
-            dict.set_item("order", self.order.unwrap()).unwrap();
+        if self.action.is_some() {
+            dict.set_item("action", self.action.unwrap() as i64)
+                .unwrap();
         }
-        dict.set_item("symbol", self.symbol).unwrap();
-        dict.set_item("volume", self.volume).unwrap();
-        dict.set_item("price", self.price).unwrap();
+
+        if self.magic.is_some() {
+            dict.set_item("magic", self.magic.unwrap()).unwrap();
+        }
+
+        if self.order.is_some() {
+            dict.set_item("order", self.order.unwrap() as i64).unwrap();
+        }
+
+        if self.symbol.is_some() {
+            dict.set_item("symbol", self.symbol.unwrap()).unwrap();
+        }
+
+        if self.volume.is_some() {
+            dict.set_item("volume", self.volume.unwrap()).unwrap();
+        }
+
+        if self.price.is_some() {
+            dict.set_item("price", self.price.unwrap()).unwrap();
+        }
+
         if self.stoplimit.is_some() {
             dict.set_item("stoplimit", self.stoplimit.unwrap()).unwrap();
         }
-        dict.set_item("sl", self.sl).unwrap();
-        dict.set_item("tp", self.tp).unwrap();
+
+        if self.sl.is_some() {
+            dict.set_item("sl", self.sl.unwrap()).unwrap();
+        }
+
+        if self.tp.is_some() {
+            dict.set_item("tp", self.tp.unwrap()).unwrap();
+        }
+
         if self.deviation.is_some() {
             dict.set_item("deviation", self.deviation.unwrap()).unwrap();
         }
-        dict.set_item("type", self.r#type).unwrap();
-        dict.set_item("type_filling", self.type_filling).unwrap();
-        dict.set_item("type_time", self.type_time).unwrap();
+
+        if self.r#type.is_some() {
+            dict.set_item("type", self.r#type.unwrap()).unwrap();
+        }
+
+        if self.type_filling.is_some() {
+            dict.set_item("type_filling", self.type_filling.unwrap() as i64)
+                .unwrap();
+        }
+
+        if self.type_time.is_some() {
+            dict.set_item("type_time", self.type_time.unwrap() as i64)
+                .unwrap();
+        }
+
         if self.expiration.is_some() {
             dict.set_item("expiration", self.expiration.unwrap())
                 .unwrap();
         }
+
+        if self.comment.is_some() {
+            dict.set_item("comment", self.comment.unwrap()).unwrap();
+        }
+
         if self.position.is_some() {
             dict.set_item("position", self.position.unwrap()).unwrap();
         }
+
         if self.position_by.is_some() {
             dict.set_item("position_by", self.position_by.unwrap())
                 .unwrap();
         }
-        dict.set_item("comment", self.comment).unwrap();
+
         return dict.into_py(py);
+    }
+}
+
+impl TradeRequestBuilder {
+    pub fn new() -> Self {
+        return TradeRequestBuilder::default();
+    }
+
+    pub fn action(mut self, action: enums::TradeActionRequest) -> Self {
+        self.action = Some(action);
+        return self;
+    }
+
+    pub fn magic(mut self, magic: i64) -> Self {
+        self.magic = Some(magic);
+        return self;
+    }
+
+    pub fn order(mut self, order: enums::OrderType) -> Self {
+        self.order = Some(order);
+        return self;
+    }
+
+    pub fn symbol(mut self, symbol: String) -> Self {
+        self.symbol = Some(symbol);
+        return self;
+    }
+
+    pub fn volume(mut self, volume: f64) -> Self {
+        self.volume = Some(volume);
+        return self;
+    }
+
+    pub fn price(mut self, price: f64) -> Self {
+        self.price = Some(price);
+        return self;
+    }
+
+    pub fn stoplimit(mut self, stoplimit: f64) -> Self {
+        self.stoplimit = Some(stoplimit);
+        return self;
+    }
+
+    pub fn sl(mut self, sl: f64) -> Self {
+        self.sl = Some(sl);
+        return self;
+    }
+
+    pub fn tp(mut self, tp: f64) -> Self {
+        self.tp = Some(tp);
+        return self;
+    }
+
+    pub fn deviation(mut self, deviation: i64) -> Self {
+        self.deviation = Some(deviation);
+        return self;
+    }
+
+    pub fn r#type(mut self, r#type: i64) -> Self {
+        self.r#type = Some(r#type);
+        return self;
+    }
+
+    pub fn type_filling(mut self, type_filling: enums::OrderTypeFilling) -> Self {
+        self.type_filling = Some(type_filling);
+        return self;
+    }
+
+    pub fn type_time(mut self, type_time: enums::OrderTypeTime) -> Self {
+        self.type_time = Some(type_time);
+        return self;
+    }
+
+    pub fn expiration(mut self, expiration: i64) -> Self {
+        self.expiration = Some(expiration);
+        return self;
+    }
+
+    pub fn comment(mut self, comment: String) -> Self {
+        self.comment = Some(comment);
+        return self;
+    }
+
+    pub fn position(mut self, position: i64) -> Self {
+        self.position = Some(position);
+        return self;
+    }
+
+    pub fn position_by(mut self, position_by: i64) -> Self {
+        self.position_by = Some(position_by);
+        return self;
     }
 }
 
 #[derive(Deserialize, FromPyObject, Debug)]
 #[pyo3(from_item_all)]
-pub struct MQLCheckResult {
+pub struct CheckResult {
     pub retcode: i64,
     pub balance: f64,
     pub equity: f64,
@@ -413,12 +592,12 @@ pub struct MQLCheckResult {
     pub margin_free: f64,
     pub margin_level: f64,
     pub comment: String,
-    pub request: MQLTradeRequest,
+    pub request: TradeRequest,
 }
 
 #[derive(Deserialize, FromPyObject, Debug)]
 #[pyo3(from_item_all)]
-pub struct MQLTradeResult {
+pub struct TradeResult {
     pub retcode: i64,
     pub deal: i64,
     pub order: i64,
@@ -429,5 +608,5 @@ pub struct MQLTradeResult {
     pub comment: String,
     pub request_id: i64,
     pub retcode_external: i64,
-    pub request: MQLTradeRequest,
+    pub request: TradeRequest,
 }

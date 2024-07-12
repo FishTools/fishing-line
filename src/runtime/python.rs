@@ -1,7 +1,7 @@
 use crate::prelude::{MQLError, MQLResult};
 use crate::schemas::{
-    MQLAccountInfo, MQLCheckResult, MQLHistoryPosition, MQLOrder, MQLPosition, MQLSymbolInfo,
-    MQLSymbolRates, MQLSymbolTick, MQLTerminalInfo, MQLTerminalVersion, MQLTradeResult,
+    AccountInfo, CheckResult, HistoryDeals, Order, Position, SymbolInfo, SymbolRates, SymbolTick,
+    TerminalInfo, TerminalVersion, TradeResult,
 };
 use crate::traits::{
     AccountInfoTrait, ConnectionTrait, ErrorTrait, HistoryTrait, OrderTrait, PositionTrait,
@@ -11,13 +11,13 @@ use chrono::{Datelike, Timelike};
 use pyo3::prelude::*;
 use pyo3::types::{PyDateTime, PyDict};
 
-pub struct NativeRuntime {
+pub struct PythonRuntime {
     runtime: Option<PyObject>,
 }
 
-impl NativeRuntime {
+impl PythonRuntime {
     pub fn new() -> Self {
-        let result: PyResult<NativeRuntime> = Python::with_gil(|py| {
+        let result: PyResult<PythonRuntime> = Python::with_gil(|py| {
             let sys = py
                 .import_bound("sys")
                 .expect("Unable to import `sys` module");
@@ -27,7 +27,7 @@ impl NativeRuntime {
                 std::env::var("POETRY_ENVIRONMENT").expect("Unable to find `POETRY_ENVIRONMENT`")
             );
             path.getattr("append")?.call1((poetry_environment_path,))?;
-            return Ok(NativeRuntime {
+            return Ok(PythonRuntime {
                 runtime: Some(py.import_bound("MetaTrader5")?.extract()?),
             });
         });
@@ -35,14 +35,14 @@ impl NativeRuntime {
     }
 }
 
-impl ConnectionTrait<NativeRuntime> for NativeRuntime {
+impl ConnectionTrait<PythonRuntime> for PythonRuntime {
     fn initialize_with_credentials(
         self,
         path: &str,
-        credentials: crate::schemas::MQLAccountCredentials,
+        credentials: crate::schemas::AccountCredentials,
         timeout: i64,
         portable: Option<bool>,
-    ) -> MQLResult<NativeRuntime> {
+    ) -> MQLResult<PythonRuntime> {
         let result: PyResult<bool> = Python::with_gil(|py| {
             let kwargs = PyDict::new_bound(py);
             kwargs.set_item("login", credentials.login).unwrap();
@@ -111,7 +111,7 @@ impl ConnectionTrait<NativeRuntime> for NativeRuntime {
     }
 }
 
-impl ErrorTrait for NativeRuntime {
+impl ErrorTrait for PythonRuntime {
     fn last_error(&self) -> crate::prelude::MQLError {
         let result: PyResult<MQLError> = Python::with_gil(|py| {
             let error = self
@@ -126,9 +126,9 @@ impl ErrorTrait for NativeRuntime {
     }
 }
 
-impl AccountInfoTrait for NativeRuntime {
-    fn account_info(&self) -> crate::prelude::MQLResult<crate::schemas::MQLAccountInfo> {
-        let result: PyResult<MQLAccountInfo> = Python::with_gil(|py| {
+impl AccountInfoTrait for PythonRuntime {
+    fn account_info(&self) -> crate::prelude::MQLResult<crate::schemas::AccountInfo> {
+        let result: PyResult<AccountInfo> = Python::with_gil(|py| {
             let account = self
                 .runtime
                 .as_ref()
@@ -150,9 +150,9 @@ impl AccountInfoTrait for NativeRuntime {
     }
 }
 
-impl TerminalInfoTrait for NativeRuntime {
-    fn terminal_info(&self) -> crate::prelude::MQLResult<crate::schemas::MQLTerminalInfo> {
-        let result: PyResult<MQLTerminalInfo> = Python::with_gil(|py| {
+impl TerminalInfoTrait for PythonRuntime {
+    fn terminal_info(&self) -> crate::prelude::MQLResult<crate::schemas::TerminalInfo> {
+        let result: PyResult<TerminalInfo> = Python::with_gil(|py| {
             let terminal = self
                 .runtime
                 .as_ref()
@@ -172,15 +172,15 @@ impl TerminalInfoTrait for NativeRuntime {
 
         return Ok(result.unwrap());
     }
-    fn version(&self) -> MQLResult<crate::schemas::MQLTerminalVersion> {
-        let result: PyResult<MQLTerminalVersion> = Python::with_gil(|py| {
+    fn version(&self) -> MQLResult<crate::schemas::TerminalVersion> {
+        let result: PyResult<TerminalVersion> = Python::with_gil(|py| {
             let (terminal_version, build, build_date) = self
                 .runtime
                 .as_ref()
                 .unwrap()
                 .call_method0(py, "version")?
                 .extract::<(i64, i64, String)>(py)?;
-            return Ok(MQLTerminalVersion {
+            return Ok(TerminalVersion {
                 terminal_version,
                 build,
                 build_date,
@@ -197,7 +197,7 @@ impl TerminalInfoTrait for NativeRuntime {
     }
 }
 
-impl SymbolInfoTrait for NativeRuntime {
+impl SymbolInfoTrait for PythonRuntime {
     fn symbols_total(&self) -> MQLResult<i32> {
         let result: PyResult<i32> = Python::with_gil(|py| {
             let total = self
@@ -217,8 +217,8 @@ impl SymbolInfoTrait for NativeRuntime {
 
         return Ok(result.unwrap());
     }
-    fn symbol_info(&self, symbol: &str) -> MQLResult<MQLSymbolInfo> {
-        let result: PyResult<MQLSymbolInfo> = Python::with_gil(|py| {
+    fn symbol_info(&self, symbol: &str) -> MQLResult<SymbolInfo> {
+        let result: PyResult<SymbolInfo> = Python::with_gil(|py| {
             let symbol = self
                 .runtime
                 .as_ref()
@@ -239,8 +239,8 @@ impl SymbolInfoTrait for NativeRuntime {
         return Ok(result.unwrap());
     }
 
-    fn symbol_info_tick(&self, symbol: &str) -> MQLResult<MQLSymbolTick> {
-        let result: PyResult<MQLSymbolTick> = Python::with_gil(|py| {
+    fn symbol_info_tick(&self, symbol: &str) -> MQLResult<SymbolTick> {
+        let result: PyResult<SymbolTick> = Python::with_gil(|py| {
             let ticks = self
                 .runtime
                 .as_ref()
@@ -288,8 +288,8 @@ impl SymbolInfoTrait for NativeRuntime {
         return Ok(result.unwrap());
     }
 
-    fn symbols_get(&self, group: Option<&str>) -> MQLResult<Vec<crate::schemas::MQLSymbolInfo>> {
-        let result: PyResult<Vec<MQLSymbolInfo>> = Python::with_gil(|py| {
+    fn symbols_get(&self, group: Option<&str>) -> MQLResult<Vec<crate::schemas::SymbolInfo>> {
+        let result: PyResult<Vec<SymbolInfo>> = Python::with_gil(|py| {
             let kwargs = PyDict::new_bound(py);
             if group.is_some() {
                 kwargs.set_item("group", group.unwrap()).unwrap();
@@ -319,15 +319,15 @@ impl SymbolInfoTrait for NativeRuntime {
     }
 }
 
-impl SymbolRatesTrait for NativeRuntime {
+impl SymbolRatesTrait for PythonRuntime {
     fn copy_rates_from(
         &self,
         symbol: &str,
         timeframe: crate::enums::MQLTimeframe,
         date_from: chrono::DateTime<chrono::Local>,
         count: i32,
-    ) -> MQLResult<Vec<crate::schemas::MQLSymbolRates>> {
-        let result: PyResult<Vec<MQLSymbolRates>> = Python::with_gil(|py| {
+    ) -> MQLResult<Vec<crate::schemas::SymbolRates>> {
+        let result: PyResult<Vec<SymbolRates>> = Python::with_gil(|py| {
             let rates = self
                 .runtime
                 .as_ref()
@@ -384,8 +384,8 @@ impl SymbolRatesTrait for NativeRuntime {
         timeframe: crate::enums::MQLTimeframe,
         start_pos: i32,
         count: i32,
-    ) -> MQLResult<Vec<crate::schemas::MQLSymbolRates>> {
-        let result: PyResult<Vec<MQLSymbolRates>> = Python::with_gil(|py| {
+    ) -> MQLResult<Vec<crate::schemas::SymbolRates>> {
+        let result: PyResult<Vec<SymbolRates>> = Python::with_gil(|py| {
             let rates = self
                 .runtime
                 .as_ref()
@@ -423,8 +423,8 @@ impl SymbolRatesTrait for NativeRuntime {
         timeframe: crate::enums::MQLTimeframe,
         date_from: chrono::DateTime<chrono::Local>,
         date_to: chrono::DateTime<chrono::Local>,
-    ) -> MQLResult<Vec<crate::schemas::MQLSymbolRates>> {
-        let result: PyResult<Vec<MQLSymbolRates>> = Python::with_gil(|py| {
+    ) -> MQLResult<Vec<crate::schemas::SymbolRates>> {
+        let result: PyResult<Vec<SymbolRates>> = Python::with_gil(|py| {
             let rates = self
                 .runtime
                 .as_ref()
@@ -487,15 +487,15 @@ impl SymbolRatesTrait for NativeRuntime {
     }
 }
 
-impl SymbolTicksTrait for NativeRuntime {
+impl SymbolTicksTrait for PythonRuntime {
     fn copy_ticks_from(
         &self,
         symbol: &str,
         date_from: chrono::DateTime<chrono::Local>,
         count: i32,
         flags: crate::enums::MQLCopyTicksFlags,
-    ) -> MQLResult<Vec<crate::schemas::MQLSymbolTick>> {
-        let result: PyResult<Vec<MQLSymbolTick>> = Python::with_gil(|py| {
+    ) -> MQLResult<Vec<crate::schemas::SymbolTick>> {
+        let result: PyResult<Vec<SymbolTick>> = Python::with_gil(|py| {
             let rates = self
                 .runtime
                 .as_ref()
@@ -551,8 +551,8 @@ impl SymbolTicksTrait for NativeRuntime {
         date_from: chrono::DateTime<chrono::Local>,
         date_to: chrono::DateTime<chrono::Local>,
         flags: crate::enums::MQLCopyTicksFlags,
-    ) -> MQLResult<Vec<crate::schemas::MQLSymbolTick>> {
-        let result: PyResult<Vec<MQLSymbolTick>> = Python::with_gil(|py| {
+    ) -> MQLResult<Vec<crate::schemas::SymbolTick>> {
+        let result: PyResult<Vec<SymbolTick>> = Python::with_gil(|py| {
             let rates = self
                 .runtime
                 .as_ref()
@@ -615,7 +615,7 @@ impl SymbolTicksTrait for NativeRuntime {
     }
 }
 
-impl OrderTrait for NativeRuntime {
+impl OrderTrait for PythonRuntime {
     fn orders_total(&self) -> MQLResult<i64> {
         let result: PyResult<i64> = Python::with_gil(|py| {
             let total_orders = self
@@ -635,8 +635,8 @@ impl OrderTrait for NativeRuntime {
 
         return Ok(result.unwrap());
     }
-    fn orders_get(&self) -> MQLResult<Vec<crate::schemas::MQLOrder>> {
-        let result: PyResult<Vec<MQLOrder>> = Python::with_gil(|py| {
+    fn orders_get(&self) -> MQLResult<Vec<crate::schemas::Order>> {
+        let result: PyResult<Vec<Order>> = Python::with_gil(|py| {
             let orders = self
                 .runtime
                 .as_ref()
@@ -663,7 +663,7 @@ impl OrderTrait for NativeRuntime {
     }
     fn order_calc_margin(
         &self,
-        action: crate::enums::MQLTradeActionRequest,
+        action: crate::enums::TradeActionRequest,
         symbol: &str,
         volume: f64,
         price: f64,
@@ -687,7 +687,7 @@ impl OrderTrait for NativeRuntime {
     }
     fn order_calc_profit(
         &self,
-        action: crate::enums::MQLTradeActionRequest,
+        action: crate::enums::TradeActionRequest,
         symbol: &str,
         volume: f64,
         price_open: f64,
@@ -713,9 +713,9 @@ impl OrderTrait for NativeRuntime {
 
     fn order_check(
         &self,
-        request: crate::schemas::MQLTradeRequest,
-    ) -> MQLResult<crate::schemas::MQLCheckResult> {
-        let result: MQLResult<MQLCheckResult> = Python::with_gil(|py| {
+        request: crate::schemas::TradeRequestBuilder,
+    ) -> MQLResult<crate::schemas::CheckResult> {
+        let result: MQLResult<CheckResult> = Python::with_gil(|py| {
             let trade_result: PyObject = self
                 .runtime
                 .as_ref()
@@ -764,9 +764,9 @@ impl OrderTrait for NativeRuntime {
     }
     fn order_send(
         &self,
-        request: crate::schemas::MQLTradeRequest,
-    ) -> MQLResult<crate::schemas::MQLTradeResult> {
-        let result: PyResult<MQLTradeResult> = Python::with_gil(|py| {
+        request: crate::schemas::TradeRequestBuilder,
+    ) -> MQLResult<crate::schemas::TradeResult> {
+        let result: PyResult<TradeResult> = Python::with_gil(|py| {
             let trade_result: PyObject = self
                 .runtime
                 .as_ref()
@@ -809,7 +809,7 @@ impl OrderTrait for NativeRuntime {
     }
 }
 
-impl PositionTrait for NativeRuntime {
+impl PositionTrait for PythonRuntime {
     fn positions_total(&self) -> MQLResult<i64> {
         let result: PyResult<i64> = Python::with_gil(|py| {
             let total_positions = self
@@ -829,8 +829,8 @@ impl PositionTrait for NativeRuntime {
 
         return Ok(result.unwrap());
     }
-    fn positions_get(&self) -> MQLResult<Vec<crate::schemas::MQLPosition>> {
-        let result: PyResult<Vec<MQLPosition>> = Python::with_gil(|py| {
+    fn positions_get(&self) -> MQLResult<Vec<crate::schemas::Position>> {
+        let result: PyResult<Vec<Position>> = Python::with_gil(|py| {
             let positions = self
                 .runtime
                 .as_ref()
@@ -861,7 +861,7 @@ impl PositionTrait for NativeRuntime {
     }
 }
 
-impl HistoryTrait for NativeRuntime {
+impl HistoryTrait for PythonRuntime {
     fn history_orders_total(
         &self,
         date_from: chrono::DateTime<chrono::Local>,
@@ -918,8 +918,8 @@ impl HistoryTrait for NativeRuntime {
         &self,
         date_from: chrono::DateTime<chrono::Local>,
         date_to: chrono::DateTime<chrono::Local>,
-    ) -> MQLResult<Vec<MQLOrder>> {
-        let result: PyResult<Vec<MQLOrder>> = Python::with_gil(|py| {
+    ) -> MQLResult<Vec<Order>> {
+        let result: PyResult<Vec<Order>> = Python::with_gil(|py| {
             let orders = self.runtime.as_ref().unwrap().call_method1(
                 py,
                 "history_orders_get",
@@ -1025,8 +1025,8 @@ impl HistoryTrait for NativeRuntime {
         &self,
         date_from: chrono::DateTime<chrono::Local>,
         date_to: chrono::DateTime<chrono::Local>,
-    ) -> MQLResult<Vec<crate::schemas::MQLHistoryPosition>> {
-        let result: PyResult<Vec<MQLHistoryPosition>> = Python::with_gil(|py| {
+    ) -> MQLResult<Vec<crate::schemas::HistoryDeals>> {
+        let result: PyResult<Vec<HistoryDeals>> = Python::with_gil(|py| {
             let deals = self.runtime.as_ref().unwrap().call_method1(
                 py,
                 "history_deals_get",
@@ -1081,23 +1081,27 @@ impl HistoryTrait for NativeRuntime {
 
 #[cfg(test)]
 mod test {
-    use chrono::Local;
+    use chrono::{DateTime, Local, TimeZone};
 
-    use crate::{enums, schemas::MQLAccountCredentials, traits::*};
+    use crate::{
+        enums::{self, OrderTypeFilling},
+        schemas::{AccountCredentials, TradeRequestBuilder},
+        traits::*,
+    };
 
-    use super::NativeRuntime;
+    use super::PythonRuntime;
 
     #[test]
     fn test_connection() {
         let terminal_path = std::env::var("TERMINAL_PATH").unwrap();
-        let runtime = NativeRuntime::new().initialize(terminal_path.as_str());
+        let runtime = PythonRuntime::new().initialize(terminal_path.as_str());
         assert_eq!(runtime.is_ok(), true, "Unable to connect to terminal");
     }
 
     #[test]
     fn test_connection_with_credentials() {
         let terminal_path = std::env::var("TERMINAL_PATH").unwrap();
-        let account_credentials = MQLAccountCredentials {
+        let account_credentials = AccountCredentials {
             login: std::env::var("TERMINAL_ACCOUNT_ID")
                 .expect("Unable to find `TERMINAL_ACCOUNT_ID` in .env file")
                 .parse::<i64>()
@@ -1108,7 +1112,7 @@ mod test {
                 .expect("Unable to find `TERMINAL_ACCOUNT_SERVER` in .env file"),
         };
 
-        let runtime = NativeRuntime::new().initialize_with_credentials(
+        let runtime = PythonRuntime::new().initialize_with_credentials(
             terminal_path.as_str(),
             account_credentials,
             1000,
@@ -1120,7 +1124,7 @@ mod test {
     #[test]
     fn test_terminal_version() {
         let terminal_path = std::env::var("TERMINAL_PATH").unwrap();
-        let runtime = NativeRuntime::new()
+        let runtime = PythonRuntime::new()
             .initialize(terminal_path.as_str())
             .expect("Unable to connect to terminal");
         let version = runtime.version();
@@ -1130,7 +1134,7 @@ mod test {
     #[test]
     fn test_terminal_info() {
         let terminal_path = std::env::var("TERMINAL_PATH").unwrap();
-        let runtime = NativeRuntime::new()
+        let runtime = PythonRuntime::new()
             .initialize(terminal_path.as_str())
             .expect("Unable to connect to terminal");
         let terminal_info = runtime.terminal_info();
@@ -1140,7 +1144,7 @@ mod test {
     #[test]
     fn test_account_info() {
         let terminal_path = std::env::var("TERMINAL_PATH").unwrap();
-        let runtime = NativeRuntime::new()
+        let runtime = PythonRuntime::new()
             .initialize(terminal_path.as_str())
             .expect("Unable to connect to terminal");
         let account_info = runtime.account_info();
@@ -1150,7 +1154,7 @@ mod test {
     #[test]
     fn test_symbols_total() {
         let terminal_path = std::env::var("TERMINAL_PATH").unwrap();
-        let runtime = NativeRuntime::new()
+        let runtime = PythonRuntime::new()
             .initialize(terminal_path.as_str())
             .expect("Unable to connect to terminal");
         let symbols_total = runtime.symbols_total();
@@ -1160,7 +1164,7 @@ mod test {
     #[test]
     fn test_symbols_get() {
         let terminal_path = std::env::var("TERMINAL_PATH").unwrap();
-        let runtime = NativeRuntime::new()
+        let runtime = PythonRuntime::new()
             .initialize(terminal_path.as_str())
             .expect("Unable to connect to terminal");
         let symbols_get_all = runtime.symbols_get(None);
@@ -1180,7 +1184,7 @@ mod test {
     #[test]
     fn test_symbol_info() {
         let terminal_path = std::env::var("TERMINAL_PATH").unwrap();
-        let runtime = NativeRuntime::new()
+        let runtime = PythonRuntime::new()
             .initialize(terminal_path.as_str())
             .expect("Unable to connect to terminal");
         let symbol_info = runtime.symbol_info("EURUSD");
@@ -1190,7 +1194,7 @@ mod test {
     #[test]
     fn test_symbol_info_tick() {
         let terminal_path = std::env::var("TERMINAL_PATH").unwrap();
-        let runtime = NativeRuntime::new()
+        let runtime = PythonRuntime::new()
             .initialize(terminal_path.as_str())
             .expect("Unable to connect to terminal");
         let symbol_info_tick = runtime.symbol_info_tick("EURUSD");
@@ -1204,29 +1208,272 @@ mod test {
     #[test]
     fn test_symbol_select() {
         let terminal_path = std::env::var("TERMINAL_PATH").unwrap();
-        let runtime = NativeRuntime::new()
+        let runtime = PythonRuntime::new()
             .initialize(terminal_path.as_str())
             .expect("Unable to connect to terminal");
         let symbol_select = runtime.symbol_select("EURUSD", None);
-        assert_eq!(
-            symbol_select.is_ok(),
-            true,
-            "Unable to get symbol info tick"
-        );
+        assert_eq!(symbol_select.is_ok(), true, "Unable to select symbol");
     }
 
     #[test]
     fn test_copy_rates_from() {
         let terminal_path = std::env::var("TERMINAL_PATH").unwrap();
-        let runtime = NativeRuntime::new()
+        let runtime = PythonRuntime::new()
             .initialize(terminal_path.as_str())
             .expect("Unable to connect to terminal");
         let copy_rates_from =
             runtime.copy_rates_from("EURUSD", enums::MQLTimeframe::H1, Local::now(), 20);
+        assert_eq!(copy_rates_from.is_ok(), true, "Unable to get symbol rates");
+    }
+
+    #[test]
+    fn test_copy_rates_from_pos() {
+        let terminal_path = std::env::var("TERMINAL_PATH").unwrap();
+        let runtime = PythonRuntime::new()
+            .initialize(terminal_path.as_str())
+            .expect("Unable to connect to terminal");
+        let copy_rates_from_pos =
+            runtime.copy_rates_from_pos("EURUSD", enums::MQLTimeframe::H1, 0, 20);
         assert_eq!(
-            copy_rates_from.is_ok(),
+            copy_rates_from_pos.is_ok(),
             true,
-            "Unable to get symbol info tick"
+            "Unable to get symbol rates"
+        );
+    }
+
+    #[test]
+    fn test_copy_rates_range() {
+        let terminal_path = std::env::var("TERMINAL_PATH").unwrap();
+        let runtime = PythonRuntime::new()
+            .initialize(terminal_path.as_str())
+            .expect("Unable to connect to terminal");
+        let copy_rates_range = runtime.copy_rates_range(
+            "EURUSD",
+            enums::MQLTimeframe::H1,
+            Local.with_ymd_and_hms(2024, 7, 7, 0, 0, 0).unwrap(),
+            Local::now(),
+        );
+        assert_eq!(copy_rates_range.is_ok(), true, "Unable to get symbol rates");
+    }
+
+    #[test]
+    fn test_copy_ticks_from() {
+        let terminal_path = std::env::var("TERMINAL_PATH").unwrap();
+        let runtime = PythonRuntime::new()
+            .initialize(terminal_path.as_str())
+            .expect("Unable to connect to terminal");
+        let copy_ticks_from = runtime.copy_ticks_from(
+            "EURUSD",
+            Local.with_ymd_and_hms(2024, 7, 7, 0, 0, 0).unwrap(),
+            20,
+            enums::MQLCopyTicksFlags::ALL,
+        );
+        assert_eq!(copy_ticks_from.is_ok(), true, "Unable to get symbol rates");
+    }
+
+    #[test]
+    fn test_copy_ticks_range() {
+        let terminal_path = std::env::var("TERMINAL_PATH").unwrap();
+        let runtime = PythonRuntime::new()
+            .initialize(terminal_path.as_str())
+            .expect("Unable to connect to terminal");
+        let copy_ticks_range = runtime.copy_ticks_range(
+            "EURUSD",
+            Local.with_ymd_and_hms(2024, 7, 10, 0, 0, 0).unwrap(),
+            Local::now(),
+            enums::MQLCopyTicksFlags::ALL,
+        );
+        assert_eq!(copy_ticks_range.is_ok(), true, "Unable to get symbol rates");
+    }
+
+    #[test]
+    fn test_orders_total() {
+        let terminal_path = std::env::var("TERMINAL_PATH").unwrap();
+        let runtime = PythonRuntime::new()
+            .initialize(terminal_path.as_str())
+            .expect("Unable to connect to terminal");
+        let orders_total = runtime.orders_total();
+        assert_eq!(orders_total.is_ok(), true, "Unable to get total orders");
+    }
+
+    #[test]
+    fn test_orders_get() {
+        let terminal_path = std::env::var("TERMINAL_PATH").unwrap();
+        let runtime = PythonRuntime::new()
+            .initialize(terminal_path.as_str())
+            .expect("Unable to connect to terminal");
+        let orders_get = runtime.orders_get();
+        assert_eq!(orders_get.is_ok(), true, "Unable to get total orders");
+    }
+
+    #[test]
+    fn test_order_check() {
+        let terminal_path = std::env::var("TERMINAL_PATH").unwrap();
+        let runtime = PythonRuntime::new()
+            .initialize(terminal_path.as_str())
+            .expect("Unable to connect to terminal");
+
+        let current_symbol = runtime.symbol_info("EURUSD").unwrap();
+
+        let check_trade = TradeRequestBuilder::new()
+            .action(enums::TradeActionRequest::DEAL)
+            .symbol(current_symbol.name)
+            .volume(0.01)
+            .price(current_symbol.ask)
+            .r#type(enums::OrderType::BUY as i64)
+            .type_filling(enums::OrderTypeFilling::IOC)
+            .type_time(enums::OrderTypeTime::GTC)
+            .sl(current_symbol.bid - (100.0 * current_symbol.point))
+            .tp(current_symbol.bid + (100.0 * current_symbol.point))
+            .comment("Test".to_string());
+
+        let check_order = runtime.order_check(check_trade);
+
+        assert_eq!(check_order.is_ok(), true, "Unable to check order");
+
+        assert_eq!(check_order.unwrap().retcode, 0, "Order is not valid");
+    }
+
+    #[test]
+    fn test_order_send() {
+        let terminal_path = std::env::var("TERMINAL_PATH").unwrap();
+        let runtime = PythonRuntime::new()
+            .initialize(terminal_path.as_str())
+            .expect("Unable to connect to terminal");
+
+        let current_symbol = runtime.symbol_info("EURUSD").unwrap();
+
+        let open_trade = TradeRequestBuilder::new()
+            .action(enums::TradeActionRequest::DEAL)
+            .symbol(current_symbol.name.clone())
+            .volume(0.01)
+            .price(current_symbol.ask)
+            .r#type(enums::OrderType::BUY as i64)
+            .type_filling(enums::OrderTypeFilling::IOC)
+            .type_time(enums::OrderTypeTime::GTC)
+            .sl(current_symbol.bid - (100.0 * current_symbol.point))
+            .tp(current_symbol.bid + (100.0 * current_symbol.point))
+            .comment("Test".to_string());
+
+        let open_order = runtime.order_send(open_trade);
+        assert_eq!(open_order.is_ok(), true, "Unable to open order");
+
+        let open_order = open_order.unwrap();
+        assert_eq!(open_order.retcode, 10009, "Order is not valid");
+
+        let close_request = TradeRequestBuilder::new()
+            .action(enums::TradeActionRequest::DEAL)
+            .symbol(current_symbol.name)
+            .volume(0.01)
+            .price(current_symbol.bid)
+            .position(open_order.order)
+            .r#type(enums::OrderType::SELL as i64)
+            .type_filling(OrderTypeFilling::IOC)
+            .type_time(enums::OrderTypeTime::GTC)
+            .comment("Test".to_string());
+
+        let close_send = runtime.order_send(close_request);
+
+        assert_eq!(close_send.is_ok(), true, "Unable to close order");
+
+        let close_send = close_send.unwrap();
+
+        assert_eq!(close_send.retcode, 10009, "Order is not valid");
+    }
+
+    #[test]
+    fn test_positions_total() {
+        let terminal_path = std::env::var("TERMINAL_PATH").unwrap();
+        let runtime = PythonRuntime::new()
+            .initialize(terminal_path.as_str())
+            .expect("Unable to connect to terminal");
+        let positions_total = runtime.positions_total();
+        assert_eq!(
+            positions_total.is_ok(),
+            true,
+            "Unable to get total positions"
+        );
+    }
+
+    #[test]
+    fn test_positions_get() {
+        let terminal_path = std::env::var("TERMINAL_PATH").unwrap();
+        let runtime = PythonRuntime::new()
+            .initialize(terminal_path.as_str())
+            .expect("Unable to connect to terminal");
+        let positions_get = runtime.positions_get();
+        assert_eq!(positions_get.is_ok(), true, "Unable to get total positions");
+    }
+
+    #[test]
+    fn test_history_orders_total() {
+        let terminal_path = std::env::var("TERMINAL_PATH").unwrap();
+        let runtime = PythonRuntime::new()
+            .initialize(terminal_path.as_str())
+            .expect("Unable to connect to terminal");
+
+        let date_from = Local.with_ymd_and_hms(2024, 7, 7, 0, 0, 0).unwrap();
+        let date_to = Local::now();
+
+        let history_orders_total = runtime.history_orders_total(date_from, date_to);
+        assert_eq!(
+            history_orders_total.is_ok(),
+            true,
+            "Unable to get total history orders"
+        );
+    }
+
+    #[test]
+    fn test_history_orders_get() {
+        let terminal_path = std::env::var("TERMINAL_PATH").unwrap();
+        let runtime = PythonRuntime::new()
+            .initialize(terminal_path.as_str())
+            .expect("Unable to connect to terminal");
+
+        let date_from = Local.with_ymd_and_hms(2024, 7, 7, 0, 0, 0).unwrap();
+        let date_to = Local::now();
+
+        let history_orders_get = runtime.history_orders_get(date_from, date_to);
+        assert_eq!(
+            history_orders_get.is_ok(),
+            true,
+            "Unable to get history orders"
+        );
+    }
+
+    #[test]
+    fn test_history_deals_total() {
+        let terminal_path = std::env::var("TERMINAL_PATH").unwrap();
+        let runtime = PythonRuntime::new()
+            .initialize(terminal_path.as_str())
+            .expect("Unable to connect to terminal");
+
+        let date_from = Local.with_ymd_and_hms(2024, 7, 7, 0, 0, 0).unwrap();
+        let date_to = Local::now();
+
+        let history_deals_total = runtime.history_deals_total(date_from, date_to);
+        assert_eq!(
+            history_deals_total.is_ok(),
+            true,
+            "Unable to get total history deals"
+        );
+    }
+
+    #[test]
+    fn test_history_deals_get() {
+        let terminal_path = std::env::var("TERMINAL_PATH").unwrap();
+        let runtime = PythonRuntime::new()
+            .initialize(terminal_path.as_str())
+            .expect("Unable to connect to terminal");
+
+        let date_from = Local.with_ymd_and_hms(2024, 7, 7, 0, 0, 0).unwrap();
+        let date_to = Local::now();
+
+        let history_deals_get = runtime.history_deals_get(date_from, date_to);
+        assert_eq!(
+            history_deals_get.is_ok(),
+            true,
+            "Unable to get history deals"
         );
     }
 }
