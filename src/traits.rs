@@ -22,6 +22,7 @@ pub trait ConnectionTrait<T> {
         timeout: i64,
         portable: Option<bool>,
     ) -> MQLResult<T>;
+    fn login(self, credentials: AccountCredentials, timeout: i64) -> MQLResult<()>;
     fn shutdown(self) -> MQLResult<()>;
 }
 pub trait ErrorTrait {
