@@ -1,12 +1,4 @@
-use crate::prelude::{MQLError, MQLResult};
-use crate::schemas::{
-    AccountInfo, CheckResult, HistoryDeals, Order, Position, SymbolInfo, SymbolRates, SymbolTick,
-    TerminalInfo, TerminalVersion, TradeResult,
-};
-use crate::traits::{
-    AccountInfoTrait, ConnectionTrait, ErrorTrait, HistoryTrait, OrderTrait, PositionTrait,
-    SymbolInfoTrait, SymbolRatesTrait, SymbolTicksTrait, TerminalInfoTrait,
-};
+use crate::prelude::*;
 use chrono::{DateTime, Local};
 use chrono::{Datelike, Timelike};
 use pyo3;
@@ -131,7 +123,7 @@ impl ErrorTrait for PythonRuntime {
 }
 
 impl AccountInfoTrait for PythonRuntime {
-    fn account_info(&self) -> crate::prelude::MQLResult<crate::schemas::AccountInfo> {
+    fn account_info(&mut self) -> crate::prelude::MQLResult<crate::schemas::AccountInfo> {
         let result: PyResult<AccountInfo> = Python::with_gil(|py| {
             let account = self
                 .runtime
@@ -717,14 +709,14 @@ impl OrderTrait for PythonRuntime {
 
     fn order_check(
         &self,
-        request: crate::schemas::TradeRequestBuilder,
+        request: &crate::schemas::TradeRequestBuilder,
     ) -> MQLResult<crate::schemas::CheckResult> {
         let result: MQLResult<CheckResult> = Python::with_gil(|py| {
             let trade_result: PyObject = self
                 .runtime
                 .as_ref()
                 .unwrap()
-                .call_method1(py, "order_check", (request,))
+                .call_method1(py, "order_check", (request.clone(),))
                 .unwrap()
                 .call_method0(py, "_asdict")
                 .unwrap();
@@ -1087,13 +1079,7 @@ impl HistoryTrait for PythonRuntime {
 mod test {
     use chrono::{Local, TimeZone};
 
-    use crate::{
-        enums::{self, OrderTypeFilling},
-        schemas::{AccountCredentials, TradeRequestBuilder},
-        traits::*,
-    };
-
-    use super::PythonRuntime;
+    use crate::prelude::*;
 
     #[test]
     fn test_connection() {
@@ -1148,7 +1134,7 @@ mod test {
     #[test]
     fn test_account_info() {
         let terminal_path = std::env::var("TERMINAL_PATH").unwrap();
-        let runtime = PythonRuntime::new()
+        let mut runtime = PythonRuntime::new()
             .initialize(terminal_path.as_str())
             .expect("Unable to connect to terminal");
         let account_info = runtime.account_info();
@@ -1225,8 +1211,7 @@ mod test {
         let runtime = PythonRuntime::new()
             .initialize(terminal_path.as_str())
             .expect("Unable to connect to terminal");
-        let copy_rates_from =
-            runtime.copy_rates_from("EURUSD", enums::Timeframe::H1, Local::now(), 20);
+        let copy_rates_from = runtime.copy_rates_from("EURUSD", Timeframe::H1, Local::now(), 20);
         assert_eq!(copy_rates_from.is_ok(), true, "Unable to get symbol rates");
     }
 
@@ -1236,8 +1221,7 @@ mod test {
         let runtime = PythonRuntime::new()
             .initialize(terminal_path.as_str())
             .expect("Unable to connect to terminal");
-        let copy_rates_from_pos =
-            runtime.copy_rates_from_pos("EURUSD", enums::Timeframe::H1, 0, 20);
+        let copy_rates_from_pos = runtime.copy_rates_from_pos("EURUSD", Timeframe::H1, 0, 20);
         assert_eq!(
             copy_rates_from_pos.is_ok(),
             true,
@@ -1253,7 +1237,7 @@ mod test {
             .expect("Unable to connect to terminal");
         let copy_rates_range = runtime.copy_rates_range(
             "EURUSD",
-            enums::Timeframe::H1,
+            Timeframe::H1,
             Local.with_ymd_and_hms(2024, 7, 7, 0, 0, 0).unwrap(),
             Local::now(),
         );
@@ -1270,7 +1254,7 @@ mod test {
             "EURUSD",
             Local.with_ymd_and_hms(2024, 7, 7, 0, 0, 0).unwrap(),
             20,
-            enums::CopyTicksFlags::ALL,
+            CopyTicksFlags::ALL,
         );
         assert_eq!(copy_ticks_from.is_ok(), true, "Unable to get symbol rates");
     }
@@ -1285,7 +1269,7 @@ mod test {
             "EURUSD",
             Local.with_ymd_and_hms(2024, 7, 10, 0, 0, 0).unwrap(),
             Local::now(),
-            enums::CopyTicksFlags::ALL,
+            CopyTicksFlags::ALL,
         );
         assert_eq!(copy_ticks_range.is_ok(), true, "Unable to get symbol rates");
     }
@@ -1320,18 +1304,18 @@ mod test {
         let current_symbol = runtime.symbol_info("EURUSD").unwrap();
 
         let check_trade = TradeRequestBuilder::new()
-            .action(enums::TradeActionRequest::DEAL)
+            .action(TradeActionRequest::DEAL)
             .symbol(current_symbol.name)
             .volume(0.01)
             .price(current_symbol.ask)
-            .r#type(enums::OrderType::BUY as i64)
-            .type_filling(enums::OrderTypeFilling::IOC)
-            .type_time(enums::OrderTypeTime::GTC)
+            .r#type(OrderType::BUY as i64)
+            .type_filling(OrderTypeFilling::IOC)
+            .type_time(OrderTypeTime::GTC)
             .sl(current_symbol.bid - (100.0 * current_symbol.point))
             .tp(current_symbol.bid + (100.0 * current_symbol.point))
             .comment("Test".to_string());
 
-        let check_order = runtime.order_check(check_trade);
+        let check_order = runtime.order_check(&check_trade);
 
         assert_eq!(check_order.is_ok(), true, "Unable to check order");
 
@@ -1348,13 +1332,13 @@ mod test {
         let current_symbol = runtime.symbol_info("EURUSD").unwrap();
 
         let open_trade = TradeRequestBuilder::new()
-            .action(enums::TradeActionRequest::DEAL)
+            .action(TradeActionRequest::DEAL)
             .symbol(current_symbol.name.clone())
             .volume(0.01)
             .price(current_symbol.ask)
-            .r#type(enums::OrderType::BUY as i64)
-            .type_filling(enums::OrderTypeFilling::IOC)
-            .type_time(enums::OrderTypeTime::GTC)
+            .r#type(OrderType::BUY as i64)
+            .type_filling(OrderTypeFilling::IOC)
+            .type_time(OrderTypeTime::GTC)
             .sl(current_symbol.bid - (100.0 * current_symbol.point))
             .tp(current_symbol.bid + (100.0 * current_symbol.point))
             .comment("Test".to_string());
@@ -1366,14 +1350,14 @@ mod test {
         assert_eq!(open_order.retcode, 10009, "Order is not valid");
 
         let close_request = TradeRequestBuilder::new()
-            .action(enums::TradeActionRequest::DEAL)
+            .action(TradeActionRequest::DEAL)
             .symbol(current_symbol.name)
             .volume(0.01)
             .price(current_symbol.bid)
             .position(open_order.order)
-            .r#type(enums::OrderType::SELL as i64)
+            .r#type(OrderType::SELL as i64)
             .type_filling(OrderTypeFilling::IOC)
-            .type_time(enums::OrderTypeTime::GTC)
+            .type_time(OrderTypeTime::GTC)
             .comment("Test".to_string());
 
         let close_send = runtime.order_send(close_request);

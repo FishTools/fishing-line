@@ -1,2 +1,4 @@
 /target
 *.env
+pyproject.toml
+poetry.lock

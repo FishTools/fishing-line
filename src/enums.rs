@@ -1,4 +1,5 @@
 /// Represents the timeframe for a trading operation.
+#[derive(Debug, Clone, Copy)]
 pub enum Timeframe {
     /// 1 minute
     M1 = 1,
@@ -45,6 +46,7 @@ pub enum Timeframe {
 }
 
 /// Represents the flags for copying ticks.
+#[derive(Debug, Clone, Copy)]
 pub enum CopyTicksFlags {
     ALL = -1,
     INFO = 1,
@@ -52,6 +54,7 @@ pub enum CopyTicksFlags {
 }
 
 /// Represents the flags for ticks.
+#[derive(Debug, Clone, Copy)]
 pub enum TicksFlag {
     BID = 0x02,
     ASK = 0x04,
@@ -62,6 +65,7 @@ pub enum TicksFlag {
 }
 
 /// Represents the type of an order.
+#[derive(Debug, Clone, Copy)]
 pub enum OrderType {
     BUY = 0,
     SELL = 1,
@@ -93,6 +97,7 @@ impl From<i64> for OrderType {
 }
 
 /// Represents a trade action request.
+#[derive(Debug, Clone, Copy)]
 pub enum TradeActionRequest {
     DEAL = 1,
     PENDING = 5,
@@ -118,6 +123,7 @@ impl From<i64> for TradeActionRequest {
 }
 
 /// Represents the filling type for a trade order.
+#[derive(Debug, Clone, Copy)]
 pub enum TradeOrderTypeFilling {
     FOK = 0,
     IOC = 1,
@@ -125,6 +131,7 @@ pub enum TradeOrderTypeFilling {
 }
 
 /// Represents the time type for a trade order.
+#[derive(Debug, Clone, Copy)]
 pub enum TradeOrderTypeTime {
     GTC = 0,
     DAY = 1,
@@ -133,6 +140,7 @@ pub enum TradeOrderTypeTime {
 }
 
 /// Represents the filling type for an order.
+#[derive(Debug, Clone, Copy)]
 pub enum OrderTypeFilling {
     FOK = 0,
     IOC = 1,
@@ -152,6 +160,7 @@ impl From<i64> for OrderTypeFilling {
 }
 
 /// Represents the time type for an order.
+#[derive(Debug, Clone, Copy)]
 pub enum OrderTypeTime {
     GTC = 0,
     DAY = 1,

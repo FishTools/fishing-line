@@ -5,14 +5,14 @@ use serde::{Deserialize, Serialize};
 
 use crate::enums::{self};
 
-#[derive(Deserialize, FromPyObject, Debug)]
+#[derive(Serialize,Deserialize, FromPyObject, Debug)]
 pub struct TerminalVersion {
     pub terminal_version: i64,
     pub build: i64,
     pub build_date: String,
 }
 
-#[derive(Deserialize, FromPyObject, Debug)]
+#[derive(Serialize,Deserialize, FromPyObject, Debug)]
 #[pyo3(from_item_all)]
 pub struct TerminalInfo {
     pub community_account: bool,
@@ -64,7 +64,7 @@ pub enum TerminalInfoProperty {
     CommonDataPath,
 }
 
-#[derive(Deserialize, FromPyObject, Debug)]
+#[derive(Serialize,Deserialize, FromPyObject, Debug)]
 #[pyo3(from_item_all)]
 pub struct AccountInfo {
     pub login: i64,
@@ -388,7 +388,7 @@ pub struct TradeRequest {
     pub position_by: i64,
 }
 
-#[derive(Default)]
+#[derive(Default, Clone)]
 pub struct TradeRequestBuilder {
     action: Option<enums::TradeActionRequest>,
     magic: Option<i64>,

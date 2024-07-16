@@ -5,7 +5,7 @@ use crate::schemas::{
 use chrono::{DateTime, Local};
 
 pub trait AccountInfoTrait {
-    fn account_info(&self) -> MQLResult<AccountInfo>;
+    fn account_info(&mut self) -> MQLResult<AccountInfo>;
 }
 
 pub trait TerminalInfoTrait {
@@ -24,7 +24,6 @@ pub trait ConnectionTrait<T> {
     ) -> MQLResult<T>;
     fn shutdown(self) -> MQLResult<()>;
 }
-
 pub trait ErrorTrait {
     fn last_error(&self) -> MQLError;
 }
@@ -98,7 +97,7 @@ pub trait OrderTrait {
     ) -> MQLResult<f64>;
     fn order_check(
         &self,
-        request: crate::schemas::TradeRequestBuilder,
+        request: &crate::schemas::TradeRequestBuilder,
     ) -> MQLResult<crate::schemas::CheckResult>;
     fn order_send(
         &self,
