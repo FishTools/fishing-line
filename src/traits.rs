@@ -5,7 +5,7 @@ use crate::schemas::{
 use chrono::{DateTime, Local};
 
 pub trait AccountInfoTrait {
-    fn account_info(&mut self) -> MQLResult<AccountInfo>;
+    fn account_info(&self) -> MQLResult<AccountInfo>;
 }
 
 pub trait TerminalInfoTrait {
@@ -22,7 +22,7 @@ pub trait ConnectionTrait<T> {
         timeout: i64,
         portable: Option<bool>,
     ) -> MQLResult<T>;
-    fn login(self, credentials: AccountCredentials, timeout: i64) -> MQLResult<()>;
+    fn login(&self, credentials: AccountCredentials, timeout: Option<i64>) -> MQLResult<bool>;
     fn shutdown(self) -> MQLResult<()>;
 }
 pub trait ErrorTrait {

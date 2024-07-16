@@ -2,17 +2,18 @@ use pyo3;
 use pyo3::Python;
 use pyo3::{prelude::*, types::PyDict, FromPyObject, IntoPy, PyObject};
 use serde::{Deserialize, Serialize};
+use struct_iterable::Iterable;
 
 use crate::enums::{self};
 
-#[derive(Serialize,Deserialize, FromPyObject, Debug)]
+#[derive(Serialize, Deserialize, FromPyObject, Debug, Iterable)]
 pub struct TerminalVersion {
     pub terminal_version: i64,
     pub build: i64,
     pub build_date: String,
 }
 
-#[derive(Serialize,Deserialize, FromPyObject, Debug)]
+#[derive(Serialize, Deserialize, FromPyObject, Debug, Iterable)]
 #[pyo3(from_item_all)]
 pub struct TerminalInfo {
     pub community_account: bool,
@@ -64,7 +65,7 @@ pub enum TerminalInfoProperty {
     CommonDataPath,
 }
 
-#[derive(Serialize,Deserialize, FromPyObject, Debug)]
+#[derive(Serialize, Deserialize, FromPyObject, Debug, Iterable)]
 #[pyo3(from_item_all)]
 pub struct AccountInfo {
     pub login: i64,
@@ -135,7 +136,7 @@ pub enum AccountInfoProperty {
     Company,
 }
 
-#[derive(Deserialize, FromPyObject, Debug)]
+#[derive(Deserialize, FromPyObject, Debug, Iterable)]
 #[pyo3(from_item_all)]
 pub struct SymbolInfo {
     pub custom: bool,
@@ -262,7 +263,7 @@ pub struct SymbolRates {
     pub real_volume: f64,
 }
 
-#[derive(Deserialize, FromPyObject, Debug)]
+#[derive(Deserialize, FromPyObject, Debug, Iterable)]
 #[pyo3(from_item_all)]
 pub struct Order {
     /// Order ticket. Unique number assigned to each order

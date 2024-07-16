@@ -4,3 +4,4 @@ pub use crate::enums::*;
 pub use crate::runtime::python::PythonRuntime;
 pub use crate::schemas::*;
 pub use crate::traits::*;
+pub use struct_iterable::Iterable;

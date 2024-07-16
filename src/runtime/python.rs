@@ -32,12 +32,14 @@ impl PythonRuntime {
 }
 
 impl ConnectionTrait<PythonRuntime> for PythonRuntime {
-    fn login(self, credentials: AccountCredentials, timeout: i64) -> MQLResult<()> {
+    fn login(&self, credentials: AccountCredentials, timeout: Option<i64>) -> MQLResult<bool> {
         let result: PyResult<bool> = Python::with_gil(|py| {
             let kwargs = PyDict::new_bound(py);
             kwargs.set_item("password", credentials.password).unwrap();
             kwargs.set_item("server", credentials.server).unwrap();
-            kwargs.set_item("timeout", timeout).unwrap();
+            if timeout.is_some() {
+                kwargs.set_item("timeout", timeout.unwrap()).unwrap();
+            }
             let runtime = self.runtime.as_ref().unwrap();
             let runtime = runtime
                 .getattr(py, "login")
@@ -53,11 +55,7 @@ impl ConnectionTrait<PythonRuntime> for PythonRuntime {
             return Err((code, message));
         }
 
-        if !result.unwrap() {
-            return Err((-1, "Failed to login to MetaTrader5".to_string()));
-        }
-
-        return Ok(());
+        return Ok(result.unwrap());
     }
 
     fn initialize_with_credentials(
@@ -151,7 +149,7 @@ impl ErrorTrait for PythonRuntime {
 }
 
 impl AccountInfoTrait for PythonRuntime {
-    fn account_info(&mut self) -> crate::prelude::MQLResult<crate::schemas::AccountInfo> {
+    fn account_info(&self) -> crate::prelude::MQLResult<crate::schemas::AccountInfo> {
         let result: PyResult<AccountInfo> = Python::with_gil(|py| {
             let account = self
                 .runtime
