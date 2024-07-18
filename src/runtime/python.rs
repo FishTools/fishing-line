@@ -285,19 +285,14 @@ impl SymbolInfoTrait for PythonRuntime {
 
     fn symbol_select(&self, symbol: &str, enable: Option<bool>) -> crate::prelude::MQLResult<bool> {
         let result: PyResult<bool> = Python::with_gil(|py| {
-            let kwargs = PyDict::new_bound(py);
-
-            if enable.is_some() {
-                kwargs.set_item("enable", enable).unwrap();
-            }
-
             let selected_symbol = self
                 .runtime
                 .as_ref()
                 .unwrap()
                 .getattr(py, "symbol_select")?
-                .call_bound(py, (symbol,), Some(&kwargs))?
+                .call_bound(py, (symbol, enable.unwrap_or(true)), None)?
                 .extract(py)?;
+
             return Ok(selected_symbol);
         });
 

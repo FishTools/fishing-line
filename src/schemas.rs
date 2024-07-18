@@ -237,7 +237,7 @@ pub struct SymbolInfo {
     pub path: String,
 }
 
-#[derive(Deserialize, FromPyObject, Debug)]
+#[derive(Deserialize, FromPyObject, Debug,Iterable)]
 #[pyo3(from_item_all)]
 pub struct SymbolTick {
     pub time: i64,

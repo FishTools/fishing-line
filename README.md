@@ -40,7 +40,17 @@ let runtime = PythonRuntime::new().initialize_with_credentials(
     None, // portable mode
 );
 ```
+
+
+## Installation
+currently, this project is under active development. to install the latest version of this project.
+
+```bash
+cargo add --git "https://github.com/FishTools/fishing-rod"
+```
+
 ### Note:
+major breaking changes can occur without semantic versioning so be careful and don't use it in production just yet.
 
 To install Metatrader5 and numpy for Fishing-Rod, you need to use poetry as a package manager. Please follow these steps:
 
