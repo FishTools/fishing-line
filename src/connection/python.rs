@@ -7,13 +7,13 @@ use pyo3::types::{PyDateTime, PyDict};
 use pyo3::PyObject;
 use pyo3::Python;
 
-pub struct PythonRuntime {
+pub struct MT5PythonConnection {
     runtime: Option<PyObject>,
 }
 
-impl PythonRuntime {
+impl MT5PythonConnection {
     pub fn new() -> Self {
-        let result: PyResult<PythonRuntime> = Python::with_gil(|py| {
+        let result: PyResult<MT5PythonConnection> = Python::with_gil(|py| {
             let sys = py
                 .import_bound("sys")
                 .expect("Unable to import `sys` module");
@@ -23,7 +23,7 @@ impl PythonRuntime {
                 std::env::var("POETRY_ENVIRONMENT").expect("Unable to find `POETRY_ENVIRONMENT`")
             );
             path.getattr("append")?.call1((poetry_environment_path,))?;
-            return Ok(PythonRuntime {
+            return Ok(MT5PythonConnection {
                 runtime: Some(py.import_bound("MetaTrader5")?.extract()?),
             });
         });
@@ -31,7 +31,7 @@ impl PythonRuntime {
     }
 }
 
-impl ConnectionTrait<PythonRuntime> for PythonRuntime {
+impl ConnectionTrait<MT5PythonConnection> for MT5PythonConnection {
     fn login(&self, credentials: AccountCredentials, timeout: Option<i64>) -> MQLResult<bool> {
         let result: PyResult<bool> = Python::with_gil(|py| {
             let kwargs = PyDict::new_bound(py);
@@ -64,7 +64,7 @@ impl ConnectionTrait<PythonRuntime> for PythonRuntime {
         credentials: crate::schemas::AccountCredentials,
         timeout: i64,
         portable: Option<bool>,
-    ) -> MQLResult<PythonRuntime> {
+    ) -> MQLResult<MT5PythonConnection> {
         let result: PyResult<bool> = Python::with_gil(|py| {
             let kwargs = PyDict::new_bound(py);
             kwargs.set_item("login", credentials.login).unwrap();
@@ -133,7 +133,7 @@ impl ConnectionTrait<PythonRuntime> for PythonRuntime {
     }
 }
 
-impl ErrorTrait for PythonRuntime {
+impl ErrorTrait for MT5PythonConnection {
     fn last_error(&self) -> crate::prelude::MQLError {
         let result: PyResult<MQLError> = Python::with_gil(|py| {
             let error = self
@@ -148,7 +148,7 @@ impl ErrorTrait for PythonRuntime {
     }
 }
 
-impl AccountInfoTrait for PythonRuntime {
+impl AccountInfoTrait for MT5PythonConnection {
     fn account_info(&self) -> crate::prelude::MQLResult<crate::schemas::AccountInfo> {
         let result: PyResult<AccountInfo> = Python::with_gil(|py| {
             let account = self
@@ -172,7 +172,7 @@ impl AccountInfoTrait for PythonRuntime {
     }
 }
 
-impl TerminalInfoTrait for PythonRuntime {
+impl TerminalInfoTrait for MT5PythonConnection {
     fn terminal_info(&self) -> crate::prelude::MQLResult<crate::schemas::TerminalInfo> {
         let result: PyResult<TerminalInfo> = Python::with_gil(|py| {
             let terminal = self
@@ -219,7 +219,7 @@ impl TerminalInfoTrait for PythonRuntime {
     }
 }
 
-impl SymbolInfoTrait for PythonRuntime {
+impl SymbolInfoTrait for MT5PythonConnection {
     fn symbols_total(&self) -> MQLResult<i32> {
         let result: PyResult<i32> = Python::with_gil(|py| {
             let total = self
@@ -336,7 +336,7 @@ impl SymbolInfoTrait for PythonRuntime {
     }
 }
 
-impl SymbolRatesTrait for PythonRuntime {
+impl SymbolRatesTrait for MT5PythonConnection {
     fn copy_rates_from(
         &self,
         symbol: &str,
@@ -504,7 +504,7 @@ impl SymbolRatesTrait for PythonRuntime {
     }
 }
 
-impl SymbolTicksTrait for PythonRuntime {
+impl SymbolTicksTrait for MT5PythonConnection {
     fn copy_ticks_from(
         &self,
         symbol: &str,
@@ -632,7 +632,7 @@ impl SymbolTicksTrait for PythonRuntime {
     }
 }
 
-impl OrderTrait for PythonRuntime {
+impl OrderTrait for MT5PythonConnection {
     fn orders_total(&self) -> MQLResult<i64> {
         let result: PyResult<i64> = Python::with_gil(|py| {
             let total_orders = self
@@ -826,7 +826,7 @@ impl OrderTrait for PythonRuntime {
     }
 }
 
-impl PositionTrait for PythonRuntime {
+impl PositionTrait for MT5PythonConnection {
     fn positions_total(&self) -> MQLResult<i64> {
         let result: PyResult<i64> = Python::with_gil(|py| {
             let total_positions = self
@@ -878,7 +878,7 @@ impl PositionTrait for PythonRuntime {
     }
 }
 
-impl HistoryTrait for PythonRuntime {
+impl HistoryTrait for MT5PythonConnection {
     fn history_orders_total(
         &self,
         date_from: DateTime<Local>,
@@ -1105,7 +1105,7 @@ mod test {
     #[test]
     fn test_connection() {
         let terminal_path = std::env::var("TERMINAL_PATH").unwrap();
-        let runtime = PythonRuntime::new().initialize(terminal_path.as_str());
+        let runtime = MT5PythonConnection::new().initialize(terminal_path.as_str());
         assert_eq!(runtime.is_ok(), true, "Unable to connect to terminal");
     }
 
@@ -1123,7 +1123,7 @@ mod test {
                 .expect("Unable to find `TERMINAL_ACCOUNT_SERVER` in .env file"),
         };
 
-        let runtime = PythonRuntime::new().initialize_with_credentials(
+        let runtime = MT5PythonConnection::new().initialize_with_credentials(
             terminal_path.as_str(),
             account_credentials,
             1000,
@@ -1135,7 +1135,7 @@ mod test {
     #[test]
     fn test_terminal_version() {
         let terminal_path = std::env::var("TERMINAL_PATH").unwrap();
-        let runtime = PythonRuntime::new()
+        let runtime = MT5PythonConnection::new()
             .initialize(terminal_path.as_str())
             .expect("Unable to connect to terminal");
         let version = runtime.version();
@@ -1145,7 +1145,7 @@ mod test {
     #[test]
     fn test_terminal_info() {
         let terminal_path = std::env::var("TERMINAL_PATH").unwrap();
-        let runtime = PythonRuntime::new()
+        let runtime = MT5PythonConnection::new()
             .initialize(terminal_path.as_str())
             .expect("Unable to connect to terminal");
         let terminal_info = runtime.terminal_info();
@@ -1155,7 +1155,7 @@ mod test {
     #[test]
     fn test_account_info() {
         let terminal_path = std::env::var("TERMINAL_PATH").unwrap();
-        let mut runtime = PythonRuntime::new()
+        let mut runtime = MT5PythonConnection::new()
             .initialize(terminal_path.as_str())
             .expect("Unable to connect to terminal");
         let account_info = runtime.account_info();
@@ -1165,7 +1165,7 @@ mod test {
     #[test]
     fn test_symbols_total() {
         let terminal_path = std::env::var("TERMINAL_PATH").unwrap();
-        let runtime = PythonRuntime::new()
+        let runtime = MT5PythonConnection::new()
             .initialize(terminal_path.as_str())
             .expect("Unable to connect to terminal");
         let symbols_total = runtime.symbols_total();
@@ -1175,7 +1175,7 @@ mod test {
     #[test]
     fn test_symbols_get() {
         let terminal_path = std::env::var("TERMINAL_PATH").unwrap();
-        let runtime = PythonRuntime::new()
+        let runtime = MT5PythonConnection::new()
             .initialize(terminal_path.as_str())
             .expect("Unable to connect to terminal");
         let symbols_get_all = runtime.symbols_get(None);
@@ -1195,7 +1195,7 @@ mod test {
     #[test]
     fn test_symbol_info() {
         let terminal_path = std::env::var("TERMINAL_PATH").unwrap();
-        let runtime = PythonRuntime::new()
+        let runtime = MT5PythonConnection::new()
             .initialize(terminal_path.as_str())
             .expect("Unable to connect to terminal");
         let symbol_info = runtime.symbol_info("EURUSD");
@@ -1205,7 +1205,7 @@ mod test {
     #[test]
     fn test_symbol_info_tick() {
         let terminal_path = std::env::var("TERMINAL_PATH").unwrap();
-        let runtime = PythonRuntime::new()
+        let runtime = MT5PythonConnection::new()
             .initialize(terminal_path.as_str())
             .expect("Unable to connect to terminal");
         let symbol_info_tick = runtime.symbol_info_tick("EURUSD");
@@ -1219,7 +1219,7 @@ mod test {
     #[test]
     fn test_symbol_select() {
         let terminal_path = std::env::var("TERMINAL_PATH").unwrap();
-        let runtime = PythonRuntime::new()
+        let runtime = MT5PythonConnection::new()
             .initialize(terminal_path.as_str())
             .expect("Unable to connect to terminal");
         let symbol_select = runtime.symbol_select("EURUSD", None);
@@ -1229,7 +1229,7 @@ mod test {
     #[test]
     fn test_copy_rates_from() {
         let terminal_path = std::env::var("TERMINAL_PATH").unwrap();
-        let runtime = PythonRuntime::new()
+        let runtime = MT5PythonConnection::new()
             .initialize(terminal_path.as_str())
             .expect("Unable to connect to terminal");
         let copy_rates_from = runtime.copy_rates_from("EURUSD", Timeframe::H1, Local::now(), 20);
@@ -1239,7 +1239,7 @@ mod test {
     #[test]
     fn test_copy_rates_from_pos() {
         let terminal_path = std::env::var("TERMINAL_PATH").unwrap();
-        let runtime = PythonRuntime::new()
+        let runtime = MT5PythonConnection::new()
             .initialize(terminal_path.as_str())
             .expect("Unable to connect to terminal");
         let copy_rates_from_pos = runtime.copy_rates_from_pos("EURUSD", Timeframe::H1, 0, 20);
@@ -1253,7 +1253,7 @@ mod test {
     #[test]
     fn test_copy_rates_range() {
         let terminal_path = std::env::var("TERMINAL_PATH").unwrap();
-        let runtime = PythonRuntime::new()
+        let runtime = MT5PythonConnection::new()
             .initialize(terminal_path.as_str())
             .expect("Unable to connect to terminal");
         let copy_rates_range = runtime.copy_rates_range(
@@ -1268,7 +1268,7 @@ mod test {
     #[test]
     fn test_copy_ticks_from() {
         let terminal_path = std::env::var("TERMINAL_PATH").unwrap();
-        let runtime = PythonRuntime::new()
+        let runtime = MT5PythonConnection::new()
             .initialize(terminal_path.as_str())
             .expect("Unable to connect to terminal");
         let copy_ticks_from = runtime.copy_ticks_from(
@@ -1283,7 +1283,7 @@ mod test {
     #[test]
     fn test_copy_ticks_range() {
         let terminal_path = std::env::var("TERMINAL_PATH").unwrap();
-        let runtime = PythonRuntime::new()
+        let runtime = MT5PythonConnection::new()
             .initialize(terminal_path.as_str())
             .expect("Unable to connect to terminal");
         let copy_ticks_range = runtime.copy_ticks_range(
@@ -1298,7 +1298,7 @@ mod test {
     #[test]
     fn test_orders_total() {
         let terminal_path = std::env::var("TERMINAL_PATH").unwrap();
-        let runtime = PythonRuntime::new()
+        let runtime = MT5PythonConnection::new()
             .initialize(terminal_path.as_str())
             .expect("Unable to connect to terminal");
         let orders_total = runtime.orders_total();
@@ -1308,7 +1308,7 @@ mod test {
     #[test]
     fn test_orders_get() {
         let terminal_path = std::env::var("TERMINAL_PATH").unwrap();
-        let runtime = PythonRuntime::new()
+        let runtime = MT5PythonConnection::new()
             .initialize(terminal_path.as_str())
             .expect("Unable to connect to terminal");
         let orders_get = runtime.orders_get();
@@ -1318,7 +1318,7 @@ mod test {
     #[test]
     fn test_order_check() {
         let terminal_path = std::env::var("TERMINAL_PATH").unwrap();
-        let runtime = PythonRuntime::new()
+        let runtime = MT5PythonConnection::new()
             .initialize(terminal_path.as_str())
             .expect("Unable to connect to terminal");
 
@@ -1346,7 +1346,7 @@ mod test {
     #[test]
     fn test_order_send() {
         let terminal_path = std::env::var("TERMINAL_PATH").unwrap();
-        let runtime = PythonRuntime::new()
+        let runtime = MT5PythonConnection::new()
             .initialize(terminal_path.as_str())
             .expect("Unable to connect to terminal");
 
@@ -1393,7 +1393,7 @@ mod test {
     #[test]
     fn test_positions_total() {
         let terminal_path = std::env::var("TERMINAL_PATH").unwrap();
-        let runtime = PythonRuntime::new()
+        let runtime = MT5PythonConnection::new()
             .initialize(terminal_path.as_str())
             .expect("Unable to connect to terminal");
         let positions_total = runtime.positions_total();
@@ -1407,7 +1407,7 @@ mod test {
     #[test]
     fn test_positions_get() {
         let terminal_path = std::env::var("TERMINAL_PATH").unwrap();
-        let runtime = PythonRuntime::new()
+        let runtime = MT5PythonConnection::new()
             .initialize(terminal_path.as_str())
             .expect("Unable to connect to terminal");
         let positions_get = runtime.positions_get();
@@ -1417,7 +1417,7 @@ mod test {
     #[test]
     fn test_history_orders_total() {
         let terminal_path = std::env::var("TERMINAL_PATH").unwrap();
-        let runtime = PythonRuntime::new()
+        let runtime = MT5PythonConnection::new()
             .initialize(terminal_path.as_str())
             .expect("Unable to connect to terminal");
 
@@ -1435,7 +1435,7 @@ mod test {
     #[test]
     fn test_history_orders_get() {
         let terminal_path = std::env::var("TERMINAL_PATH").unwrap();
-        let runtime = PythonRuntime::new()
+        let runtime = MT5PythonConnection::new()
             .initialize(terminal_path.as_str())
             .expect("Unable to connect to terminal");
 
@@ -1453,7 +1453,7 @@ mod test {
     #[test]
     fn test_history_deals_total() {
         let terminal_path = std::env::var("TERMINAL_PATH").unwrap();
-        let runtime = PythonRuntime::new()
+        let runtime = MT5PythonConnection::new()
             .initialize(terminal_path.as_str())
             .expect("Unable to connect to terminal");
 
@@ -1471,7 +1471,7 @@ mod test {
     #[test]
     fn test_history_deals_get() {
         let terminal_path = std::env::var("TERMINAL_PATH").unwrap();
-        let runtime = PythonRuntime::new()
+        let runtime = MT5PythonConnection::new()
             .initialize(terminal_path.as_str())
             .expect("Unable to connect to terminal");
 

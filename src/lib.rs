@@ -14,18 +14,16 @@
 //! You can initialize connection using terminal path.
 //!
 //! ```rust
-//! use fishing_rod::runtime::python::PythonRuntime;
-//! use fishing_rod::traits::ConnectionTrait;
+//! use fishing_rod::prelude::*;
+//!
 //! let terminal_path = std::env::var("TERMINAL_PATH").unwrap();
-//! let runtime = PythonRuntime::new().initialize(terminal_path.as_str());
+//! let connection = MT5PythonConnection::new().initialize(&terminal_path);
 //! ```
 //!
 //! or you can use your account credentials to communicate with the terminal.
 //!
 //! ```rust
-//! use fishing_rod::runtime::python::PythonRuntime;
-//! use fishing_rod::schemas::AccountCredentials;
-//! use fishing_rod::traits::ConnectionTrait;
+//! use fishing_rod::prelude::*;
 //! let terminal_path = std::env::var("TERMINAL_PATH").unwrap();
 //! let account_credentials = AccountCredentials {
 //!     login: std::env::var("TERMINAL_ACCOUNT_ID")
@@ -38,14 +36,22 @@
 //!         .expect("Unable to find `TERMINAL_ACCOUNT_SERVER` in .env file"),
 //! };
 //!
-//! let runtime = PythonRuntime::new().initialize_with_credentials(
-//!     terminal_path.as_str(), // terminal path
+//! let connection = MT5PythonConnection::new().initialize_with_credentials(
+//!     &terminal_path, // terminal path
 //!     account_credentials, // account credentials
 //!     1000, // timeout
 //!     None, // portable mode
 //! );
 //! ```
+//! ## Installation
+//! currently, this project is under active development. to install the latest version of this project.
+//!
+//! ```bash
+//! cargo add --git "https://github.com/FishTools/fishing-rod"
+//! ```
+//!
 //! ### Note:
+//! major breaking changes can occur without semantic versioning so be careful and don't use it in production just yet.
 //!
 //! To install Metatrader5 and numpy for Fishing-Rod, you need to use poetry as a package manager. Please follow these steps:
 //!
@@ -61,13 +67,12 @@
 //! 2. **Data Exchange**: Fishing-Rod uses the Python native runtime and PyO3 to send and receive data between the MQL terminal and Rust.
 //!
 //! ```rust
-//! use fishing_rod::runtime::python::PythonRuntime;
-//! use fishing_rod::traits::{ConnectionTrait,TerminalInfoTrait};
+//! use fishing_rod::prelude::*;
 //! let terminal_path = std::env::var("TERMINAL_PATH").unwrap();
-//! let runtime = PythonRuntime::new()
+//! let connection = MT5PythonConnection::new()
 //!     .initialize(terminal_path.as_str())
 //!     .expect("Unable to connect to terminal");
-//! let version = runtime.version().expect("Unable to get terminal version");
+//! let version = connection.version().expect("Unable to get terminal version");
 //! println!("terminal version: {:?}",version.terminal_version);
 //! println!("terminal build version: {:?}",version.build);
 //! println!("terminal build date: {:?}",version.build_date);
@@ -76,17 +81,14 @@
 //! 3. **Processing**: Once the data is received in Rust, users can leverage Rust's powerful features for data processing, analysis, or algorithmic trading operations and Processed data or commands can then be sent back to the MQL terminal for further action, such as executing trades.
 //!
 //! ```rust
-//! use fishing_rod::enums::{OrderTypeTime, OrderTypeFilling, OrderType,TradeActionRequest,Timeframe};
-//! use fishing_rod::runtime::python::PythonRuntime;
-//! use fishing_rod::schemas::TradeRequestBuilder;
-//! use fishing_rod::traits::{ConnectionTrait,OrderTrait,SymbolRatesTrait,SymbolInfoTrait};
+//! use fishing_rod::prelude::*;
 //! use chrono::Local;
 //! let terminal_path = std::env::var("TERMINAL_PATH").unwrap();
-//! let runtime = PythonRuntime::new()
+//! let connection = MT5PythonConnection::new()
 //!     .initialize(terminal_path.as_str())
 //!     .expect("Unable to connect to terminal");
 //!
-//! let current_symbol = runtime.symbol_info("EURUSD").unwrap();
+//! let current_symbol = connection.symbol_info("EURUSD").unwrap();
 //!
 //! let open_trade = TradeRequestBuilder::new()
 //!     .action(TradeActionRequest::DEAL)
@@ -100,7 +102,7 @@
 //!     .tp(current_symbol.bid + (100.0 * current_symbol.point))
 //!     .comment("Test".to_string());
 //!
-//! let open_order = runtime.order_send(open_trade).unwrap();
+//! let open_order = connection.order_send(open_trade).unwrap();
 //!
 //! let close_request = TradeRequestBuilder::new()
 //!     .action(TradeActionRequest::DEAL)
@@ -113,7 +115,7 @@
 //!     .type_time(OrderTypeTime::GTC)
 //!     .comment("Test".to_string());
 //!
-//! let close_send = runtime.order_send(close_request);
+//! let close_send = connection.order_send(close_request);
 //!
 //! let close_send = close_send.unwrap();
 //! ```
@@ -127,8 +129,8 @@
 //!
 //! Fishing-Rod opens up new possibilities for developers and traders in the financial market, combining the strengths of MQL, Rust, and Python in a unique and powerful way.
 
+pub mod connection;
 pub mod enums;
 pub mod prelude;
-pub mod runtime;
 pub mod schemas;
 pub mod traits;

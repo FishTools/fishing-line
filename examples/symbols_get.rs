@@ -3,7 +3,7 @@ use fishing_rod::prelude::*;
 fn main() {
     let terminal_path = std::env::var("TERMINAL_PATH").expect("TERMINAL_PATH must be set");
 
-    let runtime = PythonRuntime::new().initialize(&terminal_path);
+    let runtime = MT5PythonConnection::new().initialize(&terminal_path);
 
     if runtime.is_err() {
         panic!("Failed to initialize and connect to MT5 terminal");
@@ -27,6 +27,7 @@ fn main() {
     let group_symbols = runtime
         .symbols_get(Some("*,!*USD*,!*EUR*,!*JPY*,!*GBP*"))
         .unwrap();
+
     println!(
         "len(*,!*USD*,!*EUR*,!*JPY*,!*GBP*): {}",
         group_symbols.len()
