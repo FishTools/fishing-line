@@ -85,33 +85,15 @@ impl FromPyObject<'_> for OrderType {
     fn extract_bound(ob: &pyo3::Bound<'_, pyo3::PyAny>) -> pyo3::PyResult<Self> {
         let value: i64 = ob.extract().unwrap();
         match value {
-            0 => {
-                Ok(OrderType::BUY)
-            }
-            1 => {
-                Ok(OrderType::SELL)
-            }
-            2 => {
-                Ok(OrderType::BuyLimit)
-            }
-            3 => {
-                Ok(OrderType::SellLimit)
-            }
-            4 => {
-                Ok(OrderType::BuyStop)
-            }
-            5 => {
-                Ok(OrderType::SellStop)
-            }
-            6 => {
-                Ok(OrderType::BuyStopLimit)
-            }
-            7 => {
-                Ok(OrderType::SellStopLimit)
-            }
-            8 => {
-                Ok(OrderType::CloseBy)
-            }
+            0 => Ok(OrderType::BUY),
+            1 => Ok(OrderType::SELL),
+            2 => Ok(OrderType::BuyLimit),
+            3 => Ok(OrderType::SellLimit),
+            4 => Ok(OrderType::BuyStop),
+            5 => Ok(OrderType::SellStop),
+            6 => Ok(OrderType::BuyStopLimit),
+            7 => Ok(OrderType::SellStopLimit),
+            8 => Ok(OrderType::CloseBy),
             _ => {
                 panic!("Invalid OrderType value: {}", value)
             }
@@ -152,24 +134,12 @@ impl FromPyObject<'_> for TradeActionRequest {
     fn extract_bound(ob: &pyo3::Bound<'_, pyo3::PyAny>) -> pyo3::PyResult<Self> {
         let value: i64 = ob.extract().unwrap();
         match value {
-            1 => {
-                Ok(TradeActionRequest::DEAL)
-            }
-            5 => {
-                Ok(TradeActionRequest::PENDING)
-            }
-            6 => {
-                Ok(TradeActionRequest::SLTP)
-            }
-            7 => {
-                Ok(TradeActionRequest::MODIFY)
-            }
-            8 => {
-                Ok(TradeActionRequest::REMOVE)
-            }
-            10 => {
-                Ok(TradeActionRequest::CloseBy)
-            }
+            1 => Ok(TradeActionRequest::DEAL),
+            5 => Ok(TradeActionRequest::PENDING),
+            6 => Ok(TradeActionRequest::SLTP),
+            7 => Ok(TradeActionRequest::MODIFY),
+            8 => Ok(TradeActionRequest::REMOVE),
+            10 => Ok(TradeActionRequest::CloseBy),
             _ => {
                 panic!("Invalid TradeActionRequest value");
             }
@@ -217,15 +187,9 @@ impl FromPyObject<'_> for OrderTypeFilling {
         let value: i64 = ob.extract().unwrap();
 
         match value {
-            0 => {
-                Ok(OrderTypeFilling::FOK)
-            }
-            1 => {
-                Ok(OrderTypeFilling::IOC)
-            }
-            2 => {
-                Ok(OrderTypeFilling::RETURN)
-            }
+            0 => Ok(OrderTypeFilling::FOK),
+            1 => Ok(OrderTypeFilling::IOC),
+            2 => Ok(OrderTypeFilling::RETURN),
             _ => panic!("Invalid OrderTypeFilling value: {}", value),
         }
     }
@@ -258,18 +222,10 @@ impl FromPyObject<'_> for OrderTypeTime {
         let value: i64 = ob.extract().unwrap();
 
         match value {
-            0 => {
-                Ok(OrderTypeTime::GTC)
-            }
-            1 => {
-                Ok(OrderTypeTime::DAY)
-            }
-            2 => {
-                Ok(OrderTypeTime::SPECIFIED)
-            }
-            3 => {
-                Ok(OrderTypeTime::SpecifiedDay)
-            }
+            0 => Ok(OrderTypeTime::GTC),
+            1 => Ok(OrderTypeTime::DAY),
+            2 => Ok(OrderTypeTime::SPECIFIED),
+            3 => Ok(OrderTypeTime::SpecifiedDay),
             _ => panic!("Invalid OrderTypeTime value: {}", value),
         }
     }
@@ -375,132 +331,48 @@ impl FromPyObject<'_> for ReturnCode {
     fn extract_bound(ob: &pyo3::Bound<'_, pyo3::PyAny>) -> pyo3::PyResult<Self> {
         let value: u64 = ob.extract().unwrap();
         match value {
-            0 => {
-                Ok(ReturnCode::CHECKED)
-            }
-            10004 => {
-                Ok(ReturnCode::REQUOTE)
-            }
-            10006 => {
-                Ok(ReturnCode::REJECT)
-            }
-            10007 => {
-                Ok(ReturnCode::CANCELLED)
-            }
-            10008 => {
-                Ok(ReturnCode::PLACED)
-            }
-            10009 => {
-                Ok(ReturnCode::DONE)
-            }
-            10010 => {
-                Ok(ReturnCode::DonePartial)
-            }
-            10011 => {
-                Ok(ReturnCode::ERROR)
-            }
-            10012 => {
-                Ok(ReturnCode::TIMEOUT)
-            }
-            10013 => {
-                Ok(ReturnCode::INVALID)
-            }
-            10014 => {
-                Ok(ReturnCode::InvalidVolume)
-            }
-            10015 => {
-                Ok(ReturnCode::InvalidPrice)
-            }
-            10016 => {
-                Ok(ReturnCode::InvalidStops)
-            }
-            10017 => {
-                Ok(ReturnCode::TradeDisabled)
-            }
-            10018 => {
-                Ok(ReturnCode::MarketClosed)
-            }
-            10019 => {
-                Ok(ReturnCode::NoMoney)
-            }
-            10020 => {
-                Ok(ReturnCode::PriceChanged)
-            }
-            10021 => {
-                Ok(ReturnCode::PriceOff)
-            }
-            10022 => {
-                Ok(ReturnCode::InvalidExpiration)
-            }
-            10023 => {
-                Ok(ReturnCode::OrderChanged)
-            }
-            10024 => {
-                Ok(ReturnCode::TooManyRequest)
-            }
-            10025 => {
-                Ok(ReturnCode::NoChanges)
-            }
-            10026 => {
-                Ok(ReturnCode::ServerDisablesAt)
-            }
-            10027 => {
-                Ok(ReturnCode::ClientDisablesAt)
-            }
-            10028 => {
-                Ok(ReturnCode::LOCKED)
-            }
-            10029 => {
-                Ok(ReturnCode::FROZEN)
-            }
-            10030 => {
-                Ok(ReturnCode::InvalidFill)
-            }
-            10031 => {
-                Ok(ReturnCode::CONNECTION)
-            }
-            10032 => {
-                Ok(ReturnCode::OnlyReal)
-            }
-            10033 => {
-                Ok(ReturnCode::LimitOrders)
-            }
-            10034 => {
-                Ok(ReturnCode::LimitVolumes)
-            }
-            10035 => {
-                Ok(ReturnCode::InvalidOrders)
-            }
-            10036 => {
-                Ok(ReturnCode::PostionClosed)
-            }
-            10038 => {
-                Ok(ReturnCode::InvalideCloseVolume)
-            }
-            10039 => {
-                Ok(ReturnCode::CloseOrderExist)
-            }
-            10040 => {
-                Ok(ReturnCode::LimitPositions)
-            }
-            10041 => {
-                Ok(ReturnCode::RejectCancel)
-            }
-            10042 => {
-                Ok(ReturnCode::LongOnly)
-            }
-            10043 => {
-                Ok(ReturnCode::ShortOnly)
-            }
-            10044 => {
-                Ok(ReturnCode::CloseOnly)
-            }
-            10045 => {
-                Ok(ReturnCode::FifoClose)
-            }
-            10046 => {
-                Ok(ReturnCode::HedgeProhibited)
-            }
+            0 => Ok(ReturnCode::CHECKED),
+            10004 => Ok(ReturnCode::REQUOTE),
+            10006 => Ok(ReturnCode::REJECT),
+            10007 => Ok(ReturnCode::CANCELLED),
+            10008 => Ok(ReturnCode::PLACED),
+            10009 => Ok(ReturnCode::DONE),
+            10010 => Ok(ReturnCode::DonePartial),
+            10011 => Ok(ReturnCode::ERROR),
+            10012 => Ok(ReturnCode::TIMEOUT),
+            10013 => Ok(ReturnCode::INVALID),
+            10014 => Ok(ReturnCode::InvalidVolume),
+            10015 => Ok(ReturnCode::InvalidPrice),
+            10016 => Ok(ReturnCode::InvalidStops),
+            10017 => Ok(ReturnCode::TradeDisabled),
+            10018 => Ok(ReturnCode::MarketClosed),
+            10019 => Ok(ReturnCode::NoMoney),
+            10020 => Ok(ReturnCode::PriceChanged),
+            10021 => Ok(ReturnCode::PriceOff),
+            10022 => Ok(ReturnCode::InvalidExpiration),
+            10023 => Ok(ReturnCode::OrderChanged),
+            10024 => Ok(ReturnCode::TooManyRequest),
+            10025 => Ok(ReturnCode::NoChanges),
+            10026 => Ok(ReturnCode::ServerDisablesAt),
+            10027 => Ok(ReturnCode::ClientDisablesAt),
+            10028 => Ok(ReturnCode::LOCKED),
+            10029 => Ok(ReturnCode::FROZEN),
+            10030 => Ok(ReturnCode::InvalidFill),
+            10031 => Ok(ReturnCode::CONNECTION),
+            10032 => Ok(ReturnCode::OnlyReal),
+            10033 => Ok(ReturnCode::LimitOrders),
+            10034 => Ok(ReturnCode::LimitVolumes),
+            10035 => Ok(ReturnCode::InvalidOrders),
+            10036 => Ok(ReturnCode::PostionClosed),
+            10038 => Ok(ReturnCode::InvalideCloseVolume),
+            10039 => Ok(ReturnCode::CloseOrderExist),
+            10040 => Ok(ReturnCode::LimitPositions),
+            10041 => Ok(ReturnCode::RejectCancel),
+            10042 => Ok(ReturnCode::LongOnly),
+            10043 => Ok(ReturnCode::ShortOnly),
+            10044 => Ok(ReturnCode::CloseOnly),
+            10045 => Ok(ReturnCode::FifoClose),
+            10046 => Ok(ReturnCode::HedgeProhibited),
             _ => panic!("Invalid ReturnCode value: {}", value),
         }
     }
@@ -526,12 +398,8 @@ impl FromPyObject<'_> for PositionType {
     fn extract_bound(ob: &pyo3::Bound<'_, pyo3::PyAny>) -> pyo3::PyResult<Self> {
         let value: u64 = ob.extract().unwrap();
         match value {
-            0 => {
-                Ok(PositionType::BUY)
-            }
-            1 => {
-                Ok(PositionType::SELL)
-            }
+            0 => Ok(PositionType::BUY),
+            1 => Ok(PositionType::SELL),
             _ => panic!("Invalid PositionType value: {}", value),
         }
     }
@@ -561,18 +429,10 @@ impl FromPyObject<'_> for PositionReason {
     fn extract_bound(ob: &pyo3::Bound<'_, pyo3::PyAny>) -> pyo3::PyResult<Self> {
         let value: u64 = ob.extract().unwrap();
         match value {
-            0 => {
-                Ok(PositionReason::CLIENT)
-            }
-            1 => {
-                Ok(PositionReason::MOBILE)
-            }
-            2 => {
-                Ok(PositionReason::WEB)
-            }
-            3 => {
-                Ok(PositionReason::EXPERT)
-            }
+            0 => Ok(PositionReason::CLIENT),
+            1 => Ok(PositionReason::MOBILE),
+            2 => Ok(PositionReason::WEB),
+            3 => Ok(PositionReason::EXPERT),
             _ => panic!("Invalid PositionReason value: {}", value),
         }
     }
@@ -630,60 +490,24 @@ impl FromPyObject<'_> for DealType {
     fn extract_bound(ob: &pyo3::Bound<'_, pyo3::PyAny>) -> pyo3::PyResult<Self> {
         let value: u64 = ob.extract().unwrap();
         match value {
-            0 => {
-                Ok(DealType::BUY)
-            }
-            1 => {
-                Ok(DealType::SELL)
-            }
-            2 => {
-                Ok(DealType::BALANCE)
-            }
-            3 => {
-                Ok(DealType::CREDIT)
-            }
-            4 => {
-                Ok(DealType::CHARGE)
-            }
-            5 => {
-                Ok(DealType::CORRECTION)
-            }
-            6 => {
-                Ok(DealType::BONUS)
-            }
-            7 => {
-                Ok(DealType::COMMISSION)
-            }
-            8 => {
-                Ok(DealType::CommissionDaily)
-            }
-            9 => {
-                Ok(DealType::CommissionMontly)
-            }
-            10 => {
-                Ok(DealType::ComissionAgentDaily)
-            }
-            11 => {
-                Ok(DealType::CommisionAgentMontly)
-            }
-            12 => {
-                Ok(DealType::INTEREST)
-            }
-            13 => {
-                Ok(DealType::BuyCanceled)
-            }
-            14 => {
-                Ok(DealType::SellCanceled)
-            }
-            15 => {
-                Ok(DealType::DIVIDEND)
-            }
-            16 => {
-                Ok(DealType::DividentFranked)
-            }
-            17 => {
-                Ok(DealType::TAX)
-            }
+            0 => Ok(DealType::BUY),
+            1 => Ok(DealType::SELL),
+            2 => Ok(DealType::BALANCE),
+            3 => Ok(DealType::CREDIT),
+            4 => Ok(DealType::CHARGE),
+            5 => Ok(DealType::CORRECTION),
+            6 => Ok(DealType::BONUS),
+            7 => Ok(DealType::COMMISSION),
+            8 => Ok(DealType::CommissionDaily),
+            9 => Ok(DealType::CommissionMontly),
+            10 => Ok(DealType::ComissionAgentDaily),
+            11 => Ok(DealType::CommisionAgentMontly),
+            12 => Ok(DealType::INTEREST),
+            13 => Ok(DealType::BuyCanceled),
+            14 => Ok(DealType::SellCanceled),
+            15 => Ok(DealType::DIVIDEND),
+            16 => Ok(DealType::DividentFranked),
+            17 => Ok(DealType::TAX),
             _ => panic!("Invalid DealType value: {}", value),
         }
     }
@@ -713,18 +537,10 @@ impl FromPyObject<'_> for DealEntry {
     fn extract_bound(ob: &pyo3::Bound<'_, pyo3::PyAny>) -> pyo3::PyResult<Self> {
         let value: u64 = ob.extract().unwrap();
         match value {
-            0 => {
-                Ok(DealEntry::IN)
-            }
-            1 => {
-                Ok(DealEntry::OUT)
-            }
-            2 => {
-                Ok(DealEntry::INOUT)
-            }
-            3 => {
-                Ok(DealEntry::OutBy)
-            }
+            0 => Ok(DealEntry::IN),
+            1 => Ok(DealEntry::OUT),
+            2 => Ok(DealEntry::INOUT),
+            3 => Ok(DealEntry::OutBy),
             _ => panic!("Invalid DealEntry value: {}", value),
         }
     }
@@ -766,36 +582,16 @@ impl FromPyObject<'_> for DealReason {
     fn extract_bound(ob: &pyo3::Bound<'_, pyo3::PyAny>) -> pyo3::PyResult<Self> {
         let value: u64 = ob.extract().unwrap();
         match value {
-            0 => {
-                Ok(DealReason::CLIENT)
-            }
-            1 => {
-                Ok(DealReason::MOBILE)
-            }
-            2 => {
-                Ok(DealReason::WEB)
-            }
-            3 => {
-                Ok(DealReason::EXPERT)
-            }
-            4 => {
-                Ok(DealReason::SL)
-            }
-            5 => {
-                Ok(DealReason::TP)
-            }
-            6 => {
-                Ok(DealReason::SO)
-            }
-            7 => {
-                Ok(DealReason::ROLLOVER)
-            }
-            8 => {
-                Ok(DealReason::VMARGIN)
-            }
-            9 => {
-                Ok(DealReason::SPLIT)
-            }
+            0 => Ok(DealReason::CLIENT),
+            1 => Ok(DealReason::MOBILE),
+            2 => Ok(DealReason::WEB),
+            3 => Ok(DealReason::EXPERT),
+            4 => Ok(DealReason::SL),
+            5 => Ok(DealReason::TP),
+            6 => Ok(DealReason::SO),
+            7 => Ok(DealReason::ROLLOVER),
+            8 => Ok(DealReason::VMARGIN),
+            9 => Ok(DealReason::SPLIT),
             _ => panic!("Invalid DealReason value: {}", value),
         }
     }
@@ -837,36 +633,16 @@ impl FromPyObject<'_> for OrderState {
     fn extract_bound(ob: &pyo3::Bound<'_, pyo3::PyAny>) -> pyo3::PyResult<Self> {
         let value: u64 = ob.extract().unwrap();
         match value {
-            0 => {
-                Ok(OrderState::STARTED)
-            }
-            1 => {
-                Ok(OrderState::PLACED)
-            }
-            2 => {
-                Ok(OrderState::CANCELED)
-            }
-            3 => {
-                Ok(OrderState::PARTIAL)
-            }
-            4 => {
-                Ok(OrderState::FILLED)
-            }
-            5 => {
-                Ok(OrderState::REJECTED)
-            }
-            6 => {
-                Ok(OrderState::EXPIRED)
-            }
-            7 => {
-                Ok(OrderState::RequestAdd)
-            }
-            8 => {
-                Ok(OrderState::RequestModify)
-            }
-            9 => {
-                Ok(OrderState::RequestCancel)
-            }
+            0 => Ok(OrderState::STARTED),
+            1 => Ok(OrderState::PLACED),
+            2 => Ok(OrderState::CANCELED),
+            3 => Ok(OrderState::PARTIAL),
+            4 => Ok(OrderState::FILLED),
+            5 => Ok(OrderState::REJECTED),
+            6 => Ok(OrderState::EXPIRED),
+            7 => Ok(OrderState::RequestAdd),
+            8 => Ok(OrderState::RequestModify),
+            9 => Ok(OrderState::RequestCancel),
             _ => panic!("Invalid OrderState value: {}", value),
         }
     }
@@ -902,28 +678,604 @@ impl FromPyObject<'_> for OrderReason {
     fn extract_bound(ob: &pyo3::Bound<'_, pyo3::PyAny>) -> pyo3::PyResult<Self> {
         let value: u64 = ob.extract().unwrap();
         match value {
-            0 => {
-                Ok(OrderReason::CLIENT)
-            }
-            1 => {
-                Ok(OrderReason::MOBILE)
-            }
-            2 => {
-                Ok(OrderReason::WEB)
-            }
-            3 => {
-                Ok(OrderReason::EXPERT)
-            }
-            4 => {
-                Ok(OrderReason::SL)
-            }
-            5 => {
-                Ok(OrderReason::TP)
-            }
-            6 => {
-                Ok(OrderReason::SO)
-            }
+            0 => Ok(OrderReason::CLIENT),
+            1 => Ok(OrderReason::MOBILE),
+            2 => Ok(OrderReason::WEB),
+            3 => Ok(OrderReason::EXPERT),
+            4 => Ok(OrderReason::SL),
+            5 => Ok(OrderReason::TP),
+            6 => Ok(OrderReason::SO),
             _ => panic!("Invalid OrderReason value: {}", value),
+        }
+    }
+}
+
+pub enum AccountInfoProperty {
+    Login,
+    TradeMode,
+    Leverage,
+    LimitOrders,
+    MarginSoMode,
+    TradeAllowed,
+    TradeExpert,
+    MarginMode,
+    CurrencyDigits,
+    FifoClose,
+    Balance,
+    Credit,
+    Profit,
+    Equity,
+    Margin,
+    MarginFree,
+    MarginLevel,
+    MarginSoCall,
+    MarginSoSo,
+    MarginInitial,
+    MarginMaintenance,
+    Assets,
+    Liabilities,
+    CommissionBlocked,
+    Name,
+    Server,
+    Currency,
+    Company,
+}
+
+pub enum TerminalInfoProperty {
+    CommunityAccount,
+    CommunityConnection,
+    Connected,
+    DllsAllowed,
+    TradeAllowed,
+    TradeApiDisabled,
+    EmailEnabled,
+    FtpEnabled,
+    NotificationsEnabled,
+    MqId,
+    Build,
+    MaxBars,
+    CodePage,
+    PingLast,
+    CommunityBalance,
+    Retransmission,
+    Company,
+    Name,
+    Language,
+    Path,
+    DataPath,
+    CommonDataPath,
+}
+
+#[derive(Debug, Clone, Copy, Deserialize, PartialEq)]
+pub enum AccountTradeMode {
+    Demo = 0,
+    Contest = 1,
+    Real = 2,
+}
+
+impl From<u64> for AccountTradeMode {
+    fn from(value: u64) -> Self {
+        match value {
+            0 => AccountTradeMode::Demo,
+            1 => AccountTradeMode::Contest,
+            2 => AccountTradeMode::Real,
+            _ => panic!("Invalid AccountTradeMode value: {}", value),
+        }
+    }
+}
+
+impl FromPyObject<'_> for AccountTradeMode {
+    fn extract_bound(ob: &pyo3::Bound<'_, pyo3::PyAny>) -> pyo3::PyResult<Self> {
+        let value: u64 = ob.extract().unwrap();
+        match value {
+            0 => Ok(AccountTradeMode::Demo),
+            1 => Ok(AccountTradeMode::Contest),
+            2 => Ok(AccountTradeMode::Real),
+            _ => panic!("Invalid AccountTradeMode value: {}", value),
+        }
+    }
+}
+
+#[derive(Debug, Clone, Copy, Deserialize, PartialEq)]
+pub enum AccountStopOutMode {
+    PERCENT = 0,
+    MONEY = 1,
+}
+
+impl From<u64> for AccountStopOutMode {
+    fn from(value: u64) -> Self {
+        match value {
+            0 => AccountStopOutMode::PERCENT,
+            1 => AccountStopOutMode::MONEY,
+            _ => panic!("Invalid AccountStopOutMode value: {}", value),
+        }
+    }
+}
+
+impl FromPyObject<'_> for AccountStopOutMode {
+    fn extract_bound(ob: &pyo3::Bound<'_, pyo3::PyAny>) -> pyo3::PyResult<Self> {
+        let value: u64 = ob.extract().unwrap();
+        match value {
+            0 => Ok(AccountStopOutMode::PERCENT),
+            1 => Ok(AccountStopOutMode::MONEY),
+            _ => panic!("Invalid AccountStopOutMode value: {}", value),
+        }
+    }
+}
+
+#[derive(Debug, Clone, Copy, Deserialize, PartialEq)]
+pub enum AccountMarginMode {
+    RetailNetting = 0,
+    Exchange = 1,
+    RetailHedging = 2,
+}
+
+impl From<u64> for AccountMarginMode {
+    fn from(value: u64) -> Self {
+        match value {
+            0 => AccountMarginMode::RetailNetting,
+            1 => AccountMarginMode::Exchange,
+            2 => AccountMarginMode::RetailHedging,
+            _ => panic!("Invalid AccountMarginMode value: {}", value),
+        }
+    }
+}
+
+impl FromPyObject<'_> for AccountMarginMode {
+    fn extract_bound(ob: &pyo3::Bound<'_, pyo3::PyAny>) -> pyo3::PyResult<Self> {
+        let value: u64 = ob.extract().unwrap();
+        match value {
+            0 => Ok(AccountMarginMode::RetailNetting),
+            1 => Ok(AccountMarginMode::Exchange),
+            2 => Ok(AccountMarginMode::RetailHedging),
+            _ => panic!("Invalid AccountMarginMode value: {}", value),
+        }
+    }
+}
+
+#[derive(Debug, Clone, Copy, Deserialize, PartialEq)]
+pub enum SymbolChartMode {
+    Bid = 0,
+    Last = 1,
+}
+
+impl From<u64> for SymbolChartMode {
+    fn from(value: u64) -> Self {
+        match value {
+            0 => SymbolChartMode::Bid,
+            1 => SymbolChartMode::Last,
+            _ => panic!("Invalid SymbolChartMode value: {}", value),
+        }
+    }
+}
+
+impl FromPyObject<'_> for SymbolChartMode {
+    fn extract_bound(ob: &pyo3::Bound<'_, pyo3::PyAny>) -> pyo3::PyResult<Self> {
+        let value: u64 = ob.extract().unwrap();
+        match value {
+            0 => Ok(SymbolChartMode::Bid),
+            1 => Ok(SymbolChartMode::Last),
+            _ => panic!("Invalid SymbolChartMode value: {}", value),
+        }
+    }
+}
+
+#[derive(Debug, Clone, Copy, Deserialize, PartialEq)]
+pub enum SymbolCalcMode {
+    FOREX = 0,
+    FUTURES = 1,
+    CFD = 2,
+    CFDINDEX = 3,
+    CFDLEVERAGE = 4,
+    ForexNoLeverage = 5,
+    ExchStocks = 32,
+    ExchFutures = 33,
+    ExchOptions = 34,
+    ExchOptionsMargin = 36,
+    ExchBonds = 37,
+    ExchStocksMoex = 38,
+    ExchBondsMoex = 39,
+    ServCollateral = 64,
+}
+
+impl From<u64> for SymbolCalcMode {
+    fn from(value: u64) -> Self {
+        match value {
+            0 => SymbolCalcMode::FOREX,
+            1 => SymbolCalcMode::FUTURES,
+            2 => SymbolCalcMode::CFD,
+            3 => SymbolCalcMode::CFDINDEX,
+            4 => SymbolCalcMode::CFDLEVERAGE,
+            5 => SymbolCalcMode::ForexNoLeverage,
+            32 => SymbolCalcMode::ExchStocks,
+            33 => SymbolCalcMode::ExchFutures,
+            34 => SymbolCalcMode::ExchOptions,
+            36 => SymbolCalcMode::ExchOptionsMargin,
+            37 => SymbolCalcMode::ExchBonds,
+            38 => SymbolCalcMode::ExchStocksMoex,
+            39 => SymbolCalcMode::ExchBondsMoex,
+            64 => SymbolCalcMode::ServCollateral,
+            _ => panic!("Invalid SymbolCalcMode value: {}", value),
+        }
+    }
+}
+
+impl FromPyObject<'_> for SymbolCalcMode {
+    fn extract_bound(ob: &pyo3::Bound<'_, pyo3::PyAny>) -> pyo3::PyResult<Self> {
+        let value: u64 = ob.extract().unwrap();
+        match value {
+            0 => Ok(SymbolCalcMode::FOREX),
+            1 => Ok(SymbolCalcMode::FUTURES),
+            2 => Ok(SymbolCalcMode::CFD),
+            3 => Ok(SymbolCalcMode::CFDINDEX),
+            4 => Ok(SymbolCalcMode::CFDLEVERAGE),
+            5 => Ok(SymbolCalcMode::ForexNoLeverage),
+            32 => Ok(SymbolCalcMode::ExchStocks),
+            33 => Ok(SymbolCalcMode::ExchFutures),
+            34 => Ok(SymbolCalcMode::ExchOptions),
+            36 => Ok(SymbolCalcMode::ExchOptionsMargin),
+            37 => Ok(SymbolCalcMode::ExchBonds),
+            38 => Ok(SymbolCalcMode::ExchStocksMoex),
+            39 => Ok(SymbolCalcMode::ExchBondsMoex),
+            64 => Ok(SymbolCalcMode::ServCollateral),
+            _ => panic!("Invalid SymbolCalcMode value: {}", value),
+        }
+    }
+}
+
+#[derive(Debug, Clone, Copy, Deserialize, PartialEq)]
+pub enum SymbolTradeMode {
+    SymbolTradeModeDisabled = 0,
+    SymbolTradeModeLongonly = 1,
+    SymbolTradeModeShortonly = 2,
+    SymbolTradeModeCloseonly = 3,
+    SymbolTradeModeFull = 4,
+}
+
+impl From<u64> for SymbolTradeMode {
+    fn from(value: u64) -> Self {
+        match value {
+            0 => SymbolTradeMode::SymbolTradeModeDisabled,
+            1 => SymbolTradeMode::SymbolTradeModeLongonly,
+            2 => SymbolTradeMode::SymbolTradeModeShortonly,
+            3 => SymbolTradeMode::SymbolTradeModeCloseonly,
+            4 => SymbolTradeMode::SymbolTradeModeFull,
+            _ => panic!("Invalid SymbolTradeMode value: {}", value),
+        }
+    }
+}
+
+impl FromPyObject<'_> for SymbolTradeMode {
+    fn extract_bound(ob: &pyo3::Bound<'_, pyo3::PyAny>) -> pyo3::PyResult<Self> {
+        let value: u64 = ob.extract().unwrap();
+        match value {
+            0 => Ok(SymbolTradeMode::SymbolTradeModeDisabled),
+            1 => Ok(SymbolTradeMode::SymbolTradeModeLongonly),
+            2 => Ok(SymbolTradeMode::SymbolTradeModeShortonly),
+            3 => Ok(SymbolTradeMode::SymbolTradeModeCloseonly),
+            4 => Ok(SymbolTradeMode::SymbolTradeModeFull),
+            _ => panic!("Invalid SymbolTradeMode value: {}", value),
+        }
+    }
+}
+
+#[derive(Debug, Clone, Copy, Deserialize, PartialEq)]
+pub enum SymbolTradeExecution {
+    Request = 0,
+    Instant = 1,
+    Market = 2,
+    Exchange = 3,
+}
+
+impl From<u64> for SymbolTradeExecution {
+    fn from(value: u64) -> Self {
+        match value {
+            0 => SymbolTradeExecution::Request,
+            1 => SymbolTradeExecution::Instant,
+            2 => SymbolTradeExecution::Market,
+            3 => SymbolTradeExecution::Exchange,
+            _ => panic!("Invalid SymbolTradeExecution value: {}", value),
+        }
+    }
+}
+
+impl FromPyObject<'_> for SymbolTradeExecution {
+    fn extract_bound(ob: &pyo3::Bound<'_, pyo3::PyAny>) -> pyo3::PyResult<Self> {
+        let value: u64 = ob.extract().unwrap();
+        match value {
+            0 => Ok(SymbolTradeExecution::Request),
+            1 => Ok(SymbolTradeExecution::Instant),
+            2 => Ok(SymbolTradeExecution::Market),
+            3 => Ok(SymbolTradeExecution::Exchange),
+            _ => panic!("Invalid SymbolTradeExecution value: {}", value),
+        }
+    }
+}
+
+#[derive(Debug, Clone, Copy, Deserialize, PartialEq)]
+pub enum SymbolSwapMode {
+    Disabled = 0,
+    Points = 1,
+    CurrencySymbol = 2,
+    CurrencyMargin = 3,
+    CurrencyDeposit = 4,
+    InterestCurrent = 5,
+    InterestOpen = 6,
+    ReopenCurrent = 7,
+    ReopenBid = 8,
+}
+
+impl From<u64> for SymbolSwapMode {
+    fn from(value: u64) -> Self {
+        match value {
+            0 => SymbolSwapMode::Disabled,
+            1 => SymbolSwapMode::Points,
+            2 => SymbolSwapMode::CurrencySymbol,
+            3 => SymbolSwapMode::CurrencyMargin,
+            4 => SymbolSwapMode::CurrencyDeposit,
+            5 => SymbolSwapMode::InterestCurrent,
+            6 => SymbolSwapMode::InterestOpen,
+            7 => SymbolSwapMode::ReopenCurrent,
+            8 => SymbolSwapMode::ReopenBid,
+            _ => panic!("Invalid SymbolSwapMode value: {}", value),
+        }
+    }
+}
+
+impl FromPyObject<'_> for SymbolSwapMode {
+    fn extract_bound(ob: &pyo3::Bound<'_, pyo3::PyAny>) -> pyo3::PyResult<Self> {
+        let value: u64 = ob.extract().unwrap();
+        match value {
+            0 => Ok(SymbolSwapMode::Disabled),
+            1 => Ok(SymbolSwapMode::Points),
+            2 => Ok(SymbolSwapMode::CurrencySymbol),
+            3 => Ok(SymbolSwapMode::CurrencyMargin),
+            4 => Ok(SymbolSwapMode::CurrencyDeposit),
+            5 => Ok(SymbolSwapMode::InterestCurrent),
+            6 => Ok(SymbolSwapMode::InterestOpen),
+            7 => Ok(SymbolSwapMode::ReopenCurrent),
+            8 => Ok(SymbolSwapMode::ReopenBid),
+            _ => panic!("Invalid SymbolSwapMode value: {}", value),
+        }
+    }
+}
+
+#[derive(Debug, Clone, Copy, Deserialize, PartialEq)]
+pub enum DayOfWeek {
+    Sunday = 0,
+    Monday = 1,
+    Tuesday = 2,
+    Wednesday = 3,
+    Thursday = 4,
+    Friday = 5,
+    Saturday = 6,
+    All = 7,
+}
+
+impl From<u64> for DayOfWeek {
+    fn from(value: u64) -> Self {
+        match value {
+            0 => DayOfWeek::Sunday,
+            1 => DayOfWeek::Monday,
+            2 => DayOfWeek::Tuesday,
+            3 => DayOfWeek::Wednesday,
+            4 => DayOfWeek::Thursday,
+            5 => DayOfWeek::Friday,
+            6 => DayOfWeek::Saturday,
+            7 => DayOfWeek::All,
+            _ => panic!("Invalid DayOfWeek value: {}", value),
+        }
+    }
+}
+
+impl FromPyObject<'_> for DayOfWeek {
+    fn extract_bound(ob: &pyo3::Bound<'_, pyo3::PyAny>) -> pyo3::PyResult<Self> {
+        let value: u64 = ob.extract().unwrap();
+        match value {
+            0 => Ok(DayOfWeek::Sunday),
+            1 => Ok(DayOfWeek::Monday),
+            2 => Ok(DayOfWeek::Tuesday),
+            3 => Ok(DayOfWeek::Wednesday),
+            4 => Ok(DayOfWeek::Thursday),
+            5 => Ok(DayOfWeek::Friday),
+            6 => Ok(DayOfWeek::Saturday),
+            7 => Ok(DayOfWeek::All),
+            _ => panic!("Invalid DayOfWeek value: {}", value),
+        }
+    }
+}
+
+#[derive(Debug, Clone, Copy, Deserialize, PartialEq)]
+pub enum SymbolOrderGtcMode {
+    Gtc = 0,
+    Daily = 1,
+    DailyNoStops = 2,
+}
+
+impl From<u64> for SymbolOrderGtcMode {
+    fn from(value: u64) -> Self {
+        match value {
+            0 => SymbolOrderGtcMode::Gtc,
+            1 => SymbolOrderGtcMode::Daily,
+            2 => SymbolOrderGtcMode::DailyNoStops,
+            _ => panic!("Invalid SymbolOrderGtcMode value: {}", value),
+        }
+    }
+}
+
+impl FromPyObject<'_> for SymbolOrderGtcMode {
+    fn extract_bound(ob: &pyo3::Bound<'_, pyo3::PyAny>) -> pyo3::PyResult<Self> {
+        let value: u64 = ob.extract().unwrap();
+        match value {
+            0 => Ok(SymbolOrderGtcMode::Gtc),
+            1 => Ok(SymbolOrderGtcMode::Daily),
+            2 => Ok(SymbolOrderGtcMode::DailyNoStops),
+            _ => panic!("Invalid SymbolOrderGtcMode value: {}", value),
+        }
+    }
+}
+
+#[derive(Debug, Clone, Copy, Deserialize, PartialEq)]
+pub enum SymbolOptionRight {
+    Call = 0,
+    Put = 1,
+}
+
+impl From<u64> for SymbolOptionRight {
+    fn from(value: u64) -> Self {
+        match value {
+            0 => SymbolOptionRight::Call,
+            1 => SymbolOptionRight::Put,
+            _ => panic!("Invalid SymbolOptionRight value: {}", value),
+        }
+    }
+}
+
+impl FromPyObject<'_> for SymbolOptionRight {
+    fn extract_bound(ob: &pyo3::Bound<'_, pyo3::PyAny>) -> pyo3::PyResult<Self> {
+        let value: u64 = ob.extract().unwrap();
+        match value {
+            0 => Ok(SymbolOptionRight::Call),
+            1 => Ok(SymbolOptionRight::Put),
+            _ => panic!("Invalid SymbolOptionRight value: {}", value),
+        }
+    }
+}
+
+#[derive(Debug, Clone, Copy, Deserialize, PartialEq)]
+pub enum SymbolOptionMode {
+    European = 0,
+    American = 1,
+}
+
+impl From<u64> for SymbolOptionMode {
+    fn from(value: u64) -> Self {
+        match value {
+            0 => SymbolOptionMode::European,
+            1 => SymbolOptionMode::American,
+            _ => panic!("Invalid SymbolOptionMode value: {}", value),
+        }
+    }
+}
+
+impl FromPyObject<'_> for SymbolOptionMode {
+    fn extract_bound(ob: &pyo3::Bound<'_, pyo3::PyAny>) -> pyo3::PyResult<Self> {
+        let value: u64 = ob.extract().unwrap();
+        match value {
+            0 => Ok(SymbolOptionMode::European),
+            1 => Ok(SymbolOptionMode::American),
+            _ => panic!("Invalid SymbolOptionMode value: {}", value),
+        }
+    }
+}
+
+#[derive(Debug, Clone, Copy, Deserialize, PartialEq)]
+pub enum SymbolExpirationMode {
+    Gtc = 1,
+    Day = 2,
+    Specified = 4,
+    SpecifiedDay = 8,
+    All = 15,
+}
+
+impl From<u64> for SymbolExpirationMode {
+    fn from(value: u64) -> Self {
+        match value {
+            1 => SymbolExpirationMode::Gtc,
+            2 => SymbolExpirationMode::Day,
+            4 => SymbolExpirationMode::Specified,
+            8 => SymbolExpirationMode::SpecifiedDay,
+            15 => SymbolExpirationMode::All,
+            _ => panic!("Invalid SymbolExpirationMode value: {}", value),
+        }
+    }
+}
+
+impl FromPyObject<'_> for SymbolExpirationMode {
+    fn extract_bound(ob: &pyo3::Bound<'_, pyo3::PyAny>) -> pyo3::PyResult<Self> {
+        let value: u64 = ob.extract().unwrap();
+        match value {
+            1 => Ok(SymbolExpirationMode::Gtc),
+            2 => Ok(SymbolExpirationMode::Day),
+            4 => Ok(SymbolExpirationMode::Specified),
+            8 => Ok(SymbolExpirationMode::SpecifiedDay),
+            15 => Ok(SymbolExpirationMode::All),
+            _ => panic!("Invalid SymbolExpirationMode value: {}", value),
+        }
+    }
+}
+
+#[derive(Debug, Clone, Copy, Deserialize, PartialEq)]
+pub enum SymbolFillingMode {
+    Fok = 1,
+    Ioc = 2,
+    Boc = 3,
+}
+
+impl From<u64> for SymbolFillingMode {
+    fn from(value: u64) -> Self {
+        match value {
+            1 => SymbolFillingMode::Fok,
+            2 => SymbolFillingMode::Ioc,
+            3 => SymbolFillingMode::Boc,
+            _ => panic!("Invalid SymbolFillingMode value: {}", value),
+        }
+    }
+}
+
+impl FromPyObject<'_> for SymbolFillingMode {
+    fn extract_bound(ob: &pyo3::Bound<'_, pyo3::PyAny>) -> pyo3::PyResult<Self> {
+        let value: u64 = ob.extract().unwrap();
+        match value {
+            1 => Ok(SymbolFillingMode::Fok),
+            2 => Ok(SymbolFillingMode::Ioc),
+            3 => Ok(SymbolFillingMode::Boc),
+            _ => panic!("Invalid SymbolFillingMode value: {}", value),
+        }
+    }
+}
+
+#[derive(Debug, Clone, Copy, Deserialize, PartialEq)]
+pub enum SymbolOrderMode {
+    Market = 1,
+    Limit = 2,
+    Stop = 4,
+    StopLimit = 8,
+    Sl = 16,
+    Tp = 32,
+    CloseBy = 64,
+    All = 127,
+}
+
+impl From<u64> for SymbolOrderMode {
+    fn from(value: u64) -> Self {
+        match value {
+            1 => SymbolOrderMode::Market,
+            2 => SymbolOrderMode::Limit,
+            4 => SymbolOrderMode::Stop,
+            8 => SymbolOrderMode::StopLimit,
+            16 => SymbolOrderMode::Sl,
+            32 => SymbolOrderMode::Tp,
+            64 => SymbolOrderMode::CloseBy,
+            127 => SymbolOrderMode::All,
+            _ => panic!("Invalid SymbolOrderMode value: {}", value),
+        }
+    }
+}
+
+impl FromPyObject<'_> for SymbolOrderMode {
+    fn extract_bound(ob: &pyo3::Bound<'_, pyo3::PyAny>) -> pyo3::PyResult<Self> {
+        let value: u64 = ob.extract().unwrap();
+        match value {
+            1 => Ok(SymbolOrderMode::Market),
+            2 => Ok(SymbolOrderMode::Limit),
+            4 => Ok(SymbolOrderMode::Stop),
+            8 => Ok(SymbolOrderMode::StopLimit),
+            16 => Ok(SymbolOrderMode::Sl),
+            32 => Ok(SymbolOrderMode::Tp),
+            64 => Ok(SymbolOrderMode::CloseBy),
+            127 => Ok(SymbolOrderMode::All),
+            _ => panic!("Invalid SymbolOrderMode value: {}", value),
         }
     }
 }
