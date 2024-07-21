@@ -14,13 +14,16 @@ Fishing-Rod operates by establishing a communication bridge between the MQL term
 You can initialize connection using terminal path.
 
 ```rust
+use fishing_rod::prelude::*;
+
 let terminal_path = std::env::var("TERMINAL_PATH").unwrap();
-let runtime = PythonRuntime::new().initialize(terminal_path.as_str());
+let connection = MT5PythonConnection::new().initialize(&terminal_path);
 ```
 
 or you can use your account credentials to communicate with the terminal.
 
 ```rust
+use fishing_rod::prelude::*;
 let terminal_path = std::env::var("TERMINAL_PATH").unwrap();
 let account_credentials = AccountCredentials {
     login: std::env::var("TERMINAL_ACCOUNT_ID")
@@ -33,15 +36,13 @@ let account_credentials = AccountCredentials {
         .expect("Unable to find `TERMINAL_ACCOUNT_SERVER` in .env file"),
 };
 
-let runtime = PythonRuntime::new().initialize_with_credentials(
-    terminal_path.as_str(), // terminal path
+let connection = MT5PythonConnection::new().initialize_with_credentials(
+    &terminal_path, // terminal path
     account_credentials, // account credentials
     1000, // timeout
     None, // portable mode
 );
 ```
-
-
 ## Installation
 currently, this project is under active development. to install the latest version of this project.
 
@@ -66,57 +67,57 @@ POETRY_ENVIRONMENT="/path/to/poetry/virtualenv"
 2. **Data Exchange**: Fishing-Rod uses the Python native runtime and PyO3 to send and receive data between the MQL terminal and Rust.
 
 ```rust
+use fishing_rod::prelude::*;
 let terminal_path = std::env::var("TERMINAL_PATH").unwrap();
-let runtime = PythonRuntime::new()
+let connection = MT5PythonConnection::new()
     .initialize(terminal_path.as_str())
     .expect("Unable to connect to terminal");
-let version = runtime.version().expect("Unable to get terminal version");
+let version = connection.version().expect("Unable to get terminal version");
 println!("terminal version: {:?}",version.terminal_version);
 println!("terminal build version: {:?}",version.build);
 println!("terminal build date: {:?}",version.build_date);
 ```
 
-3. **Processing**: Once the data is received in Rust, users can leverage Rust's powerful features for data processing, analysis, or algorithmic trading operations.
+3. **Processing**: Once the data is received in Rust, users can leverage Rust's powerful features for data processing, analysis, or algorithmic trading operations and Processed data or commands can then be sent back to the MQL terminal for further action, such as executing trades.
 
 ```rust
+use fishing_rod::prelude::*;
+use chrono::Local;
 let terminal_path = std::env::var("TERMINAL_PATH").unwrap();
-let runtime = PythonRuntime::new()
+let connection = MT5PythonConnection::new()
     .initialize(terminal_path.as_str())
     .expect("Unable to connect to terminal");
-// get symbol information
-let symbol_info = runtime.symbol_info("EURUSD").expect("Unable to get symbol information");
 
-// analyze the prices starting from now and return 20 bars of price info.
-let eurusd_rates = runtime.copy_rates_from("EURUSD",Timeframe::H1,Local::now(),20).expect("Unable to get rates information for this symbol");
+let current_symbol = connection.symbol_info("EURUSD").unwrap();
 
-// create a trading request
-let open_request = TradeRequestBuilder::new()
-    .action(enums::TradeActionRequest::DEAL)
-    .symbol(symbol_info.name)
+let open_trade = TradeRequestBuilder::new()
+    .action(TradeActionRequest::DEAL)
+    .symbol(current_symbol.name.clone())
     .volume(0.01)
-    .price(symbol_info.bid)
-    .r#type(enums::OrderType::BUY as i64)
-    .type_filling(enums::OrderTypeFilling::IOC)
-    .type_time(enums::OrderTypeTime::GTC)
-    .sl(symbol_info.bid - (100.0 * symbol_info.point))
-    .tp(symbol_info.bid + (100.0 * symbol_info.point))
-    .comment("trading from rust!!!".to_string());
+    .price(current_symbol.ask)
+    .r#type(OrderType::BUY)
+    .type_filling(OrderTypeFilling::IOC)
+    .type_time(OrderTypeTime::GTC)
+    .sl(current_symbol.bid - (100.0 * current_symbol.point))
+    .tp(current_symbol.bid + (100.0 * current_symbol.point))
+    .comment("Test".to_string());
 
-// check trade if valid
-let check_request = runtime.order_check(open_request);
+let open_order = connection.order_send(open_trade).unwrap();
 
-// check if valid
+let close_request = TradeRequestBuilder::new()
+    .action(TradeActionRequest::DEAL)
+    .symbol(current_symbol.name)
+    .volume(0.01)
+    .price(current_symbol.bid)
+    .position(open_order.order)
+    .r#type(OrderType::SELL)
+    .type_filling(OrderTypeFilling::IOC)
+    .type_time(OrderTypeTime::GTC)
+    .comment("Test".to_string());
 
-```
+let close_send = connection.order_send(close_request);
 
-4. **Response**: Processed data or commands can then be sent back to the MQL terminal for further action, such as executing trades.
-
-```rust
-let trade_result = runtime.order_send(open_request).expect("Unable to process trade");
-
-if trade_result.retcode == 10009 { // 10009 means `Request completed`
-  println!("Order successfully placed");
-}
+let close_send = close_send.unwrap();
 ```
 
 ## Key Features
