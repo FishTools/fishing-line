@@ -1281,6 +1281,7 @@ mod test {
 
     #[test]
     fn test_connection() {
+        dotenv::dotenv().ok();
         let terminal_path = std::env::var("TERMINAL_PATH").unwrap();
         let runtime = MT5PythonConnection::new().initialize(terminal_path.as_str());
         assert_eq!(runtime.is_ok(), true, "Unable to connect to terminal");
@@ -1288,6 +1289,7 @@ mod test {
 
     #[test]
     fn test_connection_with_credentials() {
+        dotenv::dotenv().ok();
         let terminal_path = std::env::var("TERMINAL_PATH").unwrap();
         let account_credentials = AccountCredentials {
             login: std::env::var("TERMINAL_ACCOUNT_ID")
@@ -1311,6 +1313,7 @@ mod test {
 
     #[test]
     fn test_terminal_version() {
+        dotenv::dotenv().ok();
         let terminal_path = std::env::var("TERMINAL_PATH").unwrap();
         let runtime = MT5PythonConnection::new()
             .initialize(terminal_path.as_str())
@@ -1331,6 +1334,7 @@ mod test {
 
     #[test]
     fn test_account_info() {
+        dotenv::dotenv().ok();
         let terminal_path = std::env::var("TERMINAL_PATH").unwrap();
         let runtime = MT5PythonConnection::new()
             .initialize(terminal_path.as_str())
@@ -1341,6 +1345,7 @@ mod test {
 
     #[test]
     fn test_symbols_total() {
+        dotenv::dotenv().ok();
         let terminal_path = std::env::var("TERMINAL_PATH").unwrap();
         let runtime = MT5PythonConnection::new()
             .initialize(terminal_path.as_str())
@@ -1351,6 +1356,7 @@ mod test {
 
     #[test]
     fn test_symbols_get() {
+        dotenv::dotenv().ok();
         let terminal_path = std::env::var("TERMINAL_PATH").unwrap();
         let runtime = MT5PythonConnection::new()
             .initialize(terminal_path.as_str())
@@ -1371,6 +1377,7 @@ mod test {
 
     #[test]
     fn test_symbol_info() {
+        dotenv::dotenv().ok();
         let terminal_path = std::env::var("TERMINAL_PATH").unwrap();
         let runtime = MT5PythonConnection::new()
             .initialize(terminal_path.as_str())
@@ -1381,6 +1388,7 @@ mod test {
 
     #[test]
     fn test_symbol_info_tick() {
+        dotenv::dotenv().ok();
         let terminal_path = std::env::var("TERMINAL_PATH").unwrap();
         let runtime = MT5PythonConnection::new()
             .initialize(terminal_path.as_str())
@@ -1395,6 +1403,7 @@ mod test {
 
     #[test]
     fn test_symbol_select() {
+        dotenv::dotenv().ok();
         let terminal_path = std::env::var("TERMINAL_PATH").unwrap();
         let runtime = MT5PythonConnection::new()
             .initialize(terminal_path.as_str())
@@ -1405,6 +1414,7 @@ mod test {
 
     #[test]
     fn test_copy_rates_from() {
+        dotenv::dotenv().ok();
         let terminal_path = std::env::var("TERMINAL_PATH").unwrap();
         let runtime = MT5PythonConnection::new()
             .initialize(terminal_path.as_str())
@@ -1415,6 +1425,7 @@ mod test {
 
     #[test]
     fn test_copy_rates_from_pos() {
+        dotenv::dotenv().ok();
         let terminal_path = std::env::var("TERMINAL_PATH").unwrap();
         let runtime = MT5PythonConnection::new()
             .initialize(terminal_path.as_str())
@@ -1429,6 +1440,7 @@ mod test {
 
     #[test]
     fn test_copy_rates_range() {
+        dotenv::dotenv().ok();
         let terminal_path = std::env::var("TERMINAL_PATH").unwrap();
         let runtime = MT5PythonConnection::new()
             .initialize(terminal_path.as_str())
@@ -1444,6 +1456,7 @@ mod test {
 
     #[test]
     fn test_copy_ticks_from() {
+        dotenv::dotenv().ok();
         let terminal_path = std::env::var("TERMINAL_PATH").unwrap();
         let runtime = MT5PythonConnection::new()
             .initialize(terminal_path.as_str())
@@ -1459,6 +1472,7 @@ mod test {
 
     #[test]
     fn test_copy_ticks_range() {
+        dotenv::dotenv().ok();
         let terminal_path = std::env::var("TERMINAL_PATH").unwrap();
         let runtime = MT5PythonConnection::new()
             .initialize(terminal_path.as_str())
@@ -1474,6 +1488,7 @@ mod test {
 
     #[test]
     fn test_orders_total() {
+        dotenv::dotenv().ok();
         let terminal_path = std::env::var("TERMINAL_PATH").unwrap();
         let runtime = MT5PythonConnection::new()
             .initialize(terminal_path.as_str())
@@ -1484,6 +1499,7 @@ mod test {
 
     #[test]
     fn test_orders_get() {
+        dotenv::dotenv().ok();
         let terminal_path = std::env::var("TERMINAL_PATH").unwrap();
         let runtime = MT5PythonConnection::new()
             .initialize(terminal_path.as_str())
@@ -1494,6 +1510,7 @@ mod test {
 
     #[test]
     fn test_order_check() {
+        dotenv::dotenv().ok();
         let terminal_path = std::env::var("TERMINAL_PATH").unwrap();
         let runtime = MT5PythonConnection::new()
             .initialize(terminal_path.as_str())
@@ -1522,6 +1539,7 @@ mod test {
 
     #[test]
     fn test_order_send() {
+        dotenv::dotenv().ok();
         let terminal_path = std::env::var("TERMINAL_PATH").unwrap();
         let runtime = MT5PythonConnection::new()
             .initialize(terminal_path.as_str())
@@ -1569,6 +1587,7 @@ mod test {
 
     #[test]
     fn test_positions_total() {
+        dotenv::dotenv().ok();
         let terminal_path = std::env::var("TERMINAL_PATH").unwrap();
         let runtime = MT5PythonConnection::new()
             .initialize(terminal_path.as_str())
@@ -1583,6 +1602,7 @@ mod test {
 
     #[test]
     fn test_positions_get() {
+        dotenv::dotenv().ok();
         let terminal_path = std::env::var("TERMINAL_PATH").unwrap();
         let runtime = MT5PythonConnection::new()
             .initialize(terminal_path.as_str())
@@ -1593,6 +1613,7 @@ mod test {
 
     #[test]
     fn test_history_orders_total() {
+        dotenv::dotenv().ok();
         let terminal_path = std::env::var("TERMINAL_PATH").unwrap();
         let runtime = MT5PythonConnection::new()
             .initialize(terminal_path.as_str())
@@ -1611,6 +1632,7 @@ mod test {
 
     #[test]
     fn test_history_orders_get() {
+        dotenv::dotenv().ok();
         let terminal_path = std::env::var("TERMINAL_PATH").unwrap();
         let runtime = MT5PythonConnection::new()
             .initialize(terminal_path.as_str())
@@ -1629,6 +1651,7 @@ mod test {
 
     #[test]
     fn test_history_deals_total() {
+        dotenv::dotenv().ok();
         let terminal_path = std::env::var("TERMINAL_PATH").unwrap();
         let runtime = MT5PythonConnection::new()
             .initialize(terminal_path.as_str())
@@ -1647,6 +1670,7 @@ mod test {
 
     #[test]
     fn test_history_deals_get() {
+        dotenv::dotenv().ok();
         let terminal_path = std::env::var("TERMINAL_PATH").unwrap();
         let runtime = MT5PythonConnection::new()
             .initialize(terminal_path.as_str())

@@ -15,7 +15,7 @@
 //!
 //! ```rust
 //! use fishing_line::prelude::*;
-//!
+//! dotenv::dotenv().ok();
 //! let terminal_path = std::env::var("TERMINAL_PATH").unwrap();
 //! let connection = MT5PythonConnection::new().initialize(&terminal_path);
 //! ```
@@ -24,6 +24,7 @@
 //!
 //! ```rust
 //! use fishing_line::prelude::*;
+//! dotenv::dotenv().ok();
 //! let terminal_path = std::env::var("TERMINAL_PATH").unwrap();
 //! let account_credentials = AccountCredentials {
 //!     login: std::env::var("TERMINAL_ACCOUNT_ID")
@@ -68,6 +69,7 @@
 //!
 //! ```rust
 //! use fishing_line::prelude::*;
+//! dotenv::dotenv().ok();
 //! let terminal_path = std::env::var("TERMINAL_PATH").unwrap();
 //! let connection = MT5PythonConnection::new()
 //!     .initialize(terminal_path.as_str())
@@ -83,6 +85,7 @@
 //! ```rust
 //! use fishing_line::prelude::*;
 //! use chrono::Local;
+//! dotenv::dotenv().ok();
 //! let terminal_path = std::env::var("TERMINAL_PATH").unwrap();
 //! let connection = MT5PythonConnection::new()
 //!     .initialize(terminal_path.as_str())
