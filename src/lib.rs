@@ -14,7 +14,7 @@
 //! You can initialize connection using terminal path.
 //!
 //! ```rust
-//! use fishing_rod::prelude::*;
+//! use fishing_line::prelude::*;
 //!
 //! let terminal_path = std::env::var("TERMINAL_PATH").unwrap();
 //! let connection = MT5PythonConnection::new().initialize(&terminal_path);
@@ -23,7 +23,7 @@
 //! or you can use your account credentials to communicate with the terminal.
 //!
 //! ```rust
-//! use fishing_rod::prelude::*;
+//! use fishing_line::prelude::*;
 //! let terminal_path = std::env::var("TERMINAL_PATH").unwrap();
 //! let account_credentials = AccountCredentials {
 //!     login: std::env::var("TERMINAL_ACCOUNT_ID")
@@ -67,7 +67,7 @@
 //! 2. **Data Exchange**: Fishing-Rod uses the Python native runtime and PyO3 to send and receive data between the MQL terminal and Rust.
 //!
 //! ```rust
-//! use fishing_rod::prelude::*;
+//! use fishing_line::prelude::*;
 //! let terminal_path = std::env::var("TERMINAL_PATH").unwrap();
 //! let connection = MT5PythonConnection::new()
 //!     .initialize(terminal_path.as_str())
@@ -81,7 +81,7 @@
 //! 3. **Processing**: Once the data is received in Rust, users can leverage Rust's powerful features for data processing, analysis, or algorithmic trading operations and Processed data or commands can then be sent back to the MQL terminal for further action, such as executing trades.
 //!
 //! ```rust
-//! use fishing_rod::prelude::*;
+//! use fishing_line::prelude::*;
 //! use chrono::Local;
 //! let terminal_path = std::env::var("TERMINAL_PATH").unwrap();
 //! let connection = MT5PythonConnection::new()

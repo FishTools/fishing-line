@@ -1,5 +1,5 @@
 use chrono::{Local, TimeZone};
-use fishing_rod::prelude::*;
+use fishing_line::prelude::*;
 
 fn main() {
     let terminal_path = std::env::var("TERMINAL_PATH").expect("TERMINAL_PATH must be set");
