@@ -800,3 +800,130 @@ impl FromPyObject<'_> for DealReason {
         }
     }
 }
+
+#[derive(Debug, Clone, Copy, Deserialize, PartialEq)]
+pub enum OrderState {
+    STARTED = 0,
+    PLACED = 1,
+    CANCELED = 2,
+    PARTIAL = 3,
+    FILLED = 4,
+    REJECTED = 5,
+    EXPIRED = 6,
+    RequestAdd = 7,
+    RequestModify = 8,
+    RequestCancel = 9,
+}
+
+impl From<u64> for OrderState {
+    fn from(value: u64) -> Self {
+        match value {
+            0 => OrderState::STARTED,
+            1 => OrderState::PLACED,
+            2 => OrderState::CANCELED,
+            3 => OrderState::PARTIAL,
+            4 => OrderState::FILLED,
+            5 => OrderState::REJECTED,
+            6 => OrderState::EXPIRED,
+            7 => OrderState::RequestAdd,
+            8 => OrderState::RequestModify,
+            9 => OrderState::RequestCancel,
+            _ => panic!("Invalid OrderState value: {}", value),
+        }
+    }
+}
+
+impl FromPyObject<'_> for OrderState {
+    fn extract_bound(ob: &pyo3::Bound<'_, pyo3::PyAny>) -> pyo3::PyResult<Self> {
+        let value: u64 = ob.extract().unwrap();
+        match value {
+            0 => {
+                Ok(OrderState::STARTED)
+            }
+            1 => {
+                Ok(OrderState::PLACED)
+            }
+            2 => {
+                Ok(OrderState::CANCELED)
+            }
+            3 => {
+                Ok(OrderState::PARTIAL)
+            }
+            4 => {
+                Ok(OrderState::FILLED)
+            }
+            5 => {
+                Ok(OrderState::REJECTED)
+            }
+            6 => {
+                Ok(OrderState::EXPIRED)
+            }
+            7 => {
+                Ok(OrderState::RequestAdd)
+            }
+            8 => {
+                Ok(OrderState::RequestModify)
+            }
+            9 => {
+                Ok(OrderState::RequestCancel)
+            }
+            _ => panic!("Invalid OrderState value: {}", value),
+        }
+    }
+}
+
+#[derive(Debug, Clone, Copy, Deserialize, PartialEq)]
+pub enum OrderReason {
+    CLIENT = 0,
+    MOBILE = 1,
+    WEB = 2,
+    EXPERT = 3,
+    SL = 4,
+    TP = 5,
+    SO = 6,
+}
+
+impl From<u64> for OrderReason {
+    fn from(value: u64) -> Self {
+        match value {
+            0 => OrderReason::CLIENT,
+            1 => OrderReason::MOBILE,
+            2 => OrderReason::WEB,
+            3 => OrderReason::EXPERT,
+            4 => OrderReason::SL,
+            5 => OrderReason::TP,
+            6 => OrderReason::SO,
+            _ => panic!("Invalid OrderReason value: {}", value),
+        }
+    }
+}
+
+impl FromPyObject<'_> for OrderReason {
+    fn extract_bound(ob: &pyo3::Bound<'_, pyo3::PyAny>) -> pyo3::PyResult<Self> {
+        let value: u64 = ob.extract().unwrap();
+        match value {
+            0 => {
+                Ok(OrderReason::CLIENT)
+            }
+            1 => {
+                Ok(OrderReason::MOBILE)
+            }
+            2 => {
+                Ok(OrderReason::WEB)
+            }
+            3 => {
+                Ok(OrderReason::EXPERT)
+            }
+            4 => {
+                Ok(OrderReason::SL)
+            }
+            5 => {
+                Ok(OrderReason::TP)
+            }
+            6 => {
+                Ok(OrderReason::SO)
+            }
+            _ => panic!("Invalid OrderReason value: {}", value),
+        }
+    }
+}

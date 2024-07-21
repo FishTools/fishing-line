@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 - TradeRequestBuilder can now be used without using the `as` keyword for type conversions in enum
+- Fix Order struct data types so that it can match MQL5 Order properties.
 
 ### Changed
 - Changed HistoryDeals struct to Deals struct

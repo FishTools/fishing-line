@@ -6,8 +6,8 @@ use struct_iterable::Iterable;
 
 use crate::enums::{self};
 use crate::prelude::{
-    DealEntry, DealReason, DealType, OrderType, OrderTypeFilling, OrderTypeTime, PositionReason,
-    PositionType, ReturnCode, TradeActionRequest,
+    DealEntry, DealReason, DealType, OrderReason, OrderState, OrderType, OrderTypeFilling,
+    OrderTypeTime, PositionReason, PositionType, ReturnCode, TradeActionRequest,
 };
 
 #[derive(Serialize, Deserialize, FromPyObject, Debug, Iterable)]
@@ -270,55 +270,31 @@ pub struct SymbolRates {
 #[derive(Deserialize, FromPyObject, Debug, Iterable)]
 #[pyo3(from_item_all)]
 pub struct Order {
-    /// Order ticket. Unique number assigned to each order
-    pub ticket: i64,
-    /// Order setup time
-    pub time_setup: i64,
-    /// The time of placing an order for execution in milliseconds since 01.01.1970
-    pub time_setup_msc: i64,
-    /// Order expiration time
-    pub time_expiration: i64,
-    /// Order type
+    ticket: isize,
+    time_setup: i64, // convert this into date time
     #[pyo3(item("type"))]
-    pub r#type: i64,
-    /// Order lifetime
-    pub type_time: i64,
-    /// Order filling type
-    pub type_filling: i64,
-    /// Order state
-    pub state: i64,
-    /// ID of an Expert Advisor that has placed the order (designed to ensure that each Expert Advisor places its own unique number)
-    pub magic: i64,
-    /// Order execution or cancellation time
-    pub time_done: i64,
-    /// Order execution/cancellation time in milliseconds since 01.01.1970
-    pub time_done_msc: i64,
-    /// Position identifier that is set to an order as soon as it is executed. Each executed order results in a deal that opens or modifies an already existing position. The identifier of exactly this position is set to the executed order at this moment.
-    pub position_id: i64,
-    /// Identifier of an opposite position used for closing by order  ORDER_TYPE_CLOSE_BY
-    pub position_by_id: i64,
-    /// The reason or source for placing an order
-    pub reason: i64,
-    /// Order initial volume
-    pub volume_initial: f64,
-    /// The Limit order price for the StopLimit order
-    pub price_stoplimit: f64,
-    /// Order current volume
-    pub volume_current: f64,
-    /// Price specified in the order
-    pub price_open: f64,
-    /// Stop Loss value
-    pub sl: f64,
-    /// Take Profit value
-    pub tp: f64,
-    /// The current price of the order symbol
-    pub price_current: f64,
-    /// Symbol of the order
-    pub symbol: String,
-    /// Order comment
-    pub comment: String,
-    /// Order identifier in an external trading system (on the Exchange)
-    pub external_id: String,
+    r#type: OrderType,
+    state: OrderState,
+    time_expiration: i64, // convert this into date time
+    time_done: i64,       // convert this into date time
+    time_setup_msc: isize,
+    time_done_msc: isize,
+    type_filling: OrderTypeFilling,
+    type_time: OrderTypeTime,
+    magic: isize,
+    reason: OrderReason,
+    position_id: isize,
+    position_by_id: isize,
+    volume_initial: f64,
+    volume_current: f64,
+    price_open: f64,
+    sl: f64,
+    tp: f64,
+    price_current: f64,
+    price_stoplimit: f64,
+    symbol: String,
+    comment: String,
+    external_id: String,
 }
 
 #[derive(Deserialize, FromPyObject, Debug, Clone)]

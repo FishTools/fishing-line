@@ -1,7 +1,6 @@
 use crate::prelude::*;
 use chrono::{DateTime, Local};
 use chrono::{Datelike, Timelike};
-use pyo3;
 use pyo3::prelude::*;
 use pyo3::types::{PyDateTime, PyDict};
 use pyo3::PyObject;
