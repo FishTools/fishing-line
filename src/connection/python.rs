@@ -11,6 +11,12 @@ pub struct MT5PythonConnection {
     runtime: Option<PyObject>,
 }
 
+impl Default for MT5PythonConnection {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl MT5PythonConnection {
     pub fn new() -> Self {
         let result: PyResult<MT5PythonConnection> = Python::with_gil(|py| {
@@ -23,11 +29,11 @@ impl MT5PythonConnection {
                 std::env::var("POETRY_ENVIRONMENT").expect("Unable to find `POETRY_ENVIRONMENT`")
             );
             path.getattr("append")?.call1((poetry_environment_path,))?;
-            return Ok(MT5PythonConnection {
+            Ok(MT5PythonConnection {
                 runtime: Some(py.import_bound("MetaTrader5")?.extract()?),
-            });
+            })
         });
-        return result.unwrap();
+        result.unwrap()
     }
 }
 
@@ -37,8 +43,8 @@ impl ConnectionTrait<MT5PythonConnection> for MT5PythonConnection {
             let kwargs = PyDict::new_bound(py);
             kwargs.set_item("password", credentials.password).unwrap();
             kwargs.set_item("server", credentials.server).unwrap();
-            if timeout.is_some() {
-                kwargs.set_item("timeout", timeout.unwrap()).unwrap();
+            if let Some(timeout) = timeout {
+                kwargs.set_item("timeout", timeout).unwrap();
             }
             let runtime = self.runtime.as_ref().unwrap();
             let runtime = runtime
@@ -46,7 +52,7 @@ impl ConnectionTrait<MT5PythonConnection> for MT5PythonConnection {
                 .unwrap()
                 .call_bound(py, (credentials.login,), Some(&kwargs))
                 .unwrap();
-            return Ok(runtime.extract(py).unwrap());
+            Ok(runtime.extract(py).unwrap())
         });
 
         let (code, message) = self.last_error();
@@ -55,7 +61,7 @@ impl ConnectionTrait<MT5PythonConnection> for MT5PythonConnection {
             return Err((code, message));
         }
 
-        return Ok(result.unwrap());
+        Ok(result.unwrap())
     }
 
     fn initialize_with_credentials(
@@ -71,8 +77,8 @@ impl ConnectionTrait<MT5PythonConnection> for MT5PythonConnection {
             kwargs.set_item("password", credentials.password).unwrap();
             kwargs.set_item("server", credentials.server).unwrap();
             kwargs.set_item("timeout", timeout).unwrap();
-            if portable.is_some() {
-                kwargs.set_item("portable", portable.unwrap()).unwrap();
+            if let Some(portable) = portable {
+                kwargs.set_item("portable", portable).unwrap();
             }
             let runtime = self.runtime.as_ref().unwrap();
             let runtime = runtime
@@ -80,7 +86,7 @@ impl ConnectionTrait<MT5PythonConnection> for MT5PythonConnection {
                 .unwrap()
                 .call_bound(py, (path,), Some(&kwargs))
                 .unwrap();
-            return Ok(runtime.extract(py).unwrap());
+            Ok(runtime.extract(py).unwrap())
         });
 
         let (code, message) = self.last_error();
@@ -93,7 +99,7 @@ impl ConnectionTrait<MT5PythonConnection> for MT5PythonConnection {
             return Err((-1, "Failed to initialize MetaTrader5".to_string()));
         }
 
-        return Ok(self);
+        Ok(self)
     }
     fn initialize(self, path: &str) -> MQLResult<Self> {
         let result: PyResult<bool> = Python::with_gil(|py| {
@@ -102,7 +108,7 @@ impl ConnectionTrait<MT5PythonConnection> for MT5PythonConnection {
                 .getattr(py, "initialize")?
                 .call1(py, (path,))?
                 .extract(py);
-            return Ok(runtime.unwrap());
+            Ok(runtime.unwrap())
         });
 
         let (code, message) = self.last_error();
@@ -115,7 +121,7 @@ impl ConnectionTrait<MT5PythonConnection> for MT5PythonConnection {
             return Err((-1, "Failed to initialize MetaTrader5".to_string()));
         }
 
-        return Ok(self);
+        Ok(self)
     }
 
     fn shutdown(self) -> MQLResult<()> {
@@ -126,10 +132,10 @@ impl ConnectionTrait<MT5PythonConnection> for MT5PythonConnection {
                 .unwrap()
                 .getattr(py, "shutdown")?
                 .call0(py)?;
-            return Ok(());
+            Ok(())
         });
 
-        return Ok(());
+        Ok(())
     }
 }
 
@@ -142,9 +148,9 @@ impl ErrorTrait for MT5PythonConnection {
                 .unwrap()
                 .call_method0(py, "last_error")?
                 .extract(py)?;
-            return Ok(error);
+            Ok(error)
         });
-        return result.unwrap();
+        result.unwrap()
     }
 }
 
@@ -159,7 +165,7 @@ impl AccountInfoTrait for MT5PythonConnection {
                 .call_method0(py, "_asdict")?
                 .extract(py)
                 .unwrap();
-            return Ok(account);
+            Ok(account)
         });
 
         let (code, message) = self.last_error();
@@ -168,7 +174,7 @@ impl AccountInfoTrait for MT5PythonConnection {
             return Err((code, message));
         }
 
-        return Ok(result.unwrap());
+        Ok(result.unwrap())
     }
 }
 
@@ -183,7 +189,7 @@ impl TerminalInfoTrait for MT5PythonConnection {
                 .call_method0(py, "_asdict")?
                 .extract(py)
                 .unwrap();
-            return Ok(terminal);
+            Ok(terminal)
         });
 
         let (code, message) = self.last_error();
@@ -192,7 +198,7 @@ impl TerminalInfoTrait for MT5PythonConnection {
             return Err((code, message));
         }
 
-        return Ok(result.unwrap());
+        Ok(result.unwrap())
     }
     fn version(&self) -> MQLResult<crate::schemas::TerminalVersion> {
         let result: PyResult<TerminalVersion> = Python::with_gil(|py| {
@@ -202,11 +208,11 @@ impl TerminalInfoTrait for MT5PythonConnection {
                 .unwrap()
                 .call_method0(py, "version")?
                 .extract::<(i64, i64, String)>(py)?;
-            return Ok(TerminalVersion {
+            Ok(TerminalVersion {
                 terminal_version,
                 build,
                 build_date,
-            });
+            })
         });
 
         let (code, message) = self.last_error();
@@ -215,7 +221,7 @@ impl TerminalInfoTrait for MT5PythonConnection {
             return Err((code, message));
         }
 
-        return Ok(result.unwrap());
+        Ok(result.unwrap())
     }
 }
 
@@ -228,7 +234,7 @@ impl SymbolInfoTrait for MT5PythonConnection {
                 .unwrap()
                 .call_method0(py, "symbols_total")?
                 .extract(py)?;
-            return Ok(total);
+            Ok(total)
         });
 
         let (code, message) = self.last_error();
@@ -237,7 +243,7 @@ impl SymbolInfoTrait for MT5PythonConnection {
             return Err((code, message));
         }
 
-        return Ok(result.unwrap());
+        Ok(result.unwrap())
     }
     fn symbol_info(&self, symbol: &str) -> MQLResult<SymbolInfo> {
         let result: PyResult<SymbolInfo> = Python::with_gil(|py| {
@@ -249,7 +255,7 @@ impl SymbolInfoTrait for MT5PythonConnection {
                 .getattr(py, "_asdict")?
                 .call0(py)?
                 .extract(py)?;
-            return Ok(symbol);
+            Ok(symbol)
         });
 
         let (code, message) = self.last_error();
@@ -258,7 +264,7 @@ impl SymbolInfoTrait for MT5PythonConnection {
             return Err((code, message));
         }
 
-        return Ok(result.unwrap());
+        Ok(result.unwrap())
     }
 
     fn symbol_info_tick(&self, symbol: &str) -> MQLResult<SymbolTick> {
@@ -271,7 +277,7 @@ impl SymbolInfoTrait for MT5PythonConnection {
                 .getattr(py, "_asdict")?
                 .call0(py)?
                 .extract(py)?;
-            return Ok(ticks);
+            Ok(ticks)
         });
 
         let (code, message) = self.last_error();
@@ -280,7 +286,7 @@ impl SymbolInfoTrait for MT5PythonConnection {
             return Err((code, message));
         }
 
-        return Ok(result.unwrap());
+        Ok(result.unwrap())
     }
 
     fn symbol_select(&self, symbol: &str, enable: Option<bool>) -> crate::prelude::MQLResult<bool> {
@@ -293,7 +299,7 @@ impl SymbolInfoTrait for MT5PythonConnection {
                 .call_bound(py, (symbol, enable.unwrap_or(true)), None)?
                 .extract(py)?;
 
-            return Ok(selected_symbol);
+            Ok(selected_symbol)
         });
 
         let (code, message) = self.last_error();
@@ -302,14 +308,14 @@ impl SymbolInfoTrait for MT5PythonConnection {
             return Err((code, message));
         }
 
-        return Ok(result.unwrap());
+        Ok(result.unwrap())
     }
 
     fn symbols_get(&self, group: Option<&str>) -> MQLResult<Vec<crate::schemas::SymbolInfo>> {
         let result: PyResult<Vec<SymbolInfo>> = Python::with_gil(|py| {
             let kwargs = PyDict::new_bound(py);
-            if group.is_some() {
-                kwargs.set_item("group", group.unwrap()).unwrap();
+            if let Some(group) = group {
+                kwargs.set_item("group", group).unwrap();
             }
             let symbols = self
                 .runtime
@@ -323,7 +329,7 @@ impl SymbolInfoTrait for MT5PythonConnection {
             let symbols = py
                 .eval_bound("[s._asdict() for s in symbols]", Some(&symbols_kw), None)?
                 .extract()?;
-            return Ok(symbols);
+            Ok(symbols)
         });
 
         let (code, message) = self.last_error();
@@ -332,7 +338,7 @@ impl SymbolInfoTrait for MT5PythonConnection {
             return Err((code, message));
         }
 
-        return Ok(result.unwrap());
+        Ok(result.unwrap())
     }
 }
 
@@ -383,7 +389,7 @@ impl SymbolRatesTrait for MT5PythonConnection {
                 .call_method("to_dict", (), Some(&pandas_kw))?
                 .extract()?;
 
-            return Ok(rates);
+            Ok(rates)
         });
 
         let (code, message) = self.last_error();
@@ -392,7 +398,7 @@ impl SymbolRatesTrait for MT5PythonConnection {
             return Err((code, message));
         }
 
-        return Ok(result.unwrap());
+        Ok(result.unwrap())
     }
 
     fn copy_rates_from_pos(
@@ -422,7 +428,7 @@ impl SymbolRatesTrait for MT5PythonConnection {
                 .call_method("to_dict", (), Some(&pandas_kw))?
                 .extract()?;
 
-            return Ok(rates);
+            Ok(rates)
         });
 
         let (code, message) = self.last_error();
@@ -431,7 +437,7 @@ impl SymbolRatesTrait for MT5PythonConnection {
             return Err((code, message));
         }
 
-        return Ok(result.unwrap());
+        Ok(result.unwrap())
     }
 
     fn copy_rates_range(
@@ -491,7 +497,7 @@ impl SymbolRatesTrait for MT5PythonConnection {
                 .call_method("to_dict", (), Some(&pandas_kw))?
                 .extract()?;
 
-            return Ok(rates);
+            Ok(rates)
         });
 
         let (code, message) = self.last_error();
@@ -500,7 +506,7 @@ impl SymbolRatesTrait for MT5PythonConnection {
             return Err((code, message));
         }
 
-        return Ok(result.unwrap());
+        Ok(result.unwrap())
     }
 }
 
@@ -551,7 +557,7 @@ impl SymbolTicksTrait for MT5PythonConnection {
                 .call_method("to_dict", (), Some(&pandas_kw))?
                 .extract()?;
 
-            return Ok(rates);
+            Ok(rates)
         });
 
         let (code, message) = self.last_error();
@@ -560,7 +566,7 @@ impl SymbolTicksTrait for MT5PythonConnection {
             return Err((code, message));
         }
 
-        return Ok(result.unwrap());
+        Ok(result.unwrap())
     }
     fn copy_ticks_range(
         &self,
@@ -619,7 +625,7 @@ impl SymbolTicksTrait for MT5PythonConnection {
                 .call_method("to_dict", (), Some(&pandas_kw))?
                 .extract()?;
 
-            return Ok(rates);
+            Ok(rates)
         });
 
         let (code, message) = self.last_error();
@@ -628,7 +634,7 @@ impl SymbolTicksTrait for MT5PythonConnection {
             return Err((code, message));
         }
 
-        return Ok(result.unwrap());
+        Ok(result.unwrap())
     }
 }
 
@@ -641,7 +647,7 @@ impl OrderTrait for MT5PythonConnection {
                 .unwrap()
                 .call_method0(py, "orders_total")?
                 .extract(py)?;
-            return Ok(total_orders);
+            Ok(total_orders)
         });
 
         let (code, message) = self.last_error();
@@ -650,7 +656,7 @@ impl OrderTrait for MT5PythonConnection {
             return Err((code, message));
         }
 
-        return Ok(result.unwrap());
+        Ok(result.unwrap())
     }
     fn orders_get(&self) -> MQLResult<Vec<crate::schemas::Order>> {
         let result: PyResult<Vec<Order>> = Python::with_gil(|py| {
@@ -667,7 +673,7 @@ impl OrderTrait for MT5PythonConnection {
             let orders = py
                 .eval_bound("[s._asdict() for s in orders]", Some(&orders_kw), None)?
                 .extract()?;
-            return Ok(orders);
+            Ok(orders)
         });
 
         let (code, message) = self.last_error();
@@ -676,7 +682,7 @@ impl OrderTrait for MT5PythonConnection {
             return Err((code, message));
         }
 
-        return Ok(result.unwrap());
+        Ok(result.unwrap())
     }
     fn order_calc_margin(
         &self,
@@ -691,7 +697,7 @@ impl OrderTrait for MT5PythonConnection {
                 "order_calc_margin",
                 (action as i64, symbol, volume, price),
             )?;
-            return Ok(margin.extract(py).unwrap());
+            Ok(margin.extract(py).unwrap())
         });
 
         let (code, message) = self.last_error();
@@ -700,7 +706,7 @@ impl OrderTrait for MT5PythonConnection {
             return Err((code, message));
         }
 
-        return Ok(result.unwrap());
+        Ok(result.unwrap())
     }
     fn order_calc_profit(
         &self,
@@ -716,7 +722,7 @@ impl OrderTrait for MT5PythonConnection {
                 "order_calc_profit",
                 (action as i64, symbol, volume, price_open, price_close),
             )?;
-            return Ok(profit.extract(py).unwrap());
+            Ok(profit.extract(py).unwrap())
         });
 
         let (code, message) = self.last_error();
@@ -725,7 +731,7 @@ impl OrderTrait for MT5PythonConnection {
             return Err((code, message));
         }
 
-        return Ok(result.unwrap());
+        Ok(result.unwrap())
     }
 
     fn order_check(
@@ -768,7 +774,7 @@ impl OrderTrait for MT5PythonConnection {
                 return Err((code, message));
             }
 
-            return Ok(trade_result.extract(py).unwrap());
+            Ok(trade_result.extract(py).unwrap())
         });
 
         let (code, message) = self.last_error();
@@ -777,7 +783,7 @@ impl OrderTrait for MT5PythonConnection {
             return Err((code, message));
         }
 
-        return Ok(result.unwrap());
+        Ok(result.unwrap())
     }
     fn order_send(
         &self,
@@ -813,7 +819,7 @@ impl OrderTrait for MT5PythonConnection {
                 .call_bound(py, (), Some(&update_trade_result_kw))
                 .unwrap();
 
-            return Ok(trade_result.extract(py).unwrap());
+            Ok(trade_result.extract(py).unwrap())
         });
 
         let (code, message) = self.last_error();
@@ -822,7 +828,7 @@ impl OrderTrait for MT5PythonConnection {
             return Err((code, message));
         }
 
-        return Ok(result.unwrap());
+        Ok(result.unwrap())
     }
 }
 
@@ -835,7 +841,7 @@ impl PositionTrait for MT5PythonConnection {
                 .unwrap()
                 .call_method0(py, "positions_total")?
                 .extract(py)?;
-            return Ok(total_positions);
+            Ok(total_positions)
         });
 
         let (code, message) = self.last_error();
@@ -844,7 +850,7 @@ impl PositionTrait for MT5PythonConnection {
             return Err((code, message));
         }
 
-        return Ok(result.unwrap());
+        Ok(result.unwrap())
     }
     fn positions_get(&self) -> MQLResult<Vec<crate::schemas::Position>> {
         let result: PyResult<Vec<Position>> = Python::with_gil(|py| {
@@ -865,7 +871,7 @@ impl PositionTrait for MT5PythonConnection {
                     None,
                 )?
                 .extract()?;
-            return Ok(positions);
+            Ok(positions)
         });
 
         let (code, message) = self.last_error();
@@ -874,7 +880,7 @@ impl PositionTrait for MT5PythonConnection {
             return Err((code, message));
         }
 
-        return Ok(result.unwrap());
+        Ok(result.unwrap())
     }
 }
 
@@ -920,7 +926,7 @@ impl HistoryTrait for MT5PythonConnection {
                     ),
                 )?
                 .extract(py)?;
-            return Ok(total_history_orders);
+            Ok(total_history_orders)
         });
 
         let (code, message) = self.last_error();
@@ -929,7 +935,7 @@ impl HistoryTrait for MT5PythonConnection {
             return Err((code, message));
         }
 
-        return Ok(result.unwrap());
+        Ok(result.unwrap())
     }
     fn history_orders_get(
         &self,
@@ -975,7 +981,7 @@ impl HistoryTrait for MT5PythonConnection {
             let orders = py
                 .eval_bound("[s._asdict() for s in orders]", Some(&orders_kw), None)?
                 .extract()?;
-            return Ok(orders);
+            Ok(orders)
         });
 
         let (code, message) = self.last_error();
@@ -984,7 +990,7 @@ impl HistoryTrait for MT5PythonConnection {
             return Err((code, message));
         }
 
-        return Ok(result.unwrap());
+        Ok(result.unwrap())
     }
     fn history_deals_total(
         &self,
@@ -1027,7 +1033,7 @@ impl HistoryTrait for MT5PythonConnection {
                     ),
                 )?
                 .extract(py)?;
-            return Ok(total_history_deals);
+            Ok(total_history_deals)
         });
 
         let (code, message) = self.last_error();
@@ -1036,7 +1042,7 @@ impl HistoryTrait for MT5PythonConnection {
             return Err((code, message));
         }
 
-        return Ok(result.unwrap());
+        Ok(result.unwrap())
     }
     fn history_deals_get(
         &self,
@@ -1083,7 +1089,7 @@ impl HistoryTrait for MT5PythonConnection {
                 .eval_bound("[s._asdict() for s in deals]", Some(&deals_kw), None)?
                 .extract()?;
 
-            return Ok(deals);
+            Ok(deals)
         });
 
         let (code, message) = self.last_error();
@@ -1092,7 +1098,7 @@ impl HistoryTrait for MT5PythonConnection {
             return Err((code, message));
         }
 
-        return Ok(result.unwrap());
+        Ok(result.unwrap())
     }
 }
 

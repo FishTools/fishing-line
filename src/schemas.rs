@@ -490,98 +490,98 @@ impl IntoPy<PyObject> for TradeRequestBuilder {
                 .unwrap();
         }
 
-        return dict.into_py(py);
+        dict.into_py(py)
     }
 }
 
 impl TradeRequestBuilder {
     pub fn new() -> Self {
-        return TradeRequestBuilder::default();
+        TradeRequestBuilder::default()
     }
 
     pub fn action(mut self, action: enums::TradeActionRequest) -> Self {
         self.action = Some(action);
-        return self;
+        self
     }
 
     pub fn magic(mut self, magic: i64) -> Self {
         self.magic = Some(magic);
-        return self;
+        self
     }
 
     pub fn order(mut self, order: usize) -> Self {
         self.order = Some(order);
-        return self;
+        self
     }
 
     pub fn symbol(mut self, symbol: String) -> Self {
         self.symbol = Some(symbol);
-        return self;
+        self
     }
 
     pub fn volume(mut self, volume: f64) -> Self {
         self.volume = Some(volume);
-        return self;
+        self
     }
 
     pub fn price(mut self, price: f64) -> Self {
         self.price = Some(price);
-        return self;
+        self
     }
 
     pub fn stoplimit(mut self, stoplimit: f64) -> Self {
         self.stoplimit = Some(stoplimit);
-        return self;
+        self
     }
 
     pub fn sl(mut self, sl: f64) -> Self {
         self.sl = Some(sl);
-        return self;
+        self
     }
 
     pub fn tp(mut self, tp: f64) -> Self {
         self.tp = Some(tp);
-        return self;
+        self
     }
 
     pub fn deviation(mut self, deviation: usize) -> Self {
         self.deviation = Some(deviation);
-        return self;
+        self
     }
 
     pub fn r#type(mut self, r#type: OrderType) -> Self {
         self.r#type = Some(r#type);
-        return self;
+        self
     }
 
     pub fn type_filling(mut self, type_filling: enums::OrderTypeFilling) -> Self {
         self.type_filling = Some(type_filling);
-        return self;
+        self
     }
 
     pub fn type_time(mut self, type_time: enums::OrderTypeTime) -> Self {
         self.type_time = Some(type_time);
-        return self;
+        self
     }
 
     pub fn expiration(mut self, expiration: i64) -> Self {
         self.expiration = Some(expiration);
-        return self;
+        self
     }
 
     pub fn comment(mut self, comment: String) -> Self {
         self.comment = Some(comment);
-        return self;
+        self
     }
 
     pub fn position(mut self, position: usize) -> Self {
         self.position = Some(position);
-        return self;
+        self
     }
 
     pub fn position_by(mut self, position_by: usize) -> Self {
         self.position_by = Some(position_by);
-        return self;
+        self
     }
 }
 
@@ -613,25 +613,4 @@ pub struct TradeResult {
     pub request_id: u64,
     pub retcode_external: i64,
     pub request: TradeRequest,
-}
-
-#[derive(Deserialize, FromPyObject, Debug)]
-#[pyo3(from_item_all)]
-pub struct TradeTransaction {
-    deal: usize,
-    order: usize,
-    symbol: String,
-    r#type: usize,
-    order_type: OrderType,
-    order_state: usize,
-    deal_type: usize,
-    type_time: usize,
-    time_expiration: i64, // convert this into datetime
-    price: f64,
-    price_trigger: f64,
-    price_sl: f64,
-    price_tp: f64,
-    volume: f64,
-    position: usize,
-    position_by: usize,
 }

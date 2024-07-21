@@ -86,31 +86,31 @@ impl FromPyObject<'_> for OrderType {
         let value: i64 = ob.extract().unwrap();
         match value {
             0 => {
-                return Ok(OrderType::BUY);
+                Ok(OrderType::BUY)
             }
             1 => {
-                return Ok(OrderType::SELL);
+                Ok(OrderType::SELL)
             }
             2 => {
-                return Ok(OrderType::BuyLimit);
+                Ok(OrderType::BuyLimit)
             }
             3 => {
-                return Ok(OrderType::SellLimit);
+                Ok(OrderType::SellLimit)
             }
             4 => {
-                return Ok(OrderType::BuyStop);
+                Ok(OrderType::BuyStop)
             }
             5 => {
-                return Ok(OrderType::SellStop);
+                Ok(OrderType::SellStop)
             }
             6 => {
-                return Ok(OrderType::BuyStopLimit);
+                Ok(OrderType::BuyStopLimit)
             }
             7 => {
-                return Ok(OrderType::SellStopLimit);
+                Ok(OrderType::SellStopLimit)
             }
             8 => {
-                return Ok(OrderType::CloseBy);
+                Ok(OrderType::CloseBy)
             }
             _ => {
                 panic!("Invalid OrderType value: {}", value)
@@ -153,22 +153,22 @@ impl FromPyObject<'_> for TradeActionRequest {
         let value: i64 = ob.extract().unwrap();
         match value {
             1 => {
-                return Ok(TradeActionRequest::DEAL);
+                Ok(TradeActionRequest::DEAL)
             }
             5 => {
-                return Ok(TradeActionRequest::PENDING);
+                Ok(TradeActionRequest::PENDING)
             }
             6 => {
-                return Ok(TradeActionRequest::SLTP);
+                Ok(TradeActionRequest::SLTP)
             }
             7 => {
-                return Ok(TradeActionRequest::MODIFY);
+                Ok(TradeActionRequest::MODIFY)
             }
             8 => {
-                return Ok(TradeActionRequest::REMOVE);
+                Ok(TradeActionRequest::REMOVE)
             }
             10 => {
-                return Ok(TradeActionRequest::CloseBy);
+                Ok(TradeActionRequest::CloseBy)
             }
             _ => {
                 panic!("Invalid TradeActionRequest value");
@@ -204,9 +204,9 @@ impl From<i64> for OrderTypeFilling {
     /// Converts an `i64` value to an `OrderTypeFilling`.
     fn from(value: i64) -> Self {
         match value {
-            0 => return OrderTypeFilling::FOK,
-            1 => return OrderTypeFilling::IOC,
-            2 => return OrderTypeFilling::RETURN,
+            0 => OrderTypeFilling::FOK,
+            1 => OrderTypeFilling::IOC,
+            2 => OrderTypeFilling::RETURN,
             _ => panic!("Invalid OrderTypeFilling value: {}", value),
         }
     }
@@ -218,13 +218,13 @@ impl FromPyObject<'_> for OrderTypeFilling {
 
         match value {
             0 => {
-                return Ok(OrderTypeFilling::FOK);
+                Ok(OrderTypeFilling::FOK)
             }
             1 => {
-                return Ok(OrderTypeFilling::IOC);
+                Ok(OrderTypeFilling::IOC)
             }
             2 => {
-                return Ok(OrderTypeFilling::RETURN);
+                Ok(OrderTypeFilling::RETURN)
             }
             _ => panic!("Invalid OrderTypeFilling value: {}", value),
         }
@@ -259,16 +259,16 @@ impl FromPyObject<'_> for OrderTypeTime {
 
         match value {
             0 => {
-                return Ok(OrderTypeTime::GTC);
+                Ok(OrderTypeTime::GTC)
             }
             1 => {
-                return Ok(OrderTypeTime::DAY);
+                Ok(OrderTypeTime::DAY)
             }
             2 => {
-                return Ok(OrderTypeTime::SPECIFIED);
+                Ok(OrderTypeTime::SPECIFIED)
             }
             3 => {
-                return Ok(OrderTypeTime::SpecifiedDay);
+                Ok(OrderTypeTime::SpecifiedDay)
             }
             _ => panic!("Invalid OrderTypeTime value: {}", value),
         }
@@ -376,130 +376,130 @@ impl FromPyObject<'_> for ReturnCode {
         let value: u64 = ob.extract().unwrap();
         match value {
             0 => {
-                return Ok(ReturnCode::CHECKED);
+                Ok(ReturnCode::CHECKED)
             }
             10004 => {
-                return Ok(ReturnCode::REQUOTE);
+                Ok(ReturnCode::REQUOTE)
             }
             10006 => {
-                return Ok(ReturnCode::REJECT);
+                Ok(ReturnCode::REJECT)
             }
             10007 => {
-                return Ok(ReturnCode::CANCELLED);
+                Ok(ReturnCode::CANCELLED)
             }
             10008 => {
-                return Ok(ReturnCode::PLACED);
+                Ok(ReturnCode::PLACED)
             }
             10009 => {
-                return Ok(ReturnCode::DONE);
+                Ok(ReturnCode::DONE)
             }
             10010 => {
-                return Ok(ReturnCode::DonePartial);
+                Ok(ReturnCode::DonePartial)
             }
             10011 => {
-                return Ok(ReturnCode::ERROR);
+                Ok(ReturnCode::ERROR)
             }
             10012 => {
-                return Ok(ReturnCode::TIMEOUT);
+                Ok(ReturnCode::TIMEOUT)
             }
             10013 => {
-                return Ok(ReturnCode::INVALID);
+                Ok(ReturnCode::INVALID)
             }
             10014 => {
-                return Ok(ReturnCode::InvalidVolume);
+                Ok(ReturnCode::InvalidVolume)
             }
             10015 => {
-                return Ok(ReturnCode::InvalidPrice);
+                Ok(ReturnCode::InvalidPrice)
             }
             10016 => {
-                return Ok(ReturnCode::InvalidStops);
+                Ok(ReturnCode::InvalidStops)
             }
             10017 => {
-                return Ok(ReturnCode::TradeDisabled);
+                Ok(ReturnCode::TradeDisabled)
             }
             10018 => {
-                return Ok(ReturnCode::MarketClosed);
+                Ok(ReturnCode::MarketClosed)
             }
             10019 => {
-                return Ok(ReturnCode::NoMoney);
+                Ok(ReturnCode::NoMoney)
             }
             10020 => {
-                return Ok(ReturnCode::PriceChanged);
+                Ok(ReturnCode::PriceChanged)
             }
             10021 => {
-                return Ok(ReturnCode::PriceOff);
+                Ok(ReturnCode::PriceOff)
             }
             10022 => {
-                return Ok(ReturnCode::InvalidExpiration);
+                Ok(ReturnCode::InvalidExpiration)
             }
             10023 => {
-                return Ok(ReturnCode::OrderChanged);
+                Ok(ReturnCode::OrderChanged)
             }
             10024 => {
-                return Ok(ReturnCode::TooManyRequest);
+                Ok(ReturnCode::TooManyRequest)
             }
             10025 => {
-                return Ok(ReturnCode::NoChanges);
+                Ok(ReturnCode::NoChanges)
             }
             10026 => {
-                return Ok(ReturnCode::ServerDisablesAt);
+                Ok(ReturnCode::ServerDisablesAt)
             }
             10027 => {
-                return Ok(ReturnCode::ClientDisablesAt);
+                Ok(ReturnCode::ClientDisablesAt)
             }
             10028 => {
-                return Ok(ReturnCode::LOCKED);
+                Ok(ReturnCode::LOCKED)
             }
             10029 => {
-                return Ok(ReturnCode::FROZEN);
+                Ok(ReturnCode::FROZEN)
             }
             10030 => {
-                return Ok(ReturnCode::InvalidFill);
+                Ok(ReturnCode::InvalidFill)
             }
             10031 => {
-                return Ok(ReturnCode::CONNECTION);
+                Ok(ReturnCode::CONNECTION)
             }
             10032 => {
-                return Ok(ReturnCode::OnlyReal);
+                Ok(ReturnCode::OnlyReal)
             }
             10033 => {
-                return Ok(ReturnCode::LimitOrders);
+                Ok(ReturnCode::LimitOrders)
             }
             10034 => {
-                return Ok(ReturnCode::LimitVolumes);
+                Ok(ReturnCode::LimitVolumes)
             }
             10035 => {
-                return Ok(ReturnCode::InvalidOrders);
+                Ok(ReturnCode::InvalidOrders)
             }
             10036 => {
-                return Ok(ReturnCode::PostionClosed);
+                Ok(ReturnCode::PostionClosed)
             }
             10038 => {
-                return Ok(ReturnCode::InvalideCloseVolume);
+                Ok(ReturnCode::InvalideCloseVolume)
             }
             10039 => {
-                return Ok(ReturnCode::CloseOrderExist);
+                Ok(ReturnCode::CloseOrderExist)
             }
             10040 => {
-                return Ok(ReturnCode::LimitPositions);
+                Ok(ReturnCode::LimitPositions)
             }
             10041 => {
-                return Ok(ReturnCode::RejectCancel);
+                Ok(ReturnCode::RejectCancel)
             }
             10042 => {
-                return Ok(ReturnCode::LongOnly);
+                Ok(ReturnCode::LongOnly)
             }
             10043 => {
-                return Ok(ReturnCode::ShortOnly);
+                Ok(ReturnCode::ShortOnly)
             }
             10044 => {
-                return Ok(ReturnCode::CloseOnly);
+                Ok(ReturnCode::CloseOnly)
             }
             10045 => {
-                return Ok(ReturnCode::FifoClose);
+                Ok(ReturnCode::FifoClose)
             }
             10046 => {
-                return Ok(ReturnCode::HedgeProhibited);
+                Ok(ReturnCode::HedgeProhibited)
             }
             _ => panic!("Invalid ReturnCode value: {}", value),
         }
@@ -527,10 +527,10 @@ impl FromPyObject<'_> for PositionType {
         let value: u64 = ob.extract().unwrap();
         match value {
             0 => {
-                return Ok(PositionType::BUY);
+                Ok(PositionType::BUY)
             }
             1 => {
-                return Ok(PositionType::SELL);
+                Ok(PositionType::SELL)
             }
             _ => panic!("Invalid PositionType value: {}", value),
         }
@@ -562,16 +562,16 @@ impl FromPyObject<'_> for PositionReason {
         let value: u64 = ob.extract().unwrap();
         match value {
             0 => {
-                return Ok(PositionReason::CLIENT);
+                Ok(PositionReason::CLIENT)
             }
             1 => {
-                return Ok(PositionReason::MOBILE);
+                Ok(PositionReason::MOBILE)
             }
             2 => {
-                return Ok(PositionReason::WEB);
+                Ok(PositionReason::WEB)
             }
             3 => {
-                return Ok(PositionReason::EXPERT);
+                Ok(PositionReason::EXPERT)
             }
             _ => panic!("Invalid PositionReason value: {}", value),
         }
@@ -631,58 +631,58 @@ impl FromPyObject<'_> for DealType {
         let value: u64 = ob.extract().unwrap();
         match value {
             0 => {
-                return Ok(DealType::BUY);
+                Ok(DealType::BUY)
             }
             1 => {
-                return Ok(DealType::SELL);
+                Ok(DealType::SELL)
             }
             2 => {
-                return Ok(DealType::BALANCE);
+                Ok(DealType::BALANCE)
             }
             3 => {
-                return Ok(DealType::CREDIT);
+                Ok(DealType::CREDIT)
             }
             4 => {
-                return Ok(DealType::CHARGE);
+                Ok(DealType::CHARGE)
             }
             5 => {
-                return Ok(DealType::CORRECTION);
+                Ok(DealType::CORRECTION)
             }
             6 => {
-                return Ok(DealType::BONUS);
+                Ok(DealType::BONUS)
             }
             7 => {
-                return Ok(DealType::COMMISSION);
+                Ok(DealType::COMMISSION)
             }
             8 => {
-                return Ok(DealType::CommissionDaily);
+                Ok(DealType::CommissionDaily)
             }
             9 => {
-                return Ok(DealType::CommissionMontly);
+                Ok(DealType::CommissionMontly)
             }
             10 => {
-                return Ok(DealType::ComissionAgentDaily);
+                Ok(DealType::ComissionAgentDaily)
             }
             11 => {
-                return Ok(DealType::CommisionAgentMontly);
+                Ok(DealType::CommisionAgentMontly)
             }
             12 => {
-                return Ok(DealType::INTEREST);
+                Ok(DealType::INTEREST)
             }
             13 => {
-                return Ok(DealType::BuyCanceled);
+                Ok(DealType::BuyCanceled)
             }
             14 => {
-                return Ok(DealType::SellCanceled);
+                Ok(DealType::SellCanceled)
             }
             15 => {
-                return Ok(DealType::DIVIDEND);
+                Ok(DealType::DIVIDEND)
             }
             16 => {
-                return Ok(DealType::DividentFranked);
+                Ok(DealType::DividentFranked)
             }
             17 => {
-                return Ok(DealType::TAX);
+                Ok(DealType::TAX)
             }
             _ => panic!("Invalid DealType value: {}", value),
         }
@@ -714,16 +714,16 @@ impl FromPyObject<'_> for DealEntry {
         let value: u64 = ob.extract().unwrap();
         match value {
             0 => {
-                return Ok(DealEntry::IN);
+                Ok(DealEntry::IN)
             }
             1 => {
-                return Ok(DealEntry::OUT);
+                Ok(DealEntry::OUT)
             }
             2 => {
-                return Ok(DealEntry::INOUT);
+                Ok(DealEntry::INOUT)
             }
             3 => {
-                return Ok(DealEntry::OutBy);
+                Ok(DealEntry::OutBy)
             }
             _ => panic!("Invalid DealEntry value: {}", value),
         }
@@ -767,34 +767,34 @@ impl FromPyObject<'_> for DealReason {
         let value: u64 = ob.extract().unwrap();
         match value {
             0 => {
-                return Ok(DealReason::CLIENT);
+                Ok(DealReason::CLIENT)
             }
             1 => {
-                return Ok(DealReason::MOBILE);
+                Ok(DealReason::MOBILE)
             }
             2 => {
-                return Ok(DealReason::WEB);
+                Ok(DealReason::WEB)
             }
             3 => {
-                return Ok(DealReason::EXPERT);
+                Ok(DealReason::EXPERT)
             }
             4 => {
-                return Ok(DealReason::SL);
+                Ok(DealReason::SL)
             }
             5 => {
-                return Ok(DealReason::TP);
+                Ok(DealReason::TP)
             }
             6 => {
-                return Ok(DealReason::SO);
+                Ok(DealReason::SO)
             }
             7 => {
-                return Ok(DealReason::ROLLOVER);
+                Ok(DealReason::ROLLOVER)
             }
             8 => {
-                return Ok(DealReason::VMARGIN);
+                Ok(DealReason::VMARGIN)
             }
             9 => {
-                return Ok(DealReason::SPLIT);
+                Ok(DealReason::SPLIT)
             }
             _ => panic!("Invalid DealReason value: {}", value),
         }
