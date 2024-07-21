@@ -14,6 +14,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - Changed HistoryDeals struct to Deals struct
 - Change Testing symbol from `EURUSD` to `BTCUSD` so that it will sucessfully passed the test even on weekends
+- Change all unwrap() to expect for more clearer error output
 
 ### Added
 - Added CHANGELOG.md

@@ -22,17 +22,25 @@ impl MT5PythonConnection {
             let sys = py
                 .import_bound("sys")
                 .expect("Unable to import `sys` module");
-            let path = sys.getattr("path")?;
+            let path = sys.getattr("path").expect("Unable to get `path` attribute");
             let poetry_environment_path = format!(
                 "{}\\lib\\site-packages\\",
                 std::env::var("POETRY_ENVIRONMENT").expect("Unable to find `POETRY_ENVIRONMENT`")
             );
-            path.getattr("append")?.call1((poetry_environment_path,))?;
+            path.getattr("append")
+                .expect("Unable to get `append` attribute")
+                .call1((poetry_environment_path,))
+                .expect("Unable to call `append` method");
             Ok(MT5PythonConnection {
-                runtime: Some(py.import_bound("MetaTrader5")?.extract()?),
+                runtime: Some(
+                    py.import_bound("MetaTrader5")
+                        .expect("Unable to find `MetaTrader5` module")
+                        .extract()
+                        .expect("Unable to extract `MetaTrader5` module"),
+                ),
             })
         });
-        result.unwrap()
+        result.expect("Unable to initialize MetaTrader5")
     }
 }
 
@@ -40,18 +48,29 @@ impl ConnectionTrait<MT5PythonConnection> for MT5PythonConnection {
     fn login(&self, credentials: AccountCredentials, timeout: Option<i64>) -> MQLResult<bool> {
         let result: PyResult<bool> = Python::with_gil(|py| {
             let kwargs = PyDict::new_bound(py);
-            kwargs.set_item("password", credentials.password).unwrap();
-            kwargs.set_item("server", credentials.server).unwrap();
+            kwargs
+                .set_item("password", credentials.password)
+                .expect("Unable to set `password`");
+            kwargs
+                .set_item("server", credentials.server)
+                .expect("Unable to set `server`");
             if let Some(timeout) = timeout {
-                kwargs.set_item("timeout", timeout).unwrap();
+                kwargs
+                    .set_item("timeout", timeout)
+                    .expect("Unable to set `timeout`");
             }
-            let runtime = self.runtime.as_ref().unwrap();
+            let runtime = self
+                .runtime
+                .as_ref()
+                .expect("Unable to find `MetaTrader5` module");
             let runtime = runtime
                 .getattr(py, "login")
-                .unwrap()
+                .expect("Unable to find `login` method")
                 .call_bound(py, (credentials.login,), Some(&kwargs))
-                .unwrap();
-            Ok(runtime.extract(py).unwrap())
+                .expect("Unable to call `login` method");
+            Ok(runtime
+                .extract(py)
+                .expect("Unable to extract `login` result"))
         });
 
         let (code, message) = self.last_error();
@@ -60,7 +79,7 @@ impl ConnectionTrait<MT5PythonConnection> for MT5PythonConnection {
             return Err((code, message));
         }
 
-        Ok(result.unwrap())
+        Ok(result.expect("Unable to login"))
     }
 
     fn initialize_with_credentials(
@@ -72,20 +91,35 @@ impl ConnectionTrait<MT5PythonConnection> for MT5PythonConnection {
     ) -> MQLResult<MT5PythonConnection> {
         let result: PyResult<bool> = Python::with_gil(|py| {
             let kwargs = PyDict::new_bound(py);
-            kwargs.set_item("login", credentials.login).unwrap();
-            kwargs.set_item("password", credentials.password).unwrap();
-            kwargs.set_item("server", credentials.server).unwrap();
-            kwargs.set_item("timeout", timeout).unwrap();
+            kwargs
+                .set_item("login", credentials.login)
+                .expect("Unable to set `login`");
+            kwargs
+                .set_item("password", credentials.password)
+                .expect("Unable to set `password`");
+            kwargs
+                .set_item("server", credentials.server)
+                .expect("Unable to set `server`");
+            kwargs
+                .set_item("timeout", timeout)
+                .expect("Unable to set `timeout`");
             if let Some(portable) = portable {
-                kwargs.set_item("portable", portable).unwrap();
+                kwargs
+                    .set_item("portable", portable)
+                    .expect("Unable to set `portable`");
             }
-            let runtime = self.runtime.as_ref().unwrap();
+            let runtime = self
+                .runtime
+                .as_ref()
+                .expect("Unable to find `MetaTrader5` module");
             let runtime = runtime
                 .getattr(py, "initialize")
-                .unwrap()
+                .expect("Unable to find `initialize` method")
                 .call_bound(py, (path,), Some(&kwargs))
-                .unwrap();
-            Ok(runtime.extract(py).unwrap())
+                .expect("Unable to call `initialize` method");
+            Ok(runtime
+                .extract(py)
+                .expect("Unable to extract `initialize` result"))
         });
 
         let (code, message) = self.last_error();
@@ -94,7 +128,7 @@ impl ConnectionTrait<MT5PythonConnection> for MT5PythonConnection {
             return Err((code, message));
         }
 
-        if !result.unwrap() {
+        if !result.expect("Unable to initialize MetaTrader5") {
             return Err((-1, "Failed to initialize MetaTrader5".to_string()));
         }
 
@@ -102,12 +136,17 @@ impl ConnectionTrait<MT5PythonConnection> for MT5PythonConnection {
     }
     fn initialize(self, path: &str) -> MQLResult<Self> {
         let result: PyResult<bool> = Python::with_gil(|py| {
-            let runtime = self.runtime.as_ref().unwrap();
+            let runtime = self
+                .runtime
+                .as_ref()
+                .expect("Unable to find `MetaTrader5` module");
             let runtime = runtime
-                .getattr(py, "initialize")?
-                .call1(py, (path,))?
+                .getattr(py, "initialize")
+                .expect("Unable to find `initialize` method")
+                .call1(py, (path,))
+                .expect("Unable to call `initialize` method")
                 .extract(py);
-            Ok(runtime.unwrap())
+            Ok(runtime.expect("Unable to extract `initialize` result"))
         });
 
         let (code, message) = self.last_error();
@@ -116,7 +155,7 @@ impl ConnectionTrait<MT5PythonConnection> for MT5PythonConnection {
             return Err((code, message));
         }
 
-        if !result.unwrap() {
+        if !result.expect("Unable to initialize MetaTrader5") {
             return Err((-1, "Failed to initialize MetaTrader5".to_string()));
         }
 
@@ -128,9 +167,11 @@ impl ConnectionTrait<MT5PythonConnection> for MT5PythonConnection {
             let _runtime = self
                 .runtime
                 .as_ref()
-                .unwrap()
-                .getattr(py, "shutdown")?
-                .call0(py)?;
+                .expect("Unable to find `MetaTrader5` module")
+                .getattr(py, "shutdown")
+                .expect("Unable to find `shutdown` method")
+                .call0(py)
+                .expect("Unable to call `shutdown` method");
             Ok(())
         });
 
@@ -144,12 +185,14 @@ impl ErrorTrait for MT5PythonConnection {
             let error = self
                 .runtime
                 .as_ref()
-                .unwrap()
-                .call_method0(py, "last_error")?
-                .extract(py)?;
+                .expect("Unable to find `MetaTrader5` module")
+                .call_method0(py, "last_error")
+                .expect("Unable to call `last_error` method")
+                .extract(py)
+                .expect("Unable to extract `last_error` result");
             Ok(error)
         });
-        result.unwrap()
+        result.expect("Unable to get last error")
     }
 }
 
@@ -159,11 +202,13 @@ impl AccountInfoTrait for MT5PythonConnection {
             let account = self
                 .runtime
                 .as_ref()
-                .unwrap()
-                .call_method0(py, "account_info")?
-                .call_method0(py, "_asdict")?
+                .expect("Unable to find `MetaTrader5` module")
+                .call_method0(py, "account_info")
+                .expect("Unable to call `account_info` method")
+                .call_method0(py, "_asdict")
+                .expect("Unable to call `_asdict` method")
                 .extract(py)
-                .unwrap();
+                .expect("Unable to extract `account_info` result");
             Ok(account)
         });
 
@@ -173,7 +218,7 @@ impl AccountInfoTrait for MT5PythonConnection {
             return Err((code, message));
         }
 
-        Ok(result.unwrap())
+        Ok(result.expect("Unable to get account info"))
     }
 }
 
@@ -183,11 +228,13 @@ impl TerminalInfoTrait for MT5PythonConnection {
             let terminal = self
                 .runtime
                 .as_ref()
-                .unwrap()
-                .call_method0(py, "terminal_info")?
-                .call_method0(py, "_asdict")?
+                .expect("Unable to find `MetaTrader5` module")
+                .call_method0(py, "terminal_info")
+                .expect("Unable to call `terminal_info` method")
+                .call_method0(py, "_asdict")
+                .expect("Unable to call `_asdict` method")
                 .extract(py)
-                .unwrap();
+                .expect("Unable to extract `terminal_info` result");
             Ok(terminal)
         });
 
@@ -197,16 +244,18 @@ impl TerminalInfoTrait for MT5PythonConnection {
             return Err((code, message));
         }
 
-        Ok(result.unwrap())
+        Ok(result.expect("Unable to get terminal info"))
     }
     fn version(&self) -> MQLResult<crate::schemas::TerminalVersion> {
         let result: PyResult<TerminalVersion> = Python::with_gil(|py| {
             let (terminal_version, build, build_date) = self
                 .runtime
                 .as_ref()
-                .unwrap()
-                .call_method0(py, "version")?
-                .extract::<(i64, i64, String)>(py)?;
+                .expect("Unable to find `MetaTrader5` module")
+                .call_method0(py, "version")
+                .expect("Unable to call `version` method")
+                .extract::<(i64, i64, String)>(py)
+                .expect("Unable to extract `version` result");
             Ok(TerminalVersion {
                 terminal_version,
                 build,
@@ -220,7 +269,7 @@ impl TerminalInfoTrait for MT5PythonConnection {
             return Err((code, message));
         }
 
-        Ok(result.unwrap())
+        Ok(result.expect("Unable to get terminal version"))
     }
 }
 
@@ -230,9 +279,11 @@ impl SymbolInfoTrait for MT5PythonConnection {
             let total = self
                 .runtime
                 .as_ref()
-                .unwrap()
-                .call_method0(py, "symbols_total")?
-                .extract(py)?;
+                .expect("Unable to find `MetaTrader5` module")
+                .call_method0(py, "symbols_total")
+                .expect("Unable to call `symbols_total` method")
+                .extract(py)
+                .expect("Unable to extract `symbols_total` result");
             Ok(total)
         });
 
@@ -242,18 +293,22 @@ impl SymbolInfoTrait for MT5PythonConnection {
             return Err((code, message));
         }
 
-        Ok(result.unwrap())
+        Ok(result.expect("Unable to get total symbols"))
     }
     fn symbol_info(&self, symbol: &str) -> MQLResult<SymbolInfo> {
         let result: PyResult<SymbolInfo> = Python::with_gil(|py| {
             let symbol = self
                 .runtime
                 .as_ref()
-                .unwrap()
-                .call_method1(py, "symbol_info", (symbol,))?
-                .getattr(py, "_asdict")?
-                .call0(py)?
-                .extract(py)?;
+                .expect("Unable to find `MetaTrader5` module")
+                .call_method1(py, "symbol_info", (symbol,))
+                .expect("Unable to call `symbol_info` method")
+                .getattr(py, "_asdict")
+                .expect("Unable to get `_asdict` attribute")
+                .call0(py)
+                .expect("Unable to call `_asdict` method")
+                .extract(py)
+                .expect("Unable to extract `symbol_info` result");
             Ok(symbol)
         });
 
@@ -263,7 +318,7 @@ impl SymbolInfoTrait for MT5PythonConnection {
             return Err((code, message));
         }
 
-        Ok(result.unwrap())
+        Ok(result.expect("Unable to get symbol info"))
     }
 
     fn symbol_info_tick(&self, symbol: &str) -> MQLResult<SymbolTick> {
@@ -271,11 +326,15 @@ impl SymbolInfoTrait for MT5PythonConnection {
             let ticks = self
                 .runtime
                 .as_ref()
-                .unwrap()
-                .call_method1(py, "symbol_info_tick", (symbol,))?
-                .getattr(py, "_asdict")?
-                .call0(py)?
-                .extract(py)?;
+                .expect("Unable to find `MetaTrader5` module")
+                .call_method1(py, "symbol_info_tick", (symbol,))
+                .expect("Unable to call `symbol_info_tick` method")
+                .getattr(py, "_asdict")
+                .expect("Unable to get `_asdict` attribute")
+                .call0(py)
+                .expect("Unable to call `_asdict` method")
+                .extract(py)
+                .expect("Unable to extract `symbol_info_tick` result");
             Ok(ticks)
         });
 
@@ -285,7 +344,7 @@ impl SymbolInfoTrait for MT5PythonConnection {
             return Err((code, message));
         }
 
-        Ok(result.unwrap())
+        Ok(result.expect("Unable to get symbol tick"))
     }
 
     fn symbol_select(&self, symbol: &str, enable: Option<bool>) -> crate::prelude::MQLResult<bool> {
@@ -293,10 +352,13 @@ impl SymbolInfoTrait for MT5PythonConnection {
             let selected_symbol = self
                 .runtime
                 .as_ref()
-                .unwrap()
-                .getattr(py, "symbol_select")?
-                .call_bound(py, (symbol, enable.unwrap_or(true)), None)?
-                .extract(py)?;
+                .expect("Unable to find `MetaTrader5` module")
+                .getattr(py, "symbol_select")
+                .expect("Unable to find `symbol_select` method")
+                .call_bound(py, (symbol, enable.unwrap_or(true)), None)
+                .expect("Unable to call `symbol_select` method")
+                .extract(py)
+                .expect("Unable to extract `symbol_select` result");
 
             Ok(selected_symbol)
         });
@@ -307,27 +369,36 @@ impl SymbolInfoTrait for MT5PythonConnection {
             return Err((code, message));
         }
 
-        Ok(result.unwrap())
+        Ok(result.expect("Unable to select symbol"))
     }
 
     fn symbols_get(&self, group: Option<&str>) -> MQLResult<Vec<crate::schemas::SymbolInfo>> {
         let result: PyResult<Vec<SymbolInfo>> = Python::with_gil(|py| {
             let kwargs = PyDict::new_bound(py);
             if let Some(group) = group {
-                kwargs.set_item("group", group).unwrap();
+                kwargs
+                    .set_item("group", group)
+                    .expect("Unable to set `group`");
             }
             let symbols = self
                 .runtime
                 .as_ref()
-                .unwrap()
-                .getattr(py, "symbols_get")?
+                .expect("Unable to find `MetaTrader5` module")
+                .getattr(py, "symbols_get")
+                .expect("Unable to find `symbols_get` method")
                 .call_bound(py, (), Some(&kwargs))
-                .unwrap();
+                .expect("Unable to call `symbols_get` method");
+
             let symbols_kw = PyDict::new_bound(py);
-            symbols_kw.set_item("symbols", symbols).unwrap();
+            symbols_kw
+                .set_item("symbols", symbols)
+                .expect("Unable to set `symbols`");
+
             let symbols = py
-                .eval_bound("[s._asdict() for s in symbols]", Some(&symbols_kw), None)?
-                .extract()?;
+                .eval_bound("[s._asdict() for s in symbols]", Some(&symbols_kw), None)
+                .expect("Unable to evaluate `symbols`")
+                .extract()
+                .expect("Unable to extract `symbols`");
             Ok(symbols)
         });
 
@@ -337,7 +408,7 @@ impl SymbolInfoTrait for MT5PythonConnection {
             return Err((code, message));
         }
 
-        Ok(result.unwrap())
+        Ok(result.expect("Unable to get symbols"))
     }
 }
 
@@ -353,8 +424,9 @@ impl SymbolRatesTrait for MT5PythonConnection {
             let rates = self
                 .runtime
                 .as_ref()
-                .unwrap()
-                .getattr(py, "copy_rates_from")?
+                .expect("Unable to find `MetaTrader5` module")
+                .getattr(py, "copy_rates_from")
+                .expect("Unable to find `copy_rates_from` method")
                 .call1(
                     py,
                     (
@@ -371,22 +443,31 @@ impl SymbolRatesTrait for MT5PythonConnection {
                             date_from.timestamp_subsec_micros(),
                             None,
                         )
-                        .unwrap(),
+                        .expect("Unable to create `PyDateTime`"),
                         count,
                     ),
-                )?;
+                )
+                .expect("Unable to call `copy_rates_from` method");
 
-            let pandas = py.import_bound("pandas").unwrap();
+            let pandas = py
+                .import_bound("pandas")
+                .expect("Unable to import `pandas`"); // replace this with polars in the future
 
             let pandas_kw = PyDict::new_bound(py);
 
-            pandas_kw.set_item("orient", "records").unwrap();
+            pandas_kw
+                .set_item("orient", "records")
+                .expect("Unable to set `orient`");
 
             let rates = pandas
-                .getattr("DataFrame")?
-                .call1((rates,))?
-                .call_method("to_dict", (), Some(&pandas_kw))?
-                .extract()?;
+                .getattr("DataFrame")
+                .expect("Unable to get `DataFrame`")
+                .call1((rates,))
+                .expect("Unable to call `DataFrame`")
+                .call_method("to_dict", (), Some(&pandas_kw))
+                .expect("Unable to call `to_dict`")
+                .extract()
+                .expect("Unable to extract `rates`");
 
             Ok(rates)
         });
@@ -397,7 +478,7 @@ impl SymbolRatesTrait for MT5PythonConnection {
             return Err((code, message));
         }
 
-        Ok(result.unwrap())
+        Ok(result.expect("Unable to copy rates from"))
     }
 
     fn copy_rates_from_pos(
@@ -411,21 +492,31 @@ impl SymbolRatesTrait for MT5PythonConnection {
             let rates = self
                 .runtime
                 .as_ref()
-                .unwrap()
-                .getattr(py, "copy_rates_from_pos")?
-                .call1(py, (symbol, timeframe as i64, start_pos, count))?;
+                .expect("Unable to find `MetaTrader5` module")
+                .getattr(py, "copy_rates_from_pos")
+                .expect("Unable to find `copy_rates_from_pos` method")
+                .call1(py, (symbol, timeframe as i64, start_pos, count))
+                .expect("Unable to call `copy_rates_from_pos` method");
 
-            let pandas = py.import_bound("pandas").unwrap();
+            let pandas = py
+                .import_bound("pandas")
+                .expect("Unable to import `pandas`"); // replace this with polars in the future
 
             let pandas_kw = PyDict::new_bound(py);
 
-            pandas_kw.set_item("orient", "records").unwrap();
+            pandas_kw
+                .set_item("orient", "records")
+                .expect("Unable to set `orient`");
 
             let rates = pandas
-                .getattr("DataFrame")?
-                .call1((rates,))?
-                .call_method("to_dict", (), Some(&pandas_kw))?
-                .extract()?;
+                .getattr("DataFrame")
+                .expect("Unable to get `DataFrame`")
+                .call1((rates,))
+                .expect("Unable to call `DataFrame`")
+                .call_method("to_dict", (), Some(&pandas_kw))
+                .expect("Unable to call `to_dict`")
+                .extract()
+                .expect("Unable to extract `rates`");
 
             Ok(rates)
         });
@@ -436,7 +527,7 @@ impl SymbolRatesTrait for MT5PythonConnection {
             return Err((code, message));
         }
 
-        Ok(result.unwrap())
+        Ok(result.expect("Unable to copy rates from pos"))
     }
 
     fn copy_rates_range(
@@ -450,8 +541,9 @@ impl SymbolRatesTrait for MT5PythonConnection {
             let rates = self
                 .runtime
                 .as_ref()
-                .unwrap()
-                .getattr(py, "copy_rates_range")?
+                .expect("Unable to find `MetaTrader5` module")
+                .getattr(py, "copy_rates_range")
+                .expect("Unable to find `copy_rates_range` method")
                 .call1(
                     py,
                     (
@@ -468,7 +560,7 @@ impl SymbolRatesTrait for MT5PythonConnection {
                             date_from.timestamp_subsec_micros(),
                             None,
                         )
-                        .unwrap(),
+                        .expect("Unable to create `PyDateTime`"),
                         PyDateTime::new_bound(
                             py,
                             date_to.year(),
@@ -480,21 +572,30 @@ impl SymbolRatesTrait for MT5PythonConnection {
                             date_to.timestamp_subsec_micros(),
                             None,
                         )
-                        .unwrap(),
+                        .expect("Unable to create `PyDateTime`"),
                     ),
-                )?;
+                )
+                .expect("Unable to call `copy_rates_range` method");
 
-            let pandas = py.import_bound("pandas").unwrap();
+            let pandas = py
+                .import_bound("pandas")
+                .expect("Unable to import `pandas`"); // replace this with polars in the future
 
             let pandas_kw = PyDict::new_bound(py);
 
-            pandas_kw.set_item("orient", "records").unwrap();
+            pandas_kw
+                .set_item("orient", "records")
+                .expect("Unable to set `orient`");
 
             let rates = pandas
-                .getattr("DataFrame")?
-                .call1((rates,))?
-                .call_method("to_dict", (), Some(&pandas_kw))?
-                .extract()?;
+                .getattr("DataFrame")
+                .expect("Unable to get `DataFrame`")
+                .call1((rates,))
+                .expect("Unable to call `DataFrame`")
+                .call_method("to_dict", (), Some(&pandas_kw))
+                .expect("Unable to call `to_dict`")
+                .extract()
+                .expect("Unable to extract `rates`");
 
             Ok(rates)
         });
@@ -505,7 +606,7 @@ impl SymbolRatesTrait for MT5PythonConnection {
             return Err((code, message));
         }
 
-        Ok(result.unwrap())
+        Ok(result.expect("Unable to copy rates range"))
     }
 }
 
@@ -521,8 +622,9 @@ impl SymbolTicksTrait for MT5PythonConnection {
             let rates = self
                 .runtime
                 .as_ref()
-                .unwrap()
-                .getattr(py, "copy_ticks_from")?
+                .expect("Unable to find `MetaTrader5` module")
+                .getattr(py, "copy_ticks_from")
+                .expect("Unable to find `copy_ticks_from` method")
                 .call1(
                     py,
                     (
@@ -538,23 +640,32 @@ impl SymbolTicksTrait for MT5PythonConnection {
                             date_from.timestamp_subsec_micros(),
                             None,
                         )
-                        .unwrap(),
+                        .expect("Unable to create `PyDateTime`"),
                         count,
                         flags as i64,
                     ),
-                )?;
+                )
+                .expect("Unable to call `copy_ticks_from` method");
 
-            let pandas = py.import_bound("pandas").unwrap();
+            let pandas = py
+                .import_bound("pandas")
+                .expect("Unable to import `pandas`");
 
             let pandas_kw = PyDict::new_bound(py);
 
-            pandas_kw.set_item("orient", "records").unwrap();
+            pandas_kw
+                .set_item("orient", "records")
+                .expect("Unable to set `orient`");
 
             let rates = pandas
-                .getattr("DataFrame")?
-                .call1((rates,))?
-                .call_method("to_dict", (), Some(&pandas_kw))?
-                .extract()?;
+                .getattr("DataFrame")
+                .expect("Unable to get `DataFrame`")
+                .call1((rates,))
+                .expect("Unable to call `DataFrame`")
+                .call_method("to_dict", (), Some(&pandas_kw))
+                .expect("Unable to call `to_dict`")
+                .extract()
+                .expect("Unable to extract `rates`");
 
             Ok(rates)
         });
@@ -565,7 +676,7 @@ impl SymbolTicksTrait for MT5PythonConnection {
             return Err((code, message));
         }
 
-        Ok(result.unwrap())
+        Ok(result.expect("Unable to copy ticks from"))
     }
     fn copy_ticks_range(
         &self,
@@ -578,8 +689,9 @@ impl SymbolTicksTrait for MT5PythonConnection {
             let rates = self
                 .runtime
                 .as_ref()
-                .unwrap()
-                .getattr(py, "copy_ticks_range")?
+                .expect("Unable to find `MetaTrader5` module")
+                .getattr(py, "copy_ticks_range")
+                .expect("Unable to find `copy_ticks_range` method")
                 .call1(
                     py,
                     (
@@ -595,7 +707,7 @@ impl SymbolTicksTrait for MT5PythonConnection {
                             date_from.timestamp_subsec_micros(),
                             None,
                         )
-                        .unwrap(),
+                        .expect("Unable to create `PyDateTime`"),
                         PyDateTime::new_bound(
                             py,
                             date_to.year(),
@@ -607,22 +719,31 @@ impl SymbolTicksTrait for MT5PythonConnection {
                             date_to.timestamp_subsec_micros(),
                             None,
                         )
-                        .unwrap(),
+                        .expect("Unable to create `PyDateTime`"),
                         flags as i64,
                     ),
-                )?;
+                )
+                .expect("Unable to call `copy_ticks_range` method");
 
-            let pandas = py.import_bound("pandas").unwrap();
+            let pandas = py
+                .import_bound("pandas")
+                .expect("Unable to import `pandas`"); // replace this with polars in the future
 
             let pandas_kw = PyDict::new_bound(py);
 
-            pandas_kw.set_item("orient", "records").unwrap();
+            pandas_kw
+                .set_item("orient", "records")
+                .expect("Unable to set `orient`");
 
             let rates = pandas
-                .getattr("DataFrame")?
-                .call1((rates,))?
-                .call_method("to_dict", (), Some(&pandas_kw))?
-                .extract()?;
+                .getattr("DataFrame")
+                .expect("Unable to get `DataFrame`")
+                .call1((rates,))
+                .expect("Unable to call `DataFrame`")
+                .call_method("to_dict", (), Some(&pandas_kw))
+                .expect("Unable to call `to_dict`")
+                .extract()
+                .expect("Unable to extract `rates`");
 
             Ok(rates)
         });
@@ -633,7 +754,7 @@ impl SymbolTicksTrait for MT5PythonConnection {
             return Err((code, message));
         }
 
-        Ok(result.unwrap())
+        Ok(result.expect("Unable to copy ticks range"))
     }
 }
 
@@ -643,9 +764,11 @@ impl OrderTrait for MT5PythonConnection {
             let total_orders = self
                 .runtime
                 .as_ref()
-                .unwrap()
-                .call_method0(py, "orders_total")?
-                .extract(py)?;
+                .expect("Unable to find `MetaTrader5` module")
+                .call_method0(py, "orders_total")
+                .expect("Unable to call `orders_total` method")
+                .extract(py)
+                .expect("Unable to extract `orders_total` result");
             Ok(total_orders)
         });
 
@@ -655,23 +778,29 @@ impl OrderTrait for MT5PythonConnection {
             return Err((code, message));
         }
 
-        Ok(result.unwrap())
+        Ok(result.expect("Unable to get total orders"))
     }
     fn orders_get(&self) -> MQLResult<Vec<crate::schemas::Order>> {
         let result: PyResult<Vec<Order>> = Python::with_gil(|py| {
             let orders = self
                 .runtime
                 .as_ref()
-                .unwrap()
-                .call_method0(py, "orders_get")?;
+                .expect("Unable to find `MetaTrader5` module")
+                .call_method0(py, "orders_get")
+                .expect("Unable to call `orders_get` method");
 
             let orders_kw = PyDict::new_bound(py);
 
-            orders_kw.set_item("orders", orders).unwrap();
+            orders_kw
+                .set_item("orders", orders)
+                .expect("Unable to set `orders`");
 
             let orders = py
-                .eval_bound("[s._asdict() for s in orders]", Some(&orders_kw), None)?
-                .extract()?;
+                .eval_bound("[s._asdict() for s in orders]", Some(&orders_kw), None)
+                .expect("Unable to evaluate `orders`")
+                .extract()
+                .expect("Unable to extract `orders`");
+
             Ok(orders)
         });
 
@@ -681,7 +810,7 @@ impl OrderTrait for MT5PythonConnection {
             return Err((code, message));
         }
 
-        Ok(result.unwrap())
+        Ok(result.expect("Unable to get orders"))
     }
     fn order_calc_margin(
         &self,
@@ -691,12 +820,17 @@ impl OrderTrait for MT5PythonConnection {
         price: f64,
     ) -> MQLResult<f64> {
         let result: PyResult<f64> = Python::with_gil(|py| {
-            let margin = self.runtime.as_ref().unwrap().call_method1(
-                py,
-                "order_calc_margin",
-                (action as i64, symbol, volume, price),
-            )?;
-            Ok(margin.extract(py).unwrap())
+            let margin = self
+                .runtime
+                .as_ref()
+                .expect("Unable to find `MetaTrader5` module")
+                .call_method1(
+                    py,
+                    "order_calc_margin",
+                    (action as i64, symbol, volume, price),
+                )
+                .expect("Unable to call `order_calc_margin` method");
+            Ok(margin.extract(py).expect("Unable to extract `margin`"))
         });
 
         let (code, message) = self.last_error();
@@ -705,7 +839,7 @@ impl OrderTrait for MT5PythonConnection {
             return Err((code, message));
         }
 
-        Ok(result.unwrap())
+        Ok(result.expect("Unable to calculate margin"))
     }
     fn order_calc_profit(
         &self,
@@ -716,12 +850,17 @@ impl OrderTrait for MT5PythonConnection {
         price_close: f64,
     ) -> MQLResult<f64> {
         let result: PyResult<f64> = Python::with_gil(|py| {
-            let profit = self.runtime.as_ref().unwrap().call_method1(
-                py,
-                "order_calc_profit",
-                (action as i64, symbol, volume, price_open, price_close),
-            )?;
-            Ok(profit.extract(py).unwrap())
+            let profit = self
+                .runtime
+                .as_ref()
+                .expect("Unable to find `MetaTrader5` module")
+                .call_method1(
+                    py,
+                    "order_calc_profit",
+                    (action as i64, symbol, volume, price_open, price_close),
+                )
+                .expect("Unable to call `order_calc_profit` method");
+            Ok(profit.extract(py).expect("Unable to extract `profit`"))
         });
 
         let (code, message) = self.last_error();
@@ -730,7 +869,7 @@ impl OrderTrait for MT5PythonConnection {
             return Err((code, message));
         }
 
-        Ok(result.unwrap())
+        Ok(result.expect("Unable to calculate profit"))
     }
 
     fn order_check(
@@ -741,31 +880,31 @@ impl OrderTrait for MT5PythonConnection {
             let trade_result: PyObject = self
                 .runtime
                 .as_ref()
-                .unwrap()
+                .expect("Unable to find `MetaTrader5` module")
                 .call_method1(py, "order_check", (request.clone(),))
-                .unwrap()
+                .expect("Unable to call `order_check` method")
                 .call_method0(py, "_asdict")
-                .unwrap();
+                .expect("Unable to call `_asdict` method");
 
             let trade_request = trade_result
                 .getattr(py, "get")
-                .unwrap()
+                .expect("Unable to get `get` attribute")
                 .call1(py, ("request",))
-                .unwrap()
+                .expect("Unable to call `get` method")
                 .call_method0(py, "_asdict")
-                .unwrap();
+                .expect("Unable to call `_asdict` method");
 
             let update_trade_result_kw = PyDict::new_bound(py);
 
             update_trade_result_kw
                 .set_item("request", trade_request)
-                .unwrap();
+                .expect("Unable to set `request`");
 
             trade_result
                 .getattr(py, "update")
-                .unwrap()
+                .expect("Unable to get `update` attribute")
                 .call_bound(py, (), Some(&update_trade_result_kw))
-                .unwrap();
+                .expect("Unable to call `update` method");
 
             let (code, message) = self.last_error();
 
@@ -773,7 +912,9 @@ impl OrderTrait for MT5PythonConnection {
                 return Err((code, message));
             }
 
-            Ok(trade_result.extract(py).unwrap())
+            Ok(trade_result
+                .extract(py)
+                .expect("Unable to extract `trade_result`"))
         });
 
         let (code, message) = self.last_error();
@@ -782,7 +923,7 @@ impl OrderTrait for MT5PythonConnection {
             return Err((code, message));
         }
 
-        Ok(result.unwrap())
+        Ok(result.expect("Unable to check order"))
     }
     fn order_send(
         &self,
@@ -792,33 +933,35 @@ impl OrderTrait for MT5PythonConnection {
             let trade_result: PyObject = self
                 .runtime
                 .as_ref()
-                .unwrap()
+                .expect("Unable to find `MetaTrader5` module")
                 .call_method1(py, "order_send", (request,))
-                .unwrap()
+                .expect("Unable to call `order_send` method")
                 .call_method0(py, "_asdict")
-                .unwrap();
+                .expect("Unable to call `_asdict` method");
 
             let trade_request = trade_result
                 .getattr(py, "get")
-                .unwrap()
+                .expect("Unable to get `get` attribute")
                 .call1(py, ("request",))
-                .unwrap()
+                .expect("Unable to call `get` method")
                 .call_method0(py, "_asdict")
-                .unwrap();
+                .expect("Unable to call `_asdict` method");
 
             let update_trade_result_kw = PyDict::new_bound(py);
 
             update_trade_result_kw
                 .set_item("request", trade_request)
-                .unwrap();
+                .expect("Unable to set `request`");
 
             trade_result
                 .getattr(py, "update")
-                .unwrap()
+                .expect("Unable to get `update` attribute")
                 .call_bound(py, (), Some(&update_trade_result_kw))
-                .unwrap();
+                .expect("Unable to call `update` method");
 
-            Ok(trade_result.extract(py).unwrap())
+            Ok(trade_result
+                .extract(py)
+                .expect("Unable to extract `trade_result`"))
         });
 
         let (code, message) = self.last_error();
@@ -827,7 +970,7 @@ impl OrderTrait for MT5PythonConnection {
             return Err((code, message));
         }
 
-        Ok(result.unwrap())
+        Ok(result.expect("Unable to send order"))
     }
 }
 
@@ -837,9 +980,11 @@ impl PositionTrait for MT5PythonConnection {
             let total_positions = self
                 .runtime
                 .as_ref()
-                .unwrap()
-                .call_method0(py, "positions_total")?
-                .extract(py)?;
+                .expect("Unable to find `MetaTrader5` module")
+                .call_method0(py, "positions_total")
+                .expect("Unable to call `positions_total` method")
+                .extract(py)
+                .expect("Unable to extract `positions_total` result");
             Ok(total_positions)
         });
 
@@ -849,27 +994,32 @@ impl PositionTrait for MT5PythonConnection {
             return Err((code, message));
         }
 
-        Ok(result.unwrap())
+        Ok(result.expect("Unable to get total positions"))
     }
     fn positions_get(&self) -> MQLResult<Vec<crate::schemas::Position>> {
         let result: PyResult<Vec<Position>> = Python::with_gil(|py| {
             let positions = self
                 .runtime
                 .as_ref()
-                .unwrap()
-                .call_method0(py, "positions_get")?;
+                .expect("Unable to find `MetaTrader5` module")
+                .call_method0(py, "positions_get")
+                .expect("Unable to call `positions_get` method");
 
             let positions_kw = PyDict::new_bound(py);
 
-            positions_kw.set_item("positions", positions).unwrap();
+            positions_kw
+                .set_item("positions", positions)
+                .expect("Unable to set `positions`");
 
             let positions = py
                 .eval_bound(
                     "[s._asdict() for s in positions]",
                     Some(&positions_kw),
                     None,
-                )?
-                .extract()?;
+                )
+                .expect("Unable to evaluate `positions`")
+                .extract()
+                .expect("Unable to extract `positions`");
             Ok(positions)
         });
 
@@ -879,7 +1029,7 @@ impl PositionTrait for MT5PythonConnection {
             return Err((code, message));
         }
 
-        Ok(result.unwrap())
+        Ok(result.expect("Unable to get positions"))
     }
 }
 
@@ -893,7 +1043,7 @@ impl HistoryTrait for MT5PythonConnection {
             let total_history_orders = self
                 .runtime
                 .as_ref()
-                .unwrap()
+                .expect("Unable to find `MetaTrader5` module")
                 .call_method1(
                     py,
                     "history_orders_total",
@@ -909,7 +1059,7 @@ impl HistoryTrait for MT5PythonConnection {
                             date_from.timestamp_subsec_micros(),
                             None,
                         )
-                        .unwrap(),
+                        .expect("Unable to create `PyDateTime`"),
                         PyDateTime::new_bound(
                             py,
                             date_to.year(),
@@ -921,10 +1071,12 @@ impl HistoryTrait for MT5PythonConnection {
                             date_to.timestamp_subsec_micros(),
                             None,
                         )
-                        .unwrap(),
+                        .expect("Unable to create `PyDateTime`"),
                     ),
-                )?
-                .extract(py)?;
+                )
+                .expect("Unable to call `history_orders_total` method")
+                .extract(py)
+                .expect("Unable to extract `total_history_orders`");
             Ok(total_history_orders)
         });
 
@@ -934,7 +1086,7 @@ impl HistoryTrait for MT5PythonConnection {
             return Err((code, message));
         }
 
-        Ok(result.unwrap())
+        Ok(result.expect("Unable to get total history orders"))
     }
     fn history_orders_get(
         &self,
@@ -942,44 +1094,53 @@ impl HistoryTrait for MT5PythonConnection {
         date_to: DateTime<Local>,
     ) -> MQLResult<Vec<Order>> {
         let result: PyResult<Vec<Order>> = Python::with_gil(|py| {
-            let orders = self.runtime.as_ref().unwrap().call_method1(
-                py,
-                "history_orders_get",
-                (
-                    PyDateTime::new_bound(
-                        py,
-                        date_from.year(),
-                        date_from.month() as u8,
-                        date_from.day() as u8,
-                        date_from.hour() as u8,
-                        date_from.minute() as u8,
-                        date_from.second() as u8,
-                        date_from.timestamp_subsec_micros(),
-                        None,
-                    )
-                    .unwrap(),
-                    PyDateTime::new_bound(
-                        py,
-                        date_to.year(),
-                        date_to.month() as u8,
-                        date_to.day() as u8,
-                        date_to.hour() as u8,
-                        date_to.minute() as u8,
-                        date_to.second() as u8,
-                        date_to.timestamp_subsec_micros(),
-                        None,
-                    )
-                    .unwrap(),
-                ),
-            )?;
+            let orders = self
+                .runtime
+                .as_ref()
+                .expect("Unable to find `MetaTrader5` module")
+                .call_method1(
+                    py,
+                    "history_orders_get",
+                    (
+                        PyDateTime::new_bound(
+                            py,
+                            date_from.year(),
+                            date_from.month() as u8,
+                            date_from.day() as u8,
+                            date_from.hour() as u8,
+                            date_from.minute() as u8,
+                            date_from.second() as u8,
+                            date_from.timestamp_subsec_micros(),
+                            None,
+                        )
+                        .expect("Unable to create `PyDateTime`"),
+                        PyDateTime::new_bound(
+                            py,
+                            date_to.year(),
+                            date_to.month() as u8,
+                            date_to.day() as u8,
+                            date_to.hour() as u8,
+                            date_to.minute() as u8,
+                            date_to.second() as u8,
+                            date_to.timestamp_subsec_micros(),
+                            None,
+                        )
+                        .expect("Unable to create `PyDateTime`"),
+                    ),
+                )
+                .expect("Unable to call `history_orders_get` method");
 
             let orders_kw = PyDict::new_bound(py);
 
-            orders_kw.set_item("orders", orders).unwrap();
+            orders_kw
+                .set_item("orders", orders)
+                .expect("Unable to set `orders`");
 
             let orders = py
-                .eval_bound("[s._asdict() for s in orders]", Some(&orders_kw), None)?
-                .extract()?;
+                .eval_bound("[s._asdict() for s in orders]", Some(&orders_kw), None)
+                .expect("Unable to evaluate `orders`")
+                .extract()
+                .expect("Unable to extract `orders`");
             Ok(orders)
         });
 
@@ -989,7 +1150,7 @@ impl HistoryTrait for MT5PythonConnection {
             return Err((code, message));
         }
 
-        Ok(result.unwrap())
+        Ok(result.expect("Unable to get history orders"))
     }
     fn history_deals_total(
         &self,
@@ -1000,7 +1161,7 @@ impl HistoryTrait for MT5PythonConnection {
             let total_history_deals = self
                 .runtime
                 .as_ref()
-                .unwrap()
+                .expect("Unable to find `MetaTrader5` module")
                 .call_method1(
                     py,
                     "history_deals_total",
@@ -1016,7 +1177,7 @@ impl HistoryTrait for MT5PythonConnection {
                             date_from.timestamp_subsec_micros(),
                             None,
                         )
-                        .unwrap(),
+                        .expect("Unable to create `PyDateTime`"),
                         PyDateTime::new_bound(
                             py,
                             date_to.year(),
@@ -1028,10 +1189,12 @@ impl HistoryTrait for MT5PythonConnection {
                             date_to.timestamp_subsec_micros(),
                             None,
                         )
-                        .unwrap(),
+                        .expect("Unable to create `PyDateTime`"),
                     ),
-                )?
-                .extract(py)?;
+                )
+                .expect("Unable to call `history_deals_total` method")
+                .extract(py)
+                .expect("Unable to extract `total_history_deals");
             Ok(total_history_deals)
         });
 
@@ -1041,7 +1204,7 @@ impl HistoryTrait for MT5PythonConnection {
             return Err((code, message));
         }
 
-        Ok(result.unwrap())
+        Ok(result.expect("Unable to get total history deals"))
     }
     fn history_deals_get(
         &self,
@@ -1049,44 +1212,53 @@ impl HistoryTrait for MT5PythonConnection {
         date_to: DateTime<Local>,
     ) -> MQLResult<Vec<crate::schemas::Deals>> {
         let result: PyResult<Vec<Deals>> = Python::with_gil(|py| {
-            let deals = self.runtime.as_ref().unwrap().call_method1(
-                py,
-                "history_deals_get",
-                (
-                    PyDateTime::new_bound(
-                        py,
-                        date_from.year(),
-                        date_from.month() as u8,
-                        date_from.day() as u8,
-                        date_from.hour() as u8,
-                        date_from.minute() as u8,
-                        date_from.second() as u8,
-                        date_from.timestamp_subsec_micros(),
-                        None,
-                    )
-                    .unwrap(),
-                    PyDateTime::new_bound(
-                        py,
-                        date_to.year(),
-                        date_to.month() as u8,
-                        date_to.day() as u8,
-                        date_to.hour() as u8,
-                        date_to.minute() as u8,
-                        date_to.second() as u8,
-                        date_to.timestamp_subsec_micros(),
-                        None,
-                    )
-                    .unwrap(),
-                ),
-            )?;
+            let deals = self
+                .runtime
+                .as_ref()
+                .expect("Unable to find `MetaTrader5` module")
+                .call_method1(
+                    py,
+                    "history_deals_get",
+                    (
+                        PyDateTime::new_bound(
+                            py,
+                            date_from.year(),
+                            date_from.month() as u8,
+                            date_from.day() as u8,
+                            date_from.hour() as u8,
+                            date_from.minute() as u8,
+                            date_from.second() as u8,
+                            date_from.timestamp_subsec_micros(),
+                            None,
+                        )
+                        .expect("Unable to create `PyDateTime`"),
+                        PyDateTime::new_bound(
+                            py,
+                            date_to.year(),
+                            date_to.month() as u8,
+                            date_to.day() as u8,
+                            date_to.hour() as u8,
+                            date_to.minute() as u8,
+                            date_to.second() as u8,
+                            date_to.timestamp_subsec_micros(),
+                            None,
+                        )
+                        .expect("Unable to create `PyDateTime`"),
+                    ),
+                )
+                .expect("Unable to call `history_deals_get` method");
 
             let deals_kw = PyDict::new_bound(py);
 
-            deals_kw.set_item("deals", deals).unwrap();
+            deals_kw
+                .set_item("deals", deals)
+                .expect("Unable to set `deals`");
 
             let deals = py
-                .eval_bound("[s._asdict() for s in deals]", Some(&deals_kw), None)?
-                .extract()?;
+                .eval_bound("[s._asdict() for s in deals]", Some(&deals_kw), None)
+                .expect("Unable to evaluate `deals`")
+                .extract()
+                .expect("Unable to extract `deals`");
 
             Ok(deals)
         });
@@ -1097,7 +1269,7 @@ impl HistoryTrait for MT5PythonConnection {
             return Err((code, message));
         }
 
-        Ok(result.unwrap())
+        Ok(result.expect("Unable to get history deals"))
     }
 }
 
