@@ -1,6 +1,6 @@
 use crate::prelude::{MQLError, MQLResult};
 use crate::schemas::{
-    AccountCredentials, AccountInfo, HistoryDeals, Order, Position, TerminalInfo, TerminalVersion,
+    AccountCredentials, AccountInfo, Deals, Order, Position, TerminalInfo, TerminalVersion,
 };
 use chrono::{DateTime, Local};
 
@@ -131,5 +131,5 @@ pub trait HistoryTrait {
         &self,
         date_from: DateTime<Local>,
         date_to: DateTime<Local>,
-    ) -> MQLResult<Vec<HistoryDeals>>;
+    ) -> MQLResult<Vec<Deals>>;
 }

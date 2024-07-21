@@ -5,6 +5,10 @@ use serde::{Deserialize, Serialize};
 use struct_iterable::Iterable;
 
 use crate::enums::{self};
+use crate::prelude::{
+    DealEntry, DealReason, DealType, OrderType, OrderTypeFilling, OrderTypeTime, PositionReason,
+    PositionType, ReturnCode, TradeActionRequest,
+};
 
 #[derive(Serialize, Deserialize, FromPyObject, Debug, Iterable)]
 pub struct TerminalVersion {
@@ -237,7 +241,7 @@ pub struct SymbolInfo {
     pub path: String,
 }
 
-#[derive(Deserialize, FromPyObject, Debug,Iterable)]
+#[derive(Deserialize, FromPyObject, Debug, Iterable)]
 #[pyo3(from_item_all)]
 pub struct SymbolTick {
     pub time: i64,
@@ -253,14 +257,14 @@ pub struct SymbolTick {
 #[derive(Deserialize, FromPyObject, Debug)]
 #[pyo3(from_item_all)]
 pub struct SymbolRates {
-    pub time: i64,
+    pub time: i64, // change this into date time
     pub open: f64,
     pub high: f64,
     pub low: f64,
     pub close: f64,
-    pub tick_volume: f64,
+    pub tick_volume: isize,
     pub spread: f64,
-    pub real_volume: f64,
+    pub real_volume: isize,
 }
 
 #[derive(Deserialize, FromPyObject, Debug, Iterable)]
@@ -320,16 +324,16 @@ pub struct Order {
 #[derive(Deserialize, FromPyObject, Debug, Clone)]
 #[pyo3(from_item_all)]
 pub struct Position {
-    pub ticket: i64,
-    pub time: i64,
-    pub time_msc: i64,
-    pub time_update: i64,
-    pub time_update_msc: i64,
+    pub ticket: isize,
+    pub time: i64, // convert this into date time
+    pub time_msc: isize,
+    pub time_update: i64, // convert this into date time
+    pub time_update_msc: isize,
     #[pyo3(item("type"))]
-    pub r#type: i64,
-    pub magic: i64,
-    pub identifier: i64,
-    pub reason: i64,
+    pub r#type: PositionType,
+    pub magic: isize,
+    pub identifier: isize,
+    pub reason: PositionReason,
     pub volume: f64,
     pub price_open: f64,
     pub sl: f64,
@@ -344,17 +348,17 @@ pub struct Position {
 
 #[derive(Deserialize, FromPyObject, Debug, Clone)]
 #[pyo3(from_item_all)]
-pub struct HistoryDeals {
-    pub ticket: i64,
-    pub order: Option<i64>,
-    pub time: i64,
+pub struct Deals {
+    pub ticket: isize,
+    pub order: isize,
+    pub time: i64, // convert this into date time
     pub time_msc: i64,
     #[pyo3(item("type"))]
-    pub r#type: i64,
-    pub entry: f64,
-    pub magic: i64,
-    pub position_id: i64,
-    pub reason: i64,
+    pub r#type: DealType,
+    pub entry: DealEntry,
+    pub magic: isize,
+    pub reason: DealReason,
+    pub position_id: isize,
     pub volume: f64,
     pub price: f64,
     pub commission: f64,
@@ -369,45 +373,45 @@ pub struct HistoryDeals {
 #[derive(Deserialize, FromPyObject, Debug, Clone)]
 #[pyo3(from_item_all)]
 pub struct TradeRequest {
-    pub action: i64,
-    pub magic: i64,
-    pub order: i64,
+    pub action: TradeActionRequest,
+    pub magic: usize,
+    pub order: usize,
     pub symbol: String,
     pub volume: f64,
     pub price: f64,
     pub stoplimit: f64,
     pub sl: f64,
     pub tp: f64,
-    pub deviation: i64,
+    pub deviation: usize,
     #[pyo3(item("type"))]
-    pub r#type: i64,
-    pub type_filling: i64,
-    pub type_time: i64,
-    pub expiration: i64,
+    pub r#type: OrderType,
+    pub type_filling: OrderTypeFilling,
+    pub type_time: OrderTypeTime,
+    pub expiration: i64, // convert this into date time
     pub comment: String,
-    pub position: i64,
-    pub position_by: i64,
+    pub position: usize,
+    pub position_by: usize,
 }
 
 #[derive(Default, Clone)]
 pub struct TradeRequestBuilder {
-    action: Option<enums::TradeActionRequest>,
+    action: Option<TradeActionRequest>,
     magic: Option<i64>,
-    order: Option<enums::OrderType>,
+    order: Option<usize>,
     symbol: Option<String>,
     volume: Option<f64>,
     price: Option<f64>,
     stoplimit: Option<f64>,
     sl: Option<f64>,
     tp: Option<f64>,
-    deviation: Option<i64>,
-    r#type: Option<i64>,
-    type_filling: Option<enums::OrderTypeFilling>,
-    type_time: Option<enums::OrderTypeTime>,
-    expiration: Option<i64>,
+    deviation: Option<usize>,
+    r#type: Option<OrderType>,
+    type_filling: Option<OrderTypeFilling>,
+    type_time: Option<OrderTypeTime>,
+    expiration: Option<i64>, // convert this into datetime
     comment: Option<String>,
-    position: Option<i64>,
-    position_by: Option<i64>,
+    position: Option<usize>,
+    position_by: Option<usize>,
 }
 
 impl IntoPy<PyObject> for TradeRequestBuilder {
@@ -455,7 +459,7 @@ impl IntoPy<PyObject> for TradeRequestBuilder {
         }
 
         if self.r#type.is_some() {
-            dict.set_item("type", self.r#type.unwrap()).unwrap();
+            dict.set_item("type", self.r#type.unwrap() as i64).unwrap();
         }
 
         if self.type_filling.is_some() {
@@ -505,7 +509,7 @@ impl TradeRequestBuilder {
         return self;
     }
 
-    pub fn order(mut self, order: enums::OrderType) -> Self {
+    pub fn order(mut self, order: usize) -> Self {
         self.order = Some(order);
         return self;
     }
@@ -540,12 +544,12 @@ impl TradeRequestBuilder {
         return self;
     }
 
-    pub fn deviation(mut self, deviation: i64) -> Self {
+    pub fn deviation(mut self, deviation: usize) -> Self {
         self.deviation = Some(deviation);
         return self;
     }
 
-    pub fn r#type(mut self, r#type: i64) -> Self {
+    pub fn r#type(mut self, r#type: OrderType) -> Self {
         self.r#type = Some(r#type);
         return self;
     }
@@ -570,12 +574,12 @@ impl TradeRequestBuilder {
         return self;
     }
 
-    pub fn position(mut self, position: i64) -> Self {
+    pub fn position(mut self, position: usize) -> Self {
         self.position = Some(position);
         return self;
     }
 
-    pub fn position_by(mut self, position_by: i64) -> Self {
+    pub fn position_by(mut self, position_by: usize) -> Self {
         self.position_by = Some(position_by);
         return self;
     }
@@ -584,7 +588,7 @@ impl TradeRequestBuilder {
 #[derive(Deserialize, FromPyObject, Debug)]
 #[pyo3(from_item_all)]
 pub struct CheckResult {
-    pub retcode: i64,
+    pub retcode: ReturnCode,
     pub balance: f64,
     pub equity: f64,
     pub profit: f64,
@@ -598,15 +602,36 @@ pub struct CheckResult {
 #[derive(Deserialize, FromPyObject, Debug)]
 #[pyo3(from_item_all)]
 pub struct TradeResult {
-    pub retcode: i64,
-    pub deal: i64,
-    pub order: i64,
+    pub retcode: ReturnCode,
+    pub deal: usize,
+    pub order: usize,
     pub volume: f64,
     pub price: f64,
     pub bid: f64,
     pub ask: f64,
     pub comment: String,
-    pub request_id: i64,
+    pub request_id: u64,
     pub retcode_external: i64,
     pub request: TradeRequest,
+}
+
+#[derive(Deserialize, FromPyObject, Debug)]
+#[pyo3(from_item_all)]
+pub struct TradeTransaction {
+    deal: usize,
+    order: usize,
+    symbol: String,
+    r#type: usize,
+    order_type: OrderType,
+    order_state: usize,
+    deal_type: usize,
+    type_time: usize,
+    time_expiration: i64, // convert this into datetime
+    price: f64,
+    price_trigger: f64,
+    price_sl: f64,
+    price_tp: f64,
+    volume: f64,
+    position: usize,
+    position_by: usize,
 }

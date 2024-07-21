@@ -95,7 +95,7 @@
 //!     .symbol(current_symbol.name.clone())
 //!     .volume(0.01)
 //!     .price(current_symbol.ask)
-//!     .r#type(OrderType::BUY as i64)
+//!     .r#type(OrderType::BUY)
 //!     .type_filling(OrderTypeFilling::IOC)
 //!     .type_time(OrderTypeTime::GTC)
 //!     .sl(current_symbol.bid - (100.0 * current_symbol.point))
@@ -110,7 +110,7 @@
 //!     .volume(0.01)
 //!     .price(current_symbol.bid)
 //!     .position(open_order.order)
-//!     .r#type(OrderType::SELL as i64)
+//!     .r#type(OrderType::SELL)
 //!     .type_filling(OrderTypeFilling::IOC)
 //!     .type_time(OrderTypeTime::GTC)
 //!     .comment("Test".to_string());

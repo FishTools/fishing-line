@@ -1042,8 +1042,8 @@ impl HistoryTrait for MT5PythonConnection {
         &self,
         date_from: DateTime<Local>,
         date_to: DateTime<Local>,
-    ) -> MQLResult<Vec<crate::schemas::HistoryDeals>> {
-        let result: PyResult<Vec<HistoryDeals>> = Python::with_gil(|py| {
+    ) -> MQLResult<Vec<crate::schemas::Deals>> {
+        let result: PyResult<Vec<Deals>> = Python::with_gil(|py| {
             let deals = self.runtime.as_ref().unwrap().call_method1(
                 py,
                 "history_deals_get",
@@ -1155,7 +1155,7 @@ mod test {
     #[test]
     fn test_account_info() {
         let terminal_path = std::env::var("TERMINAL_PATH").unwrap();
-        let mut runtime = MT5PythonConnection::new()
+        let runtime = MT5PythonConnection::new()
             .initialize(terminal_path.as_str())
             .expect("Unable to connect to terminal");
         let account_info = runtime.account_info();
@@ -1198,7 +1198,7 @@ mod test {
         let runtime = MT5PythonConnection::new()
             .initialize(terminal_path.as_str())
             .expect("Unable to connect to terminal");
-        let symbol_info = runtime.symbol_info("EURUSD");
+        let symbol_info = runtime.symbol_info("BTCUSD");
         assert_eq!(symbol_info.is_ok(), true, "Unable to get symbol info");
     }
 
@@ -1208,7 +1208,7 @@ mod test {
         let runtime = MT5PythonConnection::new()
             .initialize(terminal_path.as_str())
             .expect("Unable to connect to terminal");
-        let symbol_info_tick = runtime.symbol_info_tick("EURUSD");
+        let symbol_info_tick = runtime.symbol_info_tick("BTCUSD");
         assert_eq!(
             symbol_info_tick.is_ok(),
             true,
@@ -1222,7 +1222,7 @@ mod test {
         let runtime = MT5PythonConnection::new()
             .initialize(terminal_path.as_str())
             .expect("Unable to connect to terminal");
-        let symbol_select = runtime.symbol_select("EURUSD", None);
+        let symbol_select = runtime.symbol_select("BTCUSD", None);
         assert_eq!(symbol_select.is_ok(), true, "Unable to select symbol");
     }
 
@@ -1232,7 +1232,7 @@ mod test {
         let runtime = MT5PythonConnection::new()
             .initialize(terminal_path.as_str())
             .expect("Unable to connect to terminal");
-        let copy_rates_from = runtime.copy_rates_from("EURUSD", Timeframe::H1, Local::now(), 20);
+        let copy_rates_from = runtime.copy_rates_from("BTCUSD", Timeframe::H1, Local::now(), 20);
         assert_eq!(copy_rates_from.is_ok(), true, "Unable to get symbol rates");
     }
 
@@ -1242,7 +1242,7 @@ mod test {
         let runtime = MT5PythonConnection::new()
             .initialize(terminal_path.as_str())
             .expect("Unable to connect to terminal");
-        let copy_rates_from_pos = runtime.copy_rates_from_pos("EURUSD", Timeframe::H1, 0, 20);
+        let copy_rates_from_pos = runtime.copy_rates_from_pos("BTCUSD", Timeframe::H1, 0, 20);
         assert_eq!(
             copy_rates_from_pos.is_ok(),
             true,
@@ -1257,7 +1257,7 @@ mod test {
             .initialize(terminal_path.as_str())
             .expect("Unable to connect to terminal");
         let copy_rates_range = runtime.copy_rates_range(
-            "EURUSD",
+            "BTCUSD",
             Timeframe::H1,
             Local.with_ymd_and_hms(2024, 7, 7, 0, 0, 0).unwrap(),
             Local::now(),
@@ -1272,7 +1272,7 @@ mod test {
             .initialize(terminal_path.as_str())
             .expect("Unable to connect to terminal");
         let copy_ticks_from = runtime.copy_ticks_from(
-            "EURUSD",
+            "BTCUSD",
             Local.with_ymd_and_hms(2024, 7, 7, 0, 0, 0).unwrap(),
             20,
             CopyTicksFlags::ALL,
@@ -1287,7 +1287,7 @@ mod test {
             .initialize(terminal_path.as_str())
             .expect("Unable to connect to terminal");
         let copy_ticks_range = runtime.copy_ticks_range(
-            "EURUSD",
+            "BTCUSD",
             Local.with_ymd_and_hms(2024, 7, 10, 0, 0, 0).unwrap(),
             Local::now(),
             CopyTicksFlags::ALL,
@@ -1322,14 +1322,14 @@ mod test {
             .initialize(terminal_path.as_str())
             .expect("Unable to connect to terminal");
 
-        let current_symbol = runtime.symbol_info("EURUSD").unwrap();
+        let current_symbol = runtime.symbol_info("BTCUSD").unwrap();
 
         let check_trade = TradeRequestBuilder::new()
             .action(TradeActionRequest::DEAL)
             .symbol(current_symbol.name)
             .volume(0.01)
             .price(current_symbol.ask)
-            .r#type(OrderType::BUY as i64)
+            .r#type(OrderType::BUY)
             .type_filling(OrderTypeFilling::IOC)
             .type_time(OrderTypeTime::GTC)
             .sl(current_symbol.bid - (100.0 * current_symbol.point))
@@ -1340,7 +1340,7 @@ mod test {
 
         assert_eq!(check_order.is_ok(), true, "Unable to check order");
 
-        assert_eq!(check_order.unwrap().retcode, 0, "Order is not valid");
+        assert_eq!(check_order.unwrap().retcode as u64, 0, "Order is not valid");
     }
 
     #[test]
@@ -1350,14 +1350,14 @@ mod test {
             .initialize(terminal_path.as_str())
             .expect("Unable to connect to terminal");
 
-        let current_symbol = runtime.symbol_info("EURUSD").unwrap();
+        let current_symbol = runtime.symbol_info("BTCUSD").unwrap();
 
         let open_trade = TradeRequestBuilder::new()
             .action(TradeActionRequest::DEAL)
             .symbol(current_symbol.name.clone())
             .volume(0.01)
             .price(current_symbol.ask)
-            .r#type(OrderType::BUY as i64)
+            .r#type(OrderType::BUY)
             .type_filling(OrderTypeFilling::IOC)
             .type_time(OrderTypeTime::GTC)
             .sl(current_symbol.bid - (100.0 * current_symbol.point))
@@ -1368,7 +1368,7 @@ mod test {
         assert_eq!(open_order.is_ok(), true, "Unable to open order");
 
         let open_order = open_order.unwrap();
-        assert_eq!(open_order.retcode, 10009, "Order is not valid");
+        assert_eq!(open_order.retcode, ReturnCode::DONE, "Order is not valid");
 
         let close_request = TradeRequestBuilder::new()
             .action(TradeActionRequest::DEAL)
@@ -1376,7 +1376,7 @@ mod test {
             .volume(0.01)
             .price(current_symbol.bid)
             .position(open_order.order)
-            .r#type(OrderType::SELL as i64)
+            .r#type(OrderType::SELL)
             .type_filling(OrderTypeFilling::IOC)
             .type_time(OrderTypeTime::GTC)
             .comment("Test".to_string());
@@ -1387,7 +1387,7 @@ mod test {
 
         let close_send = close_send.unwrap();
 
-        assert_eq!(close_send.retcode, 10009, "Order is not valid");
+        assert_eq!(close_send.retcode, ReturnCode::DONE, "Order is not valid");
     }
 
     #[test]
