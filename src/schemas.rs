@@ -71,10 +71,10 @@ impl InfoTrait for TerminalInfo {
     fn get_info_integer(&self, info_property: InfoProperties) -> MQLResult<i64> {
         let value = match info_property {
             InfoProperties::TerminalInfoProperty(property) => match property {
-                TerminalInfoProperty::Build => self.build,
-                TerminalInfoProperty::MaxBars => self.maxbars,
-                TerminalInfoProperty::CodePage => self.codepage,
-                TerminalInfoProperty::PingLast => self.ping_last,
+                TerminalInfoProperty::Build => self.build.clone(),
+                TerminalInfoProperty::MaxBars => self.maxbars.clone(),
+                TerminalInfoProperty::CodePage => self.codepage.clone(),
+                TerminalInfoProperty::PingLast => self.ping_last.clone(),
                 _ => {
                     panic!("Property not found");
                 }
@@ -86,8 +86,8 @@ impl InfoTrait for TerminalInfo {
     fn get_info_float(&self, info_property: InfoProperties) -> MQLResult<f64> {
         let value = match info_property {
             InfoProperties::TerminalInfoProperty(property) => match property {
-                TerminalInfoProperty::CommunityBalance => self.community_balance,
-                TerminalInfoProperty::Retransmission => self.retransmission,
+                TerminalInfoProperty::CommunityBalance => self.community_balance.clone(),
+                TerminalInfoProperty::Retransmission => self.retransmission.clone(),
                 _ => {
                     panic!("Property not found");
                 }
@@ -99,14 +99,14 @@ impl InfoTrait for TerminalInfo {
     fn get_info_boolean(&self, info_property: InfoProperties) -> MQLResult<bool> {
         let value = match info_property {
             InfoProperties::TerminalInfoProperty(property) => match property {
-                TerminalInfoProperty::CommunityAccount => self.community_account,
-                TerminalInfoProperty::CommunityConnection => self.community_connection,
-                TerminalInfoProperty::Connected => self.connected,
-                TerminalInfoProperty::DllsAllowed => self.dlls_allowed,
-                TerminalInfoProperty::TradeAllowed => self.trade_allowed,
-                TerminalInfoProperty::EmailEnabled => self.email_enabled,
-                TerminalInfoProperty::FtpEnabled => self.ftp_enabled,
-                TerminalInfoProperty::NotificationsEnabled => self.notifications_enabled,
+                TerminalInfoProperty::CommunityAccount => self.community_account.clone(),
+                TerminalInfoProperty::CommunityConnection => self.community_connection.clone(),
+                TerminalInfoProperty::Connected => self.connected.clone(),
+                TerminalInfoProperty::DllsAllowed => self.dlls_allowed.clone(),
+                TerminalInfoProperty::TradeAllowed => self.trade_allowed.clone(),
+                TerminalInfoProperty::EmailEnabled => self.email_enabled.clone(),
+                TerminalInfoProperty::FtpEnabled => self.ftp_enabled.clone(),
+                TerminalInfoProperty::NotificationsEnabled => self.notifications_enabled.clone(),
                 TerminalInfoProperty::MqId => self.mqid,
                 _ => {
                     panic!("Property not found");
@@ -155,19 +155,19 @@ impl InfoTrait for AccountInfo {
     fn get_info_float(&self, info_property: crate::prelude::InfoProperties) -> MQLResult<f64> {
         let value = match info_property {
             InfoProperties::AccountInfoProperty(property) => match property {
-                AccountInfoProperty::Balance => self.balance,
-                AccountInfoProperty::Profit => self.profit,
-                AccountInfoProperty::Equity => self.equity,
-                AccountInfoProperty::Margin => self.margin,
-                AccountInfoProperty::MarginFree => self.margin_free,
-                AccountInfoProperty::MarginLevel => self.margin_level,
-                AccountInfoProperty::MarginSoCall => self.margin_so_call,
-                AccountInfoProperty::MarginSoSo => self.margin_so_so,
-                AccountInfoProperty::MarginInitial => self.margin_initial,
-                AccountInfoProperty::MarginMaintenance => self.margin_maintenance,
-                AccountInfoProperty::Assets => self.assets,
-                AccountInfoProperty::Liabilities => self.liabilities,
-                AccountInfoProperty::CommissionBlocked => self.commission_blocked,
+                AccountInfoProperty::Balance => self.balance.clone(),
+                AccountInfoProperty::Profit => self.profit.clone(),
+                AccountInfoProperty::Equity => self.equity.clone(),
+                AccountInfoProperty::Margin => self.margin.clone(),
+                AccountInfoProperty::MarginFree => self.margin_free.clone(),
+                AccountInfoProperty::MarginLevel => self.margin_level.clone(),
+                AccountInfoProperty::MarginSoCall => self.margin_so_call.clone(),
+                AccountInfoProperty::MarginSoSo => self.margin_so_so.clone(),
+                AccountInfoProperty::MarginInitial => self.margin_initial.clone(),
+                AccountInfoProperty::MarginMaintenance => self.margin_maintenance.clone(),
+                AccountInfoProperty::Assets => self.assets.clone(),
+                AccountInfoProperty::Liabilities => self.liabilities.clone(),
+                AccountInfoProperty::CommissionBlocked => self.commission_blocked.clone(),
                 _ => {
                     panic!("Property not found");
                 }
@@ -179,9 +179,9 @@ impl InfoTrait for AccountInfo {
     fn get_info_boolean(&self, info_property: InfoProperties) -> MQLResult<bool> {
         let value = match info_property {
             InfoProperties::AccountInfoProperty(property) => match property {
-                AccountInfoProperty::TradeAllowed => self.trade_allowed,
-                AccountInfoProperty::TradeExpert => self.trade_expert,
-                AccountInfoProperty::FifoClose => self.fifo_close,
+                AccountInfoProperty::TradeAllowed => self.trade_allowed.clone(),
+                AccountInfoProperty::TradeExpert => self.trade_expert.clone(),
+                AccountInfoProperty::FifoClose => self.fifo_close.clone(),
                 _ => {
                     panic!("Property not found");
                 }
@@ -193,13 +193,13 @@ impl InfoTrait for AccountInfo {
     fn get_info_integer(&self, info_property: InfoProperties) -> MQLResult<i64> {
         let value = match info_property {
             InfoProperties::AccountInfoProperty(property) => match property {
-                AccountInfoProperty::Login => self.login,
-                AccountInfoProperty::TradeMode => self.trade_mode as i64,
-                AccountInfoProperty::Leverage => self.leverage,
-                AccountInfoProperty::LimitOrders => self.limit_orders,
-                AccountInfoProperty::MarginSoMode => self.margin_so_mode as i64,
-                AccountInfoProperty::MarginMode => self.margin_mode as i64,
-                AccountInfoProperty::CurrencyDigits => self.currency_digits,
+                AccountInfoProperty::Login => self.login.clone(),
+                AccountInfoProperty::TradeMode => (self.trade_mode as i64).clone(),
+                AccountInfoProperty::Leverage => self.leverage.clone(),
+                AccountInfoProperty::LimitOrders => self.limit_orders.clone(),
+                AccountInfoProperty::MarginSoMode => (self.margin_so_mode as i64).clone(),
+                AccountInfoProperty::MarginMode => (self.margin_mode as i64).clone(),
+                AccountInfoProperty::CurrencyDigits => self.currency_digits.clone(),
                 _ => {
                     panic!("Property not found");
                 }
@@ -361,17 +361,17 @@ impl InfoTrait for SymbolInfo {
     fn get_info_integer(&self, info_property: InfoProperties) -> MQLResult<i64> {
         let value = match info_property {
             InfoProperties::SymbolInfoProperty(property) => match property {
-                enums::SymbolInfoProperty::SessionDeals => self.session_deals,
-                enums::SymbolInfoProperty::SessionBuyOrders => self.session_buy_orders,
-                enums::SymbolInfoProperty::SessionSellOrders => self.session_sell_orders,
-                enums::SymbolInfoProperty::Time => self.time,
-                enums::SymbolInfoProperty::Digits => self.digits,
-                enums::SymbolInfoProperty::Spread => self.spread,
-                enums::SymbolInfoProperty::TicksBookDepth => self.ticks_bookdepth,
-                enums::SymbolInfoProperty::StartTime => self.start_time,
-                enums::SymbolInfoProperty::ExpirationTime => self.expiration_time,
-                enums::SymbolInfoProperty::TradeStopsLevel => self.trade_stops_level,
-                enums::SymbolInfoProperty::TradeFreezeLevel => self.trade_freeze_level,
+                enums::SymbolInfoProperty::SessionDeals => self.session_deals.clone(),
+                enums::SymbolInfoProperty::SessionBuyOrders => self.session_buy_orders.clone(),
+                enums::SymbolInfoProperty::SessionSellOrders => self.session_sell_orders.clone(),
+                enums::SymbolInfoProperty::Time => self.time.clone(),
+                enums::SymbolInfoProperty::Digits => self.digits.clone(),
+                enums::SymbolInfoProperty::Spread => self.spread.clone(),
+                enums::SymbolInfoProperty::TicksBookDepth => self.ticks_bookdepth.clone(),
+                enums::SymbolInfoProperty::StartTime => self.start_time.clone(),
+                enums::SymbolInfoProperty::ExpirationTime => self.expiration_time.clone(),
+                enums::SymbolInfoProperty::TradeStopsLevel => self.trade_stops_level.clone(),
+                enums::SymbolInfoProperty::TradeFreezeLevel => self.trade_freeze_level.clone(),
                 _ => {
                     panic!("Property not found");
                 }
@@ -383,63 +383,63 @@ impl InfoTrait for SymbolInfo {
     fn get_info_float(&self, info_property: InfoProperties) -> MQLResult<f64> {
         let value = match info_property {
             InfoProperties::SymbolInfoProperty(property) => match property {
-                enums::SymbolInfoProperty::Volume => self.volume,
-                enums::SymbolInfoProperty::VolumeHigh => self.volumehigh,
-                enums::SymbolInfoProperty::VolumeLow => self.volumelow,
-                enums::SymbolInfoProperty::Bid => self.bid,
-                enums::SymbolInfoProperty::BidHigh => self.bidhigh,
-                enums::SymbolInfoProperty::BidLow => self.bidlow,
-                enums::SymbolInfoProperty::Ask => self.ask,
-                enums::SymbolInfoProperty::AskHigh => self.askhigh,
-                enums::SymbolInfoProperty::AskLow => self.asklow,
-                enums::SymbolInfoProperty::Last => self.last,
-                enums::SymbolInfoProperty::LastHigh => self.lasthigh,
-                enums::SymbolInfoProperty::LastLow => self.lastlow,
-                enums::SymbolInfoProperty::VolumeReal => self.volume_real,
-                enums::SymbolInfoProperty::VolumeHighReal => self.volumehigh_real,
-                enums::SymbolInfoProperty::VolumeLowReal => self.volumelow_real,
-                enums::SymbolInfoProperty::OptionStrike => self.option_strike,
-                enums::SymbolInfoProperty::Point => self.point,
-                enums::SymbolInfoProperty::TradeTickValue => self.trade_tick_value,
-                enums::SymbolInfoProperty::TradeTickValueProfit => self.trade_tick_value_profit,
-                enums::SymbolInfoProperty::TradeTickValueLoss => self.trade_tick_value_loss,
-                enums::SymbolInfoProperty::TradeTickSize => self.trade_tick_size,
-                enums::SymbolInfoProperty::TradeContractSize => self.trade_contract_size,
-                enums::SymbolInfoProperty::TradeAccruedInterest => self.trade_accrued_interest,
-                enums::SymbolInfoProperty::TradeFaceValue => self.trade_face_value,
-                enums::SymbolInfoProperty::TradeLiquidityRate => self.trade_liquidity_rate,
-                enums::SymbolInfoProperty::VolumeMin => self.volume_min,
-                enums::SymbolInfoProperty::VolumeMax => self.volume_max,
-                enums::SymbolInfoProperty::VolumeStep => self.volume_step,
-                enums::SymbolInfoProperty::VolumeLimit => self.volume_limit,
-                enums::SymbolInfoProperty::SwapLong => self.swap_long,
-                enums::SymbolInfoProperty::SwapShort => self.swap_short,
-                enums::SymbolInfoProperty::MarginInitial => self.margin_initial,
-                enums::SymbolInfoProperty::MarginMaintenance => self.margin_maintenance,
-                enums::SymbolInfoProperty::SessionVolume => self.session_volume,
-                enums::SymbolInfoProperty::SessionTurnover => self.session_turnover,
-                enums::SymbolInfoProperty::SessionInterest => self.session_interest,
-                enums::SymbolInfoProperty::SessionBuyOrdersVolume => self.session_buy_orders_volume,
+                enums::SymbolInfoProperty::Volume => self.volume.clone(),
+                enums::SymbolInfoProperty::VolumeHigh => self.volumehigh.clone(),
+                enums::SymbolInfoProperty::VolumeLow => self.volumelow.clone(),
+                enums::SymbolInfoProperty::Bid => self.bid.clone(),
+                enums::SymbolInfoProperty::BidHigh => self.bidhigh.clone(),
+                enums::SymbolInfoProperty::BidLow => self.bidlow.clone(),
+                enums::SymbolInfoProperty::Ask => self.ask.clone(),
+                enums::SymbolInfoProperty::AskHigh => self.askhigh.clone(),
+                enums::SymbolInfoProperty::AskLow => self.asklow.clone(),
+                enums::SymbolInfoProperty::Last => self.last.clone(),
+                enums::SymbolInfoProperty::LastHigh => self.lasthigh.clone(),
+                enums::SymbolInfoProperty::LastLow => self.lastlow.clone(),
+                enums::SymbolInfoProperty::VolumeReal => self.volume_real.clone(),
+                enums::SymbolInfoProperty::VolumeHighReal => self.volumehigh_real.clone(),
+                enums::SymbolInfoProperty::VolumeLowReal => self.volumelow_real.clone(),
+                enums::SymbolInfoProperty::OptionStrike => self.option_strike.clone(),
+                enums::SymbolInfoProperty::Point => self.point.clone(),
+                enums::SymbolInfoProperty::TradeTickValue => self.trade_tick_value.clone(),
+                enums::SymbolInfoProperty::TradeTickValueProfit => self.trade_tick_value_profit.clone(),
+                enums::SymbolInfoProperty::TradeTickValueLoss => self.trade_tick_value_loss.clone(),
+                enums::SymbolInfoProperty::TradeTickSize => self.trade_tick_size.clone(),
+                enums::SymbolInfoProperty::TradeContractSize => self.trade_contract_size.clone(),
+                enums::SymbolInfoProperty::TradeAccruedInterest => self.trade_accrued_interest.clone(),
+                enums::SymbolInfoProperty::TradeFaceValue => self.trade_face_value.clone(),
+                enums::SymbolInfoProperty::TradeLiquidityRate => self.trade_liquidity_rate.clone(),
+                enums::SymbolInfoProperty::VolumeMin => self.volume_min.clone(),
+                enums::SymbolInfoProperty::VolumeMax => self.volume_max.clone(),
+                enums::SymbolInfoProperty::VolumeStep => self.volume_step.clone(),
+                enums::SymbolInfoProperty::VolumeLimit => self.volume_limit.clone(),
+                enums::SymbolInfoProperty::SwapLong => self.swap_long.clone(),
+                enums::SymbolInfoProperty::SwapShort => self.swap_short.clone(),
+                enums::SymbolInfoProperty::MarginInitial => self.margin_initial.clone(),
+                enums::SymbolInfoProperty::MarginMaintenance => self.margin_maintenance.clone(),
+                enums::SymbolInfoProperty::SessionVolume => self.session_volume.clone(),
+                enums::SymbolInfoProperty::SessionTurnover => self.session_turnover.clone(),
+                enums::SymbolInfoProperty::SessionInterest => self.session_interest.clone(),
+                enums::SymbolInfoProperty::SessionBuyOrdersVolume => self.session_buy_orders_volume.clone(),
                 enums::SymbolInfoProperty::SessionSellOrdersVolume => {
                     self.session_sell_orders_volume
                 }
-                enums::SymbolInfoProperty::SessionOpen => self.session_open,
-                enums::SymbolInfoProperty::SessionClose => self.session_close,
-                enums::SymbolInfoProperty::SessionAw => self.session_aw,
-                enums::SymbolInfoProperty::SessionPriceSettlement => self.session_price_settlement,
-                enums::SymbolInfoProperty::SessionPriceLimitMin => self.session_price_limit_min,
-                enums::SymbolInfoProperty::SessionPriceLimitMax => self.session_price_limit_max,
-                enums::SymbolInfoProperty::MarginHedged => self.margin_hedged,
-                enums::SymbolInfoProperty::PriceChange => self.price_change,
-                enums::SymbolInfoProperty::PriceVolatility => self.price_volatility,
-                enums::SymbolInfoProperty::PriceTheoretical => self.price_theoretical,
-                enums::SymbolInfoProperty::PriceGreeksDelta => self.price_greeks_delta,
-                enums::SymbolInfoProperty::PriceGreeksTheta => self.price_greeks_theta,
-                enums::SymbolInfoProperty::PriceGreeksGamma => self.price_greeks_gamma,
-                enums::SymbolInfoProperty::PriceGreeksVega => self.price_greeks_vega,
-                enums::SymbolInfoProperty::PriceGreeksRho => self.price_greeks_rho,
-                enums::SymbolInfoProperty::PriceGreeksOmega => self.price_greeks_omega,
-                enums::SymbolInfoProperty::PriceSensitivity => self.price_sensitivity,
+                enums::SymbolInfoProperty::SessionOpen => self.session_open.clone(),
+                enums::SymbolInfoProperty::SessionClose => self.session_close.clone(),
+                enums::SymbolInfoProperty::SessionAw => self.session_aw.clone(),
+                enums::SymbolInfoProperty::SessionPriceSettlement => self.session_price_settlement.clone(),
+                enums::SymbolInfoProperty::SessionPriceLimitMin => self.session_price_limit_min.clone(),
+                enums::SymbolInfoProperty::SessionPriceLimitMax => self.session_price_limit_max.clone(),
+                enums::SymbolInfoProperty::MarginHedged => self.margin_hedged.clone(),
+                enums::SymbolInfoProperty::PriceChange => self.price_change.clone(),
+                enums::SymbolInfoProperty::PriceVolatility => self.price_volatility.clone(),
+                enums::SymbolInfoProperty::PriceTheoretical => self.price_theoretical.clone(),
+                enums::SymbolInfoProperty::PriceGreeksDelta => self.price_greeks_delta.clone(),
+                enums::SymbolInfoProperty::PriceGreeksTheta => self.price_greeks_theta.clone(),
+                enums::SymbolInfoProperty::PriceGreeksGamma => self.price_greeks_gamma.clone(),
+                enums::SymbolInfoProperty::PriceGreeksVega => self.price_greeks_vega.clone(),
+                enums::SymbolInfoProperty::PriceGreeksRho => self.price_greeks_rho.clone(),
+                enums::SymbolInfoProperty::PriceGreeksOmega => self.price_greeks_omega.clone(),
+                enums::SymbolInfoProperty::PriceSensitivity => self.price_sensitivity.clone(),
                 _ => {
                     panic!("Property not found");
                 }
@@ -451,11 +451,11 @@ impl InfoTrait for SymbolInfo {
     fn get_info_boolean(&self, info_property: InfoProperties) -> MQLResult<bool> {
         let value = match info_property {
             InfoProperties::SymbolInfoProperty(property) => match property {
-                enums::SymbolInfoProperty::Custom => self.custom,
-                enums::SymbolInfoProperty::Select => self.select,
-                enums::SymbolInfoProperty::Visible => self.visible,
-                enums::SymbolInfoProperty::SpreadFloat => self.spread_float,
-                enums::SymbolInfoProperty::MarginHedgedUseLeg => self.margin_hedged_use_leg,
+                enums::SymbolInfoProperty::Custom => self.custom.clone(),
+                enums::SymbolInfoProperty::Select => self.select.clone(),
+                enums::SymbolInfoProperty::Visible => self.visible.clone(),
+                enums::SymbolInfoProperty::SpreadFloat => self.spread_float.clone(),
+                enums::SymbolInfoProperty::MarginHedgedUseLeg => self.margin_hedged_use_leg.clone(),
                 _ => {
                     panic!("Property not found");
                 }
