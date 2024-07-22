@@ -75,7 +75,7 @@ impl ConnectionTrait<MT5PythonConnection> for MT5PythonConnection {
 
         let (code, message) = self.last_error();
 
-        if code.is_negative() {
+        if (code as i64).is_negative() {
             return Err((code, message));
         }
 
@@ -124,12 +124,15 @@ impl ConnectionTrait<MT5PythonConnection> for MT5PythonConnection {
 
         let (code, message) = self.last_error();
 
-        if code.is_negative() {
+        if (code as i64).is_negative() {
             return Err((code, message));
         }
 
         if !result.expect("Unable to initialize MetaTrader5") {
-            return Err((-1, "Failed to initialize MetaTrader5".to_string()));
+            return Err((
+                RuntimeError::AuthFailed,
+                "Failed to initialize MetaTrader5".to_string(),
+            ));
         }
 
         Ok(self)
@@ -151,12 +154,15 @@ impl ConnectionTrait<MT5PythonConnection> for MT5PythonConnection {
 
         let (code, message) = self.last_error();
 
-        if code.is_negative() {
+        if (code as i64).is_negative() {
             return Err((code, message));
         }
 
         if !result.expect("Unable to initialize MetaTrader5") {
-            return Err((-1, "Failed to initialize MetaTrader5".to_string()));
+            return Err((
+                RuntimeError::AuthFailed,
+                "Failed to initialize MetaTrader5".to_string(),
+            ));
         }
 
         Ok(self)
@@ -214,7 +220,7 @@ impl AccountInfoTrait for MT5PythonConnection {
 
         let (code, message) = self.last_error();
 
-        if code.is_negative() {
+        if (code as i64).is_negative() {
             return Err((code, message));
         }
 
@@ -240,7 +246,7 @@ impl TerminalInfoTrait for MT5PythonConnection {
 
         let (code, message) = self.last_error();
 
-        if code.is_negative() {
+        if (code as i64).is_negative() {
             return Err((code, message));
         }
 
@@ -265,7 +271,7 @@ impl TerminalInfoTrait for MT5PythonConnection {
 
         let (code, message) = self.last_error();
 
-        if code.is_negative() {
+        if (code as i64).is_negative() {
             return Err((code, message));
         }
 
@@ -289,7 +295,7 @@ impl SymbolInfoTrait for MT5PythonConnection {
 
         let (code, message) = self.last_error();
 
-        if code.is_negative() {
+        if (code as i64).is_negative() {
             return Err((code, message));
         }
 
@@ -314,7 +320,7 @@ impl SymbolInfoTrait for MT5PythonConnection {
 
         let (code, message) = self.last_error();
 
-        if code.is_negative() {
+        if (code as i64).is_negative() {
             return Err((code, message));
         }
 
@@ -340,7 +346,7 @@ impl SymbolInfoTrait for MT5PythonConnection {
 
         let (code, message) = self.last_error();
 
-        if code.is_negative() {
+        if (code as i64).is_negative() {
             return Err((code, message));
         }
 
@@ -365,7 +371,7 @@ impl SymbolInfoTrait for MT5PythonConnection {
 
         let (code, message) = self.last_error();
 
-        if code.is_negative() {
+        if (code as i64).is_negative() {
             return Err((code, message));
         }
 
@@ -404,7 +410,7 @@ impl SymbolInfoTrait for MT5PythonConnection {
 
         let (code, message) = self.last_error();
 
-        if code.is_negative() {
+        if (code as i64).is_negative() {
             return Err((code, message));
         }
 
@@ -474,7 +480,7 @@ impl SymbolRatesTrait for MT5PythonConnection {
 
         let (code, message) = self.last_error();
 
-        if code.is_negative() {
+        if (code as i64).is_negative() {
             return Err((code, message));
         }
 
@@ -523,7 +529,7 @@ impl SymbolRatesTrait for MT5PythonConnection {
 
         let (code, message) = self.last_error();
 
-        if code.is_negative() {
+        if (code as i64).is_negative() {
             return Err((code, message));
         }
 
@@ -602,7 +608,7 @@ impl SymbolRatesTrait for MT5PythonConnection {
 
         let (code, message) = self.last_error();
 
-        if code.is_negative() {
+        if (code as i64).is_negative() {
             return Err((code, message));
         }
 
@@ -672,7 +678,7 @@ impl SymbolTicksTrait for MT5PythonConnection {
 
         let (code, message) = self.last_error();
 
-        if code.is_negative() {
+        if (code as i64).is_negative() {
             return Err((code, message));
         }
 
@@ -750,7 +756,7 @@ impl SymbolTicksTrait for MT5PythonConnection {
 
         let (code, message) = self.last_error();
 
-        if code.is_negative() {
+        if (code as i64).is_negative() {
             return Err((code, message));
         }
 
@@ -774,7 +780,7 @@ impl OrderTrait for MT5PythonConnection {
 
         let (code, message) = self.last_error();
 
-        if code.is_negative() {
+        if (code as i64).is_negative() {
             return Err((code, message));
         }
 
@@ -806,7 +812,7 @@ impl OrderTrait for MT5PythonConnection {
 
         let (code, message) = self.last_error();
 
-        if code.is_negative() {
+        if (code as i64).is_negative() {
             return Err((code, message));
         }
 
@@ -835,7 +841,7 @@ impl OrderTrait for MT5PythonConnection {
 
         let (code, message) = self.last_error();
 
-        if code.is_negative() {
+        if (code as i64).is_negative() {
             return Err((code, message));
         }
 
@@ -865,7 +871,7 @@ impl OrderTrait for MT5PythonConnection {
 
         let (code, message) = self.last_error();
 
-        if code.is_negative() {
+        if (code as i64).is_negative() {
             return Err((code, message));
         }
 
@@ -908,7 +914,7 @@ impl OrderTrait for MT5PythonConnection {
 
             let (code, message) = self.last_error();
 
-            if code.is_negative() {
+            if (code as i64).is_negative() {
                 return Err((code, message));
             }
 
@@ -919,7 +925,7 @@ impl OrderTrait for MT5PythonConnection {
 
         let (code, message) = self.last_error();
 
-        if code.is_negative() {
+        if (code as i64).is_negative() {
             return Err((code, message));
         }
 
@@ -966,7 +972,7 @@ impl OrderTrait for MT5PythonConnection {
 
         let (code, message) = self.last_error();
 
-        if code.is_negative() {
+        if (code as i64).is_negative() {
             return Err((code, message));
         }
 
@@ -990,7 +996,7 @@ impl PositionTrait for MT5PythonConnection {
 
         let (code, message) = self.last_error();
 
-        if code.is_negative() {
+        if (code as i64).is_negative() {
             return Err((code, message));
         }
 
@@ -1025,7 +1031,7 @@ impl PositionTrait for MT5PythonConnection {
 
         let (code, message) = self.last_error();
 
-        if code.is_negative() {
+        if (code as i64).is_negative() {
             return Err((code, message));
         }
 
@@ -1082,7 +1088,7 @@ impl HistoryTrait for MT5PythonConnection {
 
         let (code, message) = self.last_error();
 
-        if code.is_negative() {
+        if (code as i64).is_negative() {
             return Err((code, message));
         }
 
@@ -1146,7 +1152,7 @@ impl HistoryTrait for MT5PythonConnection {
 
         let (code, message) = self.last_error();
 
-        if code.is_negative() {
+        if (code as i64).is_negative() {
             return Err((code, message));
         }
 
@@ -1200,7 +1206,7 @@ impl HistoryTrait for MT5PythonConnection {
 
         let (code, message) = self.last_error();
 
-        if code.is_negative() {
+        if (code as i64).is_negative() {
             return Err((code, message));
         }
 
@@ -1265,7 +1271,7 @@ impl HistoryTrait for MT5PythonConnection {
 
         let (code, message) = self.last_error();
 
-        if code.is_negative() {
+        if (code as i64).is_negative() {
             return Err((code, message));
         }
 
@@ -1479,7 +1485,7 @@ mod test {
             .expect("Unable to connect to terminal");
         let copy_ticks_range = runtime.copy_ticks_range(
             "BTCUSD",
-            Local.with_ymd_and_hms(2024, 7, 10, 0, 0, 0).unwrap(),
+            Local::now() - chrono::Duration::minutes(20),
             Local::now(),
             CopyTicksFlags::ALL,
         );
@@ -1518,16 +1524,34 @@ mod test {
 
         let current_symbol = runtime.symbol_info("BTCUSD").unwrap();
 
+        let symbol_name = current_symbol
+            .get_info_string(InfoProperties::SymbolInfoProperty(SymbolInfoProperty::Name))
+            .unwrap();
+
+        let ask_price = current_symbol
+            .get_info_float(InfoProperties::SymbolInfoProperty(SymbolInfoProperty::Ask))
+            .unwrap();
+
+        let bid_price = current_symbol
+            .get_info_float(InfoProperties::SymbolInfoProperty(SymbolInfoProperty::Bid))
+            .unwrap();
+
+        let point = current_symbol
+            .get_info_float(InfoProperties::SymbolInfoProperty(
+                SymbolInfoProperty::Point,
+            ))
+            .unwrap();
+
         let check_trade = TradeRequestBuilder::new()
             .action(TradeActionRequest::DEAL)
-            .symbol(current_symbol.name)
+            .symbol(symbol_name)
             .volume(0.01)
-            .price(current_symbol.ask)
+            .price(ask_price)
             .r#type(OrderType::BUY)
             .type_filling(OrderTypeFilling::IOC)
             .type_time(OrderTypeTime::GTC)
-            .sl(current_symbol.bid - (100.0 * current_symbol.point))
-            .tp(current_symbol.bid + (100.0 * current_symbol.point))
+            .sl(bid_price - (100.0 * point))
+            .tp(bid_price + (100.0 * point))
             .comment("Test".to_string());
 
         let check_order = runtime.order_check(&check_trade);
@@ -1547,16 +1571,34 @@ mod test {
 
         let current_symbol = runtime.symbol_info("BTCUSD").unwrap();
 
+        let symbol_name = current_symbol
+            .get_info_string(InfoProperties::SymbolInfoProperty(SymbolInfoProperty::Name))
+            .unwrap();
+
+        let ask_price = current_symbol
+            .get_info_float(InfoProperties::SymbolInfoProperty(SymbolInfoProperty::Ask))
+            .unwrap();
+
+        let bid_price = current_symbol
+            .get_info_float(InfoProperties::SymbolInfoProperty(SymbolInfoProperty::Bid))
+            .unwrap();
+
+        let point = current_symbol
+            .get_info_float(InfoProperties::SymbolInfoProperty(
+                SymbolInfoProperty::Point,
+            ))
+            .unwrap();
+
         let open_trade = TradeRequestBuilder::new()
             .action(TradeActionRequest::DEAL)
-            .symbol(current_symbol.name.clone())
+            .symbol(symbol_name.clone())
             .volume(0.01)
-            .price(current_symbol.ask)
+            .price(ask_price)
             .r#type(OrderType::BUY)
             .type_filling(OrderTypeFilling::IOC)
             .type_time(OrderTypeTime::GTC)
-            .sl(current_symbol.bid - (100.0 * current_symbol.point))
-            .tp(current_symbol.bid + (100.0 * current_symbol.point))
+            .sl(bid_price - (100.0 * point))
+            .tp(bid_price + (100.0 * point))
             .comment("Test".to_string());
 
         let open_order = runtime.order_send(open_trade);
@@ -1567,9 +1609,9 @@ mod test {
 
         let close_request = TradeRequestBuilder::new()
             .action(TradeActionRequest::DEAL)
-            .symbol(current_symbol.name)
+            .symbol(symbol_name)
             .volume(0.01)
-            .price(current_symbol.bid)
+            .price(bid_price)
             .position(open_order.order)
             .r#type(OrderType::SELL)
             .type_filling(OrderTypeFilling::IOC)

@@ -1,3 +1,6 @@
+use std::any::TypeId;
+
+use crate::enums::{AccountInfoProperty, SymbolInfoProperty, TerminalInfoProperty};
 use crate::prelude::{MQLError, MQLResult};
 use crate::schemas::{
     AccountCredentials, AccountInfo, Deals, Order, Position, TerminalInfo, TerminalVersion,
@@ -11,6 +14,19 @@ pub trait AccountInfoTrait {
 pub trait TerminalInfoTrait {
     fn terminal_info(&self) -> MQLResult<TerminalInfo>;
     fn version(&self) -> MQLResult<TerminalVersion>;
+}
+
+pub enum InfoProperties {
+    AccountInfoProperty(AccountInfoProperty),
+    SymbolInfoProperty(SymbolInfoProperty),
+    TerminalInfoProperty(TerminalInfoProperty),
+}
+
+pub trait InfoTrait {
+    fn get_info_float(&self, info_property: InfoProperties) -> MQLResult<f64>;
+    fn get_info_integer(&self, info_property: InfoProperties) -> MQLResult<i64>;
+    fn get_info_string(&self, info_property: InfoProperties) -> MQLResult<String>;
+    fn get_info_boolean(&self, info_property: InfoProperties) -> MQLResult<bool>;
 }
 
 pub trait ConnectionTrait<T> {

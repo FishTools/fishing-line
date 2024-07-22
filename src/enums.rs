@@ -1,6 +1,8 @@
 use pyo3::{types::PyAnyMethods, FromPyObject};
 use serde::Deserialize;
 
+use crate::traits::InfoTrait;
+
 /// Represents the timeframe for a trading operation.
 #[derive(Debug, Clone, Copy)]
 pub enum Timeframe {
@@ -746,6 +748,105 @@ pub enum TerminalInfoProperty {
     CommonDataPath,
 }
 
+pub enum SymbolInfoProperty {
+    Custom,
+    ChartMode,
+    Select,
+    Visible,
+    SessionDeals,
+    SessionBuyOrders,
+    SessionSellOrders,
+    Volume,
+    VolumeHigh,
+    VolumeLow,
+    Time,
+    Digits,
+    Spread,
+    SpreadFloat,
+    TicksBookDepth,
+    TradeCalcMode,
+    TradeMode,
+    StartTime,
+    ExpirationTime,
+    TradeStopsLevel,
+    TradeFreezeLevel,
+    TradeExeMode,
+    SwapMode,
+    SwapRollover3Days,
+    MarginHedgedUseLeg,
+    ExpirationMode,
+    FillingMode,
+    OrderMode,
+    OrderGtcMode,
+    OptionMode,
+    OptionRight,
+    Bid,
+    BidHigh,
+    BidLow,
+    Ask,
+    AskHigh,
+    AskLow,
+    Last,
+    LastHigh,
+    LastLow,
+    VolumeReal,
+    VolumeHighReal,
+    VolumeLowReal,
+    OptionStrike,
+    Point,
+    TradeTickValue,
+    TradeTickValueProfit,
+    TradeTickValueLoss,
+    TradeTickSize,
+    TradeContractSize,
+    TradeAccruedInterest,
+    TradeFaceValue,
+    TradeLiquidityRate,
+    VolumeMin,
+    VolumeMax,
+    VolumeStep,
+    VolumeLimit,
+    SwapLong,
+    SwapShort,
+    MarginInitial,
+    MarginMaintenance,
+    SessionVolume,
+    SessionTurnover,
+    SessionInterest,
+    SessionBuyOrdersVolume,
+    SessionSellOrdersVolume,
+    SessionOpen,
+    SessionClose,
+    SessionAw,
+    SessionPriceSettlement,
+    SessionPriceLimitMin,
+    SessionPriceLimitMax,
+    MarginHedged,
+    PriceChange,
+    PriceVolatility,
+    PriceTheoretical,
+    PriceGreeksDelta,
+    PriceGreeksTheta,
+    PriceGreeksGamma,
+    PriceGreeksVega,
+    PriceGreeksRho,
+    PriceGreeksOmega,
+    PriceSensitivity,
+    Basis,
+    Category,
+    CurrencyBase,
+    CurrencyProfit,
+    CurrencyMargin,
+    Bank,
+    Description,
+    Exchange,
+    Formula,
+    Isin,
+    Name,
+    Page,
+    Path,
+}
+
 #[derive(Debug, Clone, Copy, Deserialize, PartialEq)]
 pub enum AccountTradeMode {
     Demo = 0,
@@ -1276,6 +1377,69 @@ impl FromPyObject<'_> for SymbolOrderMode {
             64 => Ok(SymbolOrderMode::CloseBy),
             127 => Ok(SymbolOrderMode::All),
             _ => panic!("Invalid SymbolOrderMode value: {}", value),
+        }
+    }
+}
+
+#[derive(Debug, Clone, Copy, Deserialize, PartialEq)]
+pub enum RuntimeError {
+    Ok = 1,
+    Fail = -1,
+    InvalidParams = -2,
+    NoMemory = -3,
+    NotFound = -4,
+    InvalidVersion = -5,
+    AuthFailed = -6,
+    Unsupported = -7,
+    AutoTradingDisabled = -8,
+    InternalFail = -10000,
+    InternalFailSend = -10001,
+    InternalFailReceive = -10002,
+    InternalFailInit = -10003,
+    InternalFailTimeout = -10005,
+}
+
+impl From<i64> for RuntimeError {
+    fn from(value: i64) -> Self {
+        match value {
+            1 => RuntimeError::Ok,
+            -1 => RuntimeError::Fail,
+            -2 => RuntimeError::InvalidParams,
+            -3 => RuntimeError::NoMemory,
+            -4 => RuntimeError::NotFound,
+            -5 => RuntimeError::InvalidVersion,
+            -6 => RuntimeError::AuthFailed,
+            -7 => RuntimeError::Unsupported,
+            -8 => RuntimeError::AutoTradingDisabled,
+            -10000 => RuntimeError::InternalFail,
+            -10001 => RuntimeError::InternalFailSend,
+            -10002 => RuntimeError::InternalFailReceive,
+            -10003 => RuntimeError::InternalFailInit,
+            -10005 => RuntimeError::InternalFailTimeout,
+            _ => panic!("Invalid RuntimeError value: {}", value),
+        }
+    }
+}
+
+impl FromPyObject<'_> for RuntimeError {
+    fn extract_bound(ob: &pyo3::Bound<'_, pyo3::PyAny>) -> pyo3::PyResult<Self> {
+        let value: i64 = ob.extract().unwrap();
+        match value {
+            1 => Ok(RuntimeError::Ok),
+            -1 => Ok(RuntimeError::Fail),
+            -2 => Ok(RuntimeError::InvalidParams),
+            -3 => Ok(RuntimeError::NoMemory),
+            -4 => Ok(RuntimeError::NotFound),
+            -5 => Ok(RuntimeError::InvalidVersion),
+            -6 => Ok(RuntimeError::AuthFailed),
+            -7 => Ok(RuntimeError::Unsupported),
+            -8 => Ok(RuntimeError::AutoTradingDisabled),
+            -10000 => Ok(RuntimeError::InternalFail),
+            -10001 => Ok(RuntimeError::InternalFailSend),
+            -10002 => Ok(RuntimeError::InternalFailReceive),
+            -10003 => Ok(RuntimeError::InternalFailInit),
+            -10005 => Ok(RuntimeError::InternalFailTimeout),
+            _ => panic!("Invalid RuntimeError value: {}", value),
         }
     }
 }

@@ -18,7 +18,13 @@ fn main() {
     let mut count = 0;
     for symbol in symbols {
         count += 1;
-        println!("{}. {}", count, symbol.name);
+        println!(
+            "{}. {}",
+            count,
+            symbol
+                .get_info_string(InfoProperties::SymbolInfoProperty(SymbolInfoProperty::Name))
+                .unwrap()
+        );
         if count == 5 {
             break;
         }
@@ -34,6 +40,9 @@ fn main() {
     );
 
     for s in group_symbols {
-        println!("{} : {:?}\n", s.name, s);
+        let name = s
+            .get_info_string(InfoProperties::SymbolInfoProperty(SymbolInfoProperty::Name))
+            .unwrap();
+        println!("{}", name);
     }
 }

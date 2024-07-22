@@ -1,17 +1,21 @@
+use std::any::TypeId;
+
 use pyo3;
 use pyo3::Python;
 use pyo3::{prelude::*, types::PyDict, FromPyObject, IntoPy, PyObject};
 use serde::{Deserialize, Serialize};
 use struct_iterable::Iterable;
 
-use crate::enums::{self};
+use crate::enums::{self, AccountInfoProperty, RuntimeError, TerminalInfoProperty};
 use crate::prelude::{
     AccountMarginMode, AccountStopOutMode, AccountTradeMode, DayOfWeek, DealEntry, DealReason,
-    DealType, OrderReason, OrderState, OrderType, OrderTypeFilling, OrderTypeTime, PositionReason,
-    PositionType, ReturnCode, SymbolCalcMode, SymbolChartMode, SymbolExpirationMode,
-    SymbolFillingMode, SymbolOptionMode, SymbolOptionRight, SymbolOrderGtcMode, SymbolOrderMode,
-    SymbolSwapMode, SymbolTradeExecution, SymbolTradeMode, TradeActionRequest,
+    DealType, MQLResult, OrderReason, OrderState, OrderType, OrderTypeFilling, OrderTypeTime,
+    PositionReason, PositionType, ReturnCode, SymbolCalcMode, SymbolChartMode,
+    SymbolExpirationMode, SymbolFillingMode, SymbolOptionMode, SymbolOptionRight,
+    SymbolOrderGtcMode, SymbolOrderMode, SymbolSwapMode, SymbolTradeExecution, SymbolTradeMode,
+    TradeActionRequest,
 };
+use crate::traits::{AccountInfoTrait, InfoProperties, InfoTrait};
 
 #[derive(Serialize, Deserialize, FromPyObject, Debug, Iterable)]
 pub struct TerminalVersion {
@@ -23,60 +27,202 @@ pub struct TerminalVersion {
 #[derive(Serialize, Deserialize, FromPyObject, Debug, Iterable)]
 #[pyo3(from_item_all)]
 pub struct TerminalInfo {
-    pub community_account: bool,
-    pub community_connection: bool,
-    pub connected: bool,
-    pub dlls_allowed: bool,
-    pub trade_allowed: bool,
-    pub email_enabled: bool,
-    pub ftp_enabled: bool,
-    pub notifications_enabled: bool,
-    pub mqid: bool,
-    pub build: i64,
-    pub maxbars: i64,
-    pub codepage: i64,
-    pub ping_last: i64,
-    pub community_balance: f64,
-    pub retransmission: f64,
-    pub company: String,
-    pub name: String,
-    pub language: String,
-    pub path: String,
-    pub data_path: String,
-    pub commondata_path: String,
+    community_account: bool,
+    community_connection: bool,
+    connected: bool,
+    dlls_allowed: bool,
+    trade_allowed: bool,
+    email_enabled: bool,
+    ftp_enabled: bool,
+    notifications_enabled: bool,
+    mqid: bool,
+    build: i64,
+    maxbars: i64,
+    codepage: i64,
+    ping_last: i64,
+    community_balance: f64,
+    retransmission: f64,
+    company: String,
+    name: String,
+    language: String,
+    path: String,
+    data_path: String,
+    commondata_path: String,
+}
+
+impl InfoTrait for TerminalInfo {
+    fn get_info_string(&self, info_property: InfoProperties) -> MQLResult<String> {
+        let value = match info_property {
+            InfoProperties::TerminalInfoProperty(property) => match property {
+                TerminalInfoProperty::Company => self.company.clone(),
+                TerminalInfoProperty::Name => self.name.clone(),
+                TerminalInfoProperty::Language => self.language.clone(),
+                TerminalInfoProperty::Path => self.path.clone(),
+                TerminalInfoProperty::DataPath => self.data_path.clone(),
+                TerminalInfoProperty::CommonDataPath => self.commondata_path.clone(),
+                _ => {
+                    panic!("Property not found");
+                }
+            },
+            _ => panic!("Property not found"),
+        };
+        Ok(value)
+    }
+    fn get_info_integer(&self, info_property: InfoProperties) -> MQLResult<i64> {
+        let value = match info_property {
+            InfoProperties::TerminalInfoProperty(property) => match property {
+                TerminalInfoProperty::Build => self.build,
+                TerminalInfoProperty::MaxBars => self.maxbars,
+                TerminalInfoProperty::CodePage => self.codepage,
+                TerminalInfoProperty::PingLast => self.ping_last,
+                _ => {
+                    panic!("Property not found");
+                }
+            },
+            _ => panic!("Property not found"),
+        };
+        Ok(value)
+    }
+    fn get_info_float(&self, info_property: InfoProperties) -> MQLResult<f64> {
+        let value = match info_property {
+            InfoProperties::TerminalInfoProperty(property) => match property {
+                TerminalInfoProperty::CommunityBalance => self.community_balance,
+                TerminalInfoProperty::Retransmission => self.retransmission,
+                _ => {
+                    panic!("Property not found");
+                }
+            },
+            _ => panic!("Property not found"),
+        };
+        Ok(value)
+    }
+    fn get_info_boolean(&self, info_property: InfoProperties) -> MQLResult<bool> {
+        let value = match info_property {
+            InfoProperties::TerminalInfoProperty(property) => match property {
+                TerminalInfoProperty::CommunityAccount => self.community_account,
+                TerminalInfoProperty::CommunityConnection => self.community_connection,
+                TerminalInfoProperty::Connected => self.connected,
+                TerminalInfoProperty::DllsAllowed => self.dlls_allowed,
+                TerminalInfoProperty::TradeAllowed => self.trade_allowed,
+                TerminalInfoProperty::EmailEnabled => self.email_enabled,
+                TerminalInfoProperty::FtpEnabled => self.ftp_enabled,
+                TerminalInfoProperty::NotificationsEnabled => self.notifications_enabled,
+                TerminalInfoProperty::MqId => self.mqid,
+                _ => {
+                    panic!("Property not found");
+                }
+            },
+            _ => panic!("Property not found"),
+        };
+        Ok(value)
+    }
 }
 
 #[derive(Deserialize, FromPyObject, Debug, Iterable)]
 #[pyo3(from_item_all)]
 pub struct AccountInfo {
-    pub login: i64,
-    pub trade_mode: AccountTradeMode,
-    pub leverage: i64,
-    pub limit_orders: i64,
-    pub margin_so_mode: AccountStopOutMode,
-    pub trade_allowed: bool,
-    pub trade_expert: bool,
-    pub margin_mode: AccountMarginMode,
-    pub currency_digits: i64,
-    pub fifo_close: bool,
-    pub balance: f64,
-    pub credit: f64,
-    pub profit: f64,
-    pub equity: f64,
-    pub margin: f64,
-    pub margin_free: f64,
-    pub margin_level: f64,
-    pub margin_so_call: f64,
-    pub margin_so_so: f64,
-    pub margin_initial: f64,
-    pub margin_maintenance: f64,
-    pub assets: f64,
-    pub liabilities: f64,
-    pub commission_blocked: f64,
-    pub name: String,
-    pub server: String,
-    pub currency: String,
-    pub company: String,
+    login: i64,
+    trade_mode: AccountTradeMode,
+    leverage: i64,
+    limit_orders: i64,
+    margin_so_mode: AccountStopOutMode,
+    trade_allowed: bool,
+    trade_expert: bool,
+    margin_mode: AccountMarginMode,
+    currency_digits: i64,
+    fifo_close: bool,
+    balance: f64,
+    credit: f64,
+    profit: f64,
+    equity: f64,
+    margin: f64,
+    margin_free: f64,
+    margin_level: f64,
+    margin_so_call: f64,
+    margin_so_so: f64,
+    margin_initial: f64,
+    margin_maintenance: f64,
+    assets: f64,
+    liabilities: f64,
+    commission_blocked: f64,
+    name: String,
+    server: String,
+    currency: String,
+    company: String,
+}
+
+impl InfoTrait for AccountInfo {
+    fn get_info_float(&self, info_property: crate::prelude::InfoProperties) -> MQLResult<f64> {
+        let value = match info_property {
+            InfoProperties::AccountInfoProperty(property) => match property {
+                AccountInfoProperty::Balance => self.balance,
+                AccountInfoProperty::Profit => self.profit,
+                AccountInfoProperty::Equity => self.equity,
+                AccountInfoProperty::Margin => self.margin,
+                AccountInfoProperty::MarginFree => self.margin_free,
+                AccountInfoProperty::MarginLevel => self.margin_level,
+                AccountInfoProperty::MarginSoCall => self.margin_so_call,
+                AccountInfoProperty::MarginSoSo => self.margin_so_so,
+                AccountInfoProperty::MarginInitial => self.margin_initial,
+                AccountInfoProperty::MarginMaintenance => self.margin_maintenance,
+                AccountInfoProperty::Assets => self.assets,
+                AccountInfoProperty::Liabilities => self.liabilities,
+                AccountInfoProperty::CommissionBlocked => self.commission_blocked,
+                _ => {
+                    panic!("Property not found");
+                }
+            },
+            _ => panic!("Property not found"),
+        };
+        Ok(value)
+    }
+    fn get_info_boolean(&self, info_property: InfoProperties) -> MQLResult<bool> {
+        let value = match info_property {
+            InfoProperties::AccountInfoProperty(property) => match property {
+                AccountInfoProperty::TradeAllowed => self.trade_allowed,
+                AccountInfoProperty::TradeExpert => self.trade_expert,
+                AccountInfoProperty::FifoClose => self.fifo_close,
+                _ => {
+                    panic!("Property not found");
+                }
+            },
+            _ => panic!("Property not found"),
+        };
+        Ok(value)
+    }
+    fn get_info_integer(&self, info_property: InfoProperties) -> MQLResult<i64> {
+        let value = match info_property {
+            InfoProperties::AccountInfoProperty(property) => match property {
+                AccountInfoProperty::Login => self.login,
+                AccountInfoProperty::TradeMode => self.trade_mode as i64,
+                AccountInfoProperty::Leverage => self.leverage,
+                AccountInfoProperty::LimitOrders => self.limit_orders,
+                AccountInfoProperty::MarginSoMode => self.margin_so_mode as i64,
+                AccountInfoProperty::MarginMode => self.margin_mode as i64,
+                AccountInfoProperty::CurrencyDigits => self.currency_digits,
+                _ => {
+                    panic!("Property not found");
+                }
+            },
+            _ => panic!("Property not found"),
+        };
+        Ok(value)
+    }
+    fn get_info_string(&self, info_property: InfoProperties) -> MQLResult<String> {
+        let value = match info_property {
+            InfoProperties::AccountInfoProperty(property) => match property {
+                AccountInfoProperty::Currency => self.currency.clone(),
+                AccountInfoProperty::Company => self.company.clone(),
+                AccountInfoProperty::Name => self.name.clone(),
+                AccountInfoProperty::Server => self.server.clone(),
+                _ => {
+                    panic!("Property not found");
+                }
+            },
+            _ => panic!("Property not found"),
+        };
+        Ok(value)
+    }
 }
 
 #[derive(Serialize, FromPyObject)]
@@ -89,102 +235,235 @@ pub struct AccountCredentials {
 #[derive(Deserialize, FromPyObject, Debug, Iterable)]
 #[pyo3(from_item_all)]
 pub struct SymbolInfo {
-    pub custom: bool,
-    pub chart_mode: SymbolChartMode,
-    pub select: bool,
-    pub visible: bool,
-    pub session_deals: i64,
-    pub session_buy_orders: i64,
-    pub session_sell_orders: i64,
-    pub volume: f64,
-    pub volumehigh: f64,
-    pub volumelow: f64,
-    pub time: i64,
-    pub digits: i64,
-    pub spread: i64,
-    pub spread_float: bool,
-    pub ticks_bookdepth: i64,
-    pub trade_calc_mode: SymbolCalcMode,
-    pub trade_mode: SymbolTradeMode,
-    pub start_time: i64,
-    pub expiration_time: i64,
-    pub trade_stops_level: i64,
-    pub trade_freeze_level: i64,
-    pub trade_exemode: SymbolTradeExecution,
-    pub swap_mode: SymbolSwapMode,
-    pub swap_rollover3days: DayOfWeek,
-    pub margin_hedged_use_leg: bool,
-    pub expiration_mode: SymbolExpirationMode,
-    pub filling_mode: SymbolFillingMode,
-    pub order_mode: SymbolOrderMode,
-    pub order_gtc_mode: SymbolOrderGtcMode,
-    pub option_mode: SymbolOptionMode,
-    pub option_right: SymbolOptionRight,
-    pub bid: f64,
-    pub bidhigh: f64,
-    pub bidlow: f64,
-    pub ask: f64,
-    pub askhigh: f64,
-    pub asklow: f64,
-    pub last: f64,
-    pub lasthigh: f64,
-    pub lastlow: f64,
-    pub volume_real: f64,
-    pub volumehigh_real: f64,
-    pub volumelow_real: f64,
-    pub option_strike: f64,
-    pub point: f64,
-    pub trade_tick_value: f64,
-    pub trade_tick_value_profit: f64,
-    pub trade_tick_value_loss: f64,
-    pub trade_tick_size: f64,
-    pub trade_contract_size: f64,
-    pub trade_accrued_interest: f64,
-    pub trade_face_value: f64,
-    pub trade_liquidity_rate: f64,
-    pub volume_min: f64,
-    pub volume_max: f64,
-    pub volume_step: f64,
-    pub volume_limit: f64,
-    pub swap_long: f64,
-    pub swap_short: f64,
-    pub margin_initial: f64,
-    pub margin_maintenance: f64,
-    pub session_volume: f64,
-    pub session_turnover: f64,
-    pub session_interest: f64,
-    pub session_buy_orders_volume: f64,
-    pub session_sell_orders_volume: f64,
-    pub session_open: f64,
-    pub session_close: f64,
-    pub session_aw: f64,
-    pub session_price_settlement: f64,
-    pub session_price_limit_min: f64,
-    pub session_price_limit_max: f64,
-    pub margin_hedged: f64,
-    pub price_change: f64,
-    pub price_volatility: f64,
-    pub price_theoretical: f64,
-    pub price_greeks_delta: f64,
-    pub price_greeks_theta: f64,
-    pub price_greeks_gamma: f64,
-    pub price_greeks_vega: f64,
-    pub price_greeks_rho: f64,
-    pub price_greeks_omega: f64,
-    pub price_sensitivity: f64,
-    pub basis: String,
-    pub category: String,
-    pub currency_base: String,
-    pub currency_profit: String,
-    pub currency_margin: String,
-    pub bank: String,
-    pub description: String,
-    pub exchange: String,
-    pub formula: String,
-    pub isin: String,
-    pub name: String,
-    pub page: String,
-    pub path: String,
+    custom: bool,
+    chart_mode: SymbolChartMode,
+    select: bool,
+    visible: bool,
+    session_deals: i64,
+    session_buy_orders: i64,
+    session_sell_orders: i64,
+    volume: f64,
+    volumehigh: f64,
+    volumelow: f64,
+    time: i64,
+    digits: i64,
+    spread: i64,
+    spread_float: bool,
+    ticks_bookdepth: i64,
+    trade_calc_mode: SymbolCalcMode,
+    trade_mode: SymbolTradeMode,
+    start_time: i64,
+    expiration_time: i64,
+    trade_stops_level: i64,
+    trade_freeze_level: i64,
+    trade_exemode: SymbolTradeExecution,
+    swap_mode: SymbolSwapMode,
+    swap_rollover3days: DayOfWeek,
+    margin_hedged_use_leg: bool,
+    expiration_mode: SymbolExpirationMode,
+    filling_mode: SymbolFillingMode,
+    order_mode: SymbolOrderMode,
+    order_gtc_mode: SymbolOrderGtcMode,
+    option_mode: SymbolOptionMode,
+    option_right: SymbolOptionRight,
+    bid: f64,
+    bidhigh: f64,
+    bidlow: f64,
+    ask: f64,
+    askhigh: f64,
+    asklow: f64,
+    last: f64,
+    lasthigh: f64,
+    lastlow: f64,
+    volume_real: f64,
+    volumehigh_real: f64,
+    volumelow_real: f64,
+    option_strike: f64,
+    point: f64,
+    trade_tick_value: f64,
+    trade_tick_value_profit: f64,
+    trade_tick_value_loss: f64,
+    trade_tick_size: f64,
+    trade_contract_size: f64,
+    trade_accrued_interest: f64,
+    trade_face_value: f64,
+    trade_liquidity_rate: f64,
+    volume_min: f64,
+    volume_max: f64,
+    volume_step: f64,
+    volume_limit: f64,
+    swap_long: f64,
+    swap_short: f64,
+    margin_initial: f64,
+    margin_maintenance: f64,
+    session_volume: f64,
+    session_turnover: f64,
+    session_interest: f64,
+    session_buy_orders_volume: f64,
+    session_sell_orders_volume: f64,
+    session_open: f64,
+    session_close: f64,
+    session_aw: f64,
+    session_price_settlement: f64,
+    session_price_limit_min: f64,
+    session_price_limit_max: f64,
+    margin_hedged: f64,
+    price_change: f64,
+    price_volatility: f64,
+    price_theoretical: f64,
+    price_greeks_delta: f64,
+    price_greeks_theta: f64,
+    price_greeks_gamma: f64,
+    price_greeks_vega: f64,
+    price_greeks_rho: f64,
+    price_greeks_omega: f64,
+    price_sensitivity: f64,
+    basis: String,
+    category: String,
+    currency_base: String,
+    currency_profit: String,
+    currency_margin: String,
+    bank: String,
+    description: String,
+    exchange: String,
+    formula: String,
+    isin: String,
+    name: String,
+    page: String,
+    path: String,
+}
+
+impl InfoTrait for SymbolInfo {
+    fn get_info_string(&self, info_property: InfoProperties) -> MQLResult<String> {
+        let value = match info_property {
+            InfoProperties::SymbolInfoProperty(property) => match property {
+                enums::SymbolInfoProperty::Basis => self.basis.clone(),
+                enums::SymbolInfoProperty::Category => self.category.clone(),
+                enums::SymbolInfoProperty::CurrencyBase => self.currency_base.clone(),
+                enums::SymbolInfoProperty::CurrencyMargin => self.currency_margin.clone(),
+                enums::SymbolInfoProperty::CurrencyProfit => self.currency_profit.clone(),
+                enums::SymbolInfoProperty::Bank => self.bank.clone(),
+                enums::SymbolInfoProperty::Description => self.description.clone(),
+                enums::SymbolInfoProperty::Exchange => self.exchange.clone(),
+                enums::SymbolInfoProperty::Formula => self.formula.clone(),
+                enums::SymbolInfoProperty::Isin => self.isin.clone(),
+                enums::SymbolInfoProperty::Name => self.name.clone(),
+                enums::SymbolInfoProperty::Page => self.page.clone(),
+                enums::SymbolInfoProperty::Path => self.path.clone(),
+                _ => {
+                    panic!("Property not found");
+                }
+            },
+            _ => panic!("Property not found"),
+        };
+        Ok(value)
+    }
+    fn get_info_integer(&self, info_property: InfoProperties) -> MQLResult<i64> {
+        let value = match info_property {
+            InfoProperties::SymbolInfoProperty(property) => match property {
+                enums::SymbolInfoProperty::SessionDeals => self.session_deals,
+                enums::SymbolInfoProperty::SessionBuyOrders => self.session_buy_orders,
+                enums::SymbolInfoProperty::SessionSellOrders => self.session_sell_orders,
+                enums::SymbolInfoProperty::Time => self.time,
+                enums::SymbolInfoProperty::Digits => self.digits,
+                enums::SymbolInfoProperty::Spread => self.spread,
+                enums::SymbolInfoProperty::TicksBookDepth => self.ticks_bookdepth,
+                enums::SymbolInfoProperty::StartTime => self.start_time,
+                enums::SymbolInfoProperty::ExpirationTime => self.expiration_time,
+                enums::SymbolInfoProperty::TradeStopsLevel => self.trade_stops_level,
+                enums::SymbolInfoProperty::TradeFreezeLevel => self.trade_freeze_level,
+                _ => {
+                    panic!("Property not found");
+                }
+            },
+            _ => panic!("Property not found"),
+        };
+        Ok(value)
+    }
+    fn get_info_float(&self, info_property: InfoProperties) -> MQLResult<f64> {
+        let value = match info_property {
+            InfoProperties::SymbolInfoProperty(property) => match property {
+                enums::SymbolInfoProperty::Volume => self.volume,
+                enums::SymbolInfoProperty::VolumeHigh => self.volumehigh,
+                enums::SymbolInfoProperty::VolumeLow => self.volumelow,
+                enums::SymbolInfoProperty::Bid => self.bid,
+                enums::SymbolInfoProperty::BidHigh => self.bidhigh,
+                enums::SymbolInfoProperty::BidLow => self.bidlow,
+                enums::SymbolInfoProperty::Ask => self.ask,
+                enums::SymbolInfoProperty::AskHigh => self.askhigh,
+                enums::SymbolInfoProperty::AskLow => self.asklow,
+                enums::SymbolInfoProperty::Last => self.last,
+                enums::SymbolInfoProperty::LastHigh => self.lasthigh,
+                enums::SymbolInfoProperty::LastLow => self.lastlow,
+                enums::SymbolInfoProperty::VolumeReal => self.volume_real,
+                enums::SymbolInfoProperty::VolumeHighReal => self.volumehigh_real,
+                enums::SymbolInfoProperty::VolumeLowReal => self.volumelow_real,
+                enums::SymbolInfoProperty::OptionStrike => self.option_strike,
+                enums::SymbolInfoProperty::Point => self.point,
+                enums::SymbolInfoProperty::TradeTickValue => self.trade_tick_value,
+                enums::SymbolInfoProperty::TradeTickValueProfit => self.trade_tick_value_profit,
+                enums::SymbolInfoProperty::TradeTickValueLoss => self.trade_tick_value_loss,
+                enums::SymbolInfoProperty::TradeTickSize => self.trade_tick_size,
+                enums::SymbolInfoProperty::TradeContractSize => self.trade_contract_size,
+                enums::SymbolInfoProperty::TradeAccruedInterest => self.trade_accrued_interest,
+                enums::SymbolInfoProperty::TradeFaceValue => self.trade_face_value,
+                enums::SymbolInfoProperty::TradeLiquidityRate => self.trade_liquidity_rate,
+                enums::SymbolInfoProperty::VolumeMin => self.volume_min,
+                enums::SymbolInfoProperty::VolumeMax => self.volume_max,
+                enums::SymbolInfoProperty::VolumeStep => self.volume_step,
+                enums::SymbolInfoProperty::VolumeLimit => self.volume_limit,
+                enums::SymbolInfoProperty::SwapLong => self.swap_long,
+                enums::SymbolInfoProperty::SwapShort => self.swap_short,
+                enums::SymbolInfoProperty::MarginInitial => self.margin_initial,
+                enums::SymbolInfoProperty::MarginMaintenance => self.margin_maintenance,
+                enums::SymbolInfoProperty::SessionVolume => self.session_volume,
+                enums::SymbolInfoProperty::SessionTurnover => self.session_turnover,
+                enums::SymbolInfoProperty::SessionInterest => self.session_interest,
+                enums::SymbolInfoProperty::SessionBuyOrdersVolume => self.session_buy_orders_volume,
+                enums::SymbolInfoProperty::SessionSellOrdersVolume => {
+                    self.session_sell_orders_volume
+                }
+                enums::SymbolInfoProperty::SessionOpen => self.session_open,
+                enums::SymbolInfoProperty::SessionClose => self.session_close,
+                enums::SymbolInfoProperty::SessionAw => self.session_aw,
+                enums::SymbolInfoProperty::SessionPriceSettlement => self.session_price_settlement,
+                enums::SymbolInfoProperty::SessionPriceLimitMin => self.session_price_limit_min,
+                enums::SymbolInfoProperty::SessionPriceLimitMax => self.session_price_limit_max,
+                enums::SymbolInfoProperty::MarginHedged => self.margin_hedged,
+                enums::SymbolInfoProperty::PriceChange => self.price_change,
+                enums::SymbolInfoProperty::PriceVolatility => self.price_volatility,
+                enums::SymbolInfoProperty::PriceTheoretical => self.price_theoretical,
+                enums::SymbolInfoProperty::PriceGreeksDelta => self.price_greeks_delta,
+                enums::SymbolInfoProperty::PriceGreeksTheta => self.price_greeks_theta,
+                enums::SymbolInfoProperty::PriceGreeksGamma => self.price_greeks_gamma,
+                enums::SymbolInfoProperty::PriceGreeksVega => self.price_greeks_vega,
+                enums::SymbolInfoProperty::PriceGreeksRho => self.price_greeks_rho,
+                enums::SymbolInfoProperty::PriceGreeksOmega => self.price_greeks_omega,
+                enums::SymbolInfoProperty::PriceSensitivity => self.price_sensitivity,
+                _ => {
+                    panic!("Property not found");
+                }
+            },
+            _ => panic!("Property not found"),
+        };
+        Ok(value)
+    }
+    fn get_info_boolean(&self, info_property: InfoProperties) -> MQLResult<bool> {
+        let value = match info_property {
+            InfoProperties::SymbolInfoProperty(property) => match property {
+                enums::SymbolInfoProperty::Custom => self.custom,
+                enums::SymbolInfoProperty::Select => self.select,
+                enums::SymbolInfoProperty::Visible => self.visible,
+                enums::SymbolInfoProperty::SpreadFloat => self.spread_float,
+                enums::SymbolInfoProperty::MarginHedgedUseLeg => self.margin_hedged_use_leg,
+                _ => {
+                    panic!("Property not found");
+                }
+            },
+            _ => panic!("Property not found"),
+        };
+        Ok(value)
+    }
 }
 
 #[derive(Deserialize, FromPyObject, Debug, Iterable)]

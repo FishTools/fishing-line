@@ -26,7 +26,7 @@ fn main() {
         .unwrap_or_else(|err| {
             let code = err.0;
             let message = err.1;
-            panic!("Failed to login: {} - {}", code, message);
+            panic!("Failed to login: {:?} - {}", code, message);
         });
 
     let terminal_info = runtime.terminal_info();
